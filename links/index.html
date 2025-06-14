@@ -1,56 +1,62 @@
 <!DOCTYPE html>
-<html lang="ru"> <!-- Default language set to Russian for initial render -->
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Персональные ссылки</title>
-    <!-- SEO Meta Tags -->
-    <meta name="description" content="Личный агрегатор ссылок: социальные сети, проекты, видео и прямые трансляции, Minecraft скин.">
-    <meta name="keywords" content="ссылки, социальные сети, YouTube, Twitch, Telegram, Instagram, X, TikTok, VK, Minecraft, стрим, разработчик, креатор">
-    <meta property="og:title" content="Персональные ссылки">
-    <meta property="og:description" content="Личный агрегатор ссылок: социальные сети, проекты, видео и прямые трансляции, Minecraft скин.">
-    <meta property="og:type" content="website">
-    <!-- Обновите путь здесь, если это ваш реальный URL -->
-    <meta property="og:url" content="https://httydcraft.github.io/BezzubickMCPlay/links/">
+    <!-- Favicon -->
+    <link rel="icon" href="./assets/avatar.png" type="image/png">
+    
+    <!-- SEO Meta Tags & Open Graph for BezzubickMCPlay -->
+    <title>BezzubickMCPlay | Мои Ссылки и Проекты Minecraft</title>
+    <meta name="description" content="Официальная страница BezzubickMCPlay: Minecraft-приключения, прямые трансляции, последние видео, социальные сети и мой игровой скин. Присоединяйтесь к нашему миру! ">
+    <meta name="keywords" content="BezzubickMCPlay, Minecraft, Майнкрафт, YouTube, Twitch, Telegram, TikTok, VK, ссылки, стрим, геймер, создатель контента, сообщество, приключения, выживание">
+    
     <!-- Open Graph for social media sharing -->
-    <meta property="og:image" content="https://placehold.co/1200x630/663399/FFFFFF?text=My+Links">
+    <meta property="og:title" content="BezzubickMCPlay | Мои Ссылки и Проекты Minecraft">
+    <meta property="og:description" content="Официальная страница BezzubickMCPlay: Minecraft-приключения, прямые трансляции, последние видео, социальные сети и мой игровой скин. Присоединяйтесь к нашему миру!">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://httydcraft.github.io/BezzubickMCPlay/links/">
+    <meta property="og:image" content="https://httydcraft.github.io/BezzubickMCPlay/links/assets/avatar.png"> <!-- Используем реальный аватар -->
+    
     <!-- Twitter Cards -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Персональные ссылки">
-    <meta name="twitter:description" content="Личный агрегатор ссылок: социальные сети, проекты, видео и прямые трансляции, Minecraft скин.">
-    <meta name="twitter:image" content="https://placehold.co/1200x630/663399/FFFFFF?text=My+Links">
+    <meta name="twitter:title" content="BezzubickMCPlay | Мои Ссылки и Проекты Minecraft">
+    <meta name="twitter:description" content="Официальная страница BezzubickMCPlay: Minecraft-приключения, прямые трансляции, последние видео, социальные сети и мой игровой скин. Присоединяйтесь к нашему миру!">
+    <meta name="twitter:image" content="https://httydcraft.github.io/BezzubickMCPlay/links/assets/avatar.png"> <!-- Используем реальный аватар -->
 
-    <!-- Material Design Icons (filled style for Material 3 look) -->
+    <!-- Fonts and Icons -->
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,1,0&display=swap" rel="stylesheet" />
-    <!-- Roboto Font -->
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- NEW: Ссылка на внешний CSS-файл -->
+    
+    <!-- External CSS File -->
     <link rel="stylesheet" href="./css/style.css">
 </head>
 <body class="dark-theme"> <!-- Default to dark theme -->
-    <!-- Main Application Container -->
-    <div id="app" class="w-full max-w-4xl mx-auto"> <!-- Increased max-w for larger layout -->
-        <!-- Offline Warning Banner -->
-        <div id="offline-warning" class="hidden fixed top-0 left-0 w-full p-3 text-center font-medium z-50 offline-warning">
+
+    <!-- Основной контейнер приложения -->
+    <div id="app" class="w-full max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
+
+        <!-- Предупреждение об оффлайн режиме -->
+        <div id="offline-warning" class="hidden fixed top-0 left-0 w-full p-3 text-center font-medium z-50 offline-warning rounded-b-lg shadow-lg">
             <span id="offline-message"></span>
         </div>
 
-        <!-- Main Content View -->
-        <div id="main-view" class="">
-            <!-- Live Stream Section -->
-            <div id="live-stream-section" class="mb-6 hidden">
+        <!-- Основной вид сайта -->
+        <div id="main-view">
+            <!-- Секция прямой трансляции (LIVE) -->
+            <section id="live-stream-section" class="mb-6 hidden">
                 <div class="relative w-full rounded-2xl overflow-hidden m3-shadow-md">
                     <div class="youtube-video-container">
                         <iframe id="live-embed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                     </div>
-                    <!-- Live Indicator Badge -->
                     <div class="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-xs font-bold live-indicator m3-shadow-md">
                         LIVE
                     </div>
                 </div>
-                <!-- Twitch Notification (shown if YouTube is live, and Twitch also has a stream) -->
+                <!-- Уведомление о Twitch (если YouTube LIVE) -->
                 <div id="twitch-notification" class="hidden mt-4 p-4 rounded-2xl text-sm text-center card m3-shadow-md">
                     <p id="twitch-message" class="mb-2"></p>
                     <a id="twitch-link" href="#" target="_blank" class="primary-button inline-flex items-center px-4 py-2 rounded-full font-medium" rel="noopener noreferrer">
@@ -58,92 +64,89 @@
                         <span id="twitch-link-text"></span>
                     </a>
                 </div>
-            </div>
+            </section>
 
-            <!-- Profile Section -->
-            <div id="profile-section" class="text-center mb-8 hidden">
-                <!-- Путь к аватару теперь берется из config.js, но src должен быть корректным для первого рендера -->
-                <img id="avatar" class="w-28 h-28 rounded-full mx-auto mb-4 border-4 border-purple-500 object-cover m3-shadow-md" src="./assets/avatar.png" alt="Профиль Аватар">
+            <!-- Секция профиля (аватар, имя, описание) -->
+            <section id="profile-section" class="text-center mb-8 hidden">
+                <img id="avatar" class="w-28 h-28 rounded-full mx-auto mb-4 border-4 border-purple-500 object-cover m3-shadow-md" src="./assets/avatar.png" alt="Аватар профиля BezzubickMCPlay">
                 <h1 id="profile-name" class="text-4xl font-bold mb-2"></h1>
                 <p id="profile-description" class="text-lg text-gray-400 mb-4"></p>
-                <div id="total-followers" class="text-xl font-medium text-purple-400">
-                    <!-- Total followers will be displayed here -->
-                </div>
-            </div>
+                <div id="total-followers" class="text-xl font-medium text-purple-400"></div>
+            </section>
 
-            <!-- Main Content Area: Links and Minecraft Skin (responsive layout) -->
-            <div class="content-container mb-8">
-                <div class="main-links-block w-full">
-                    <!-- Link Section -->
-                    <div id="links-section" class="space-y-4 mb-8 hidden">
-                        <!-- Link cards will be dynamically injected here by JavaScript -->
-                    </div>
+            <!-- Основной контент: Ссылки и Скин Minecraft (адаптивный макет) -->
+            <div class="content-container mb-8 flex flex-col md:flex-row md:justify-center md:items-start md:gap-6">
+                <div class="main-links-block w-full md:flex-1 md:max-w-md">
+                    <!-- Секция ссылок -->
+                    <section id="links-section" class="space-y-4 mb-8 hidden">
+                        <!-- Карточки ссылок будут динамически вставляться JavaScript'ом -->
+                    </section>
 
-                    <!-- Support Button -->
-                    <div id="support-section" class="flex justify-center mb-8 hidden">
+                    <!-- Кнопка поддержки -->
+                    <section id="support-section" class="flex justify-center mb-8 hidden">
                         <a id="support-button" href="#" target="_blank" class="support-button flex items-center px-6 py-3 rounded-full font-medium m3-shadow-md">
                             <span class="material-symbols-outlined mr-2">favorite</span>
                             <span id="support-button-text"></span>
                         </a>
-                    </div>
+                    </section>
                 </div>
 
-                <!-- Minecraft Skin Viewer Section (on mobile, it's after links and support) -->
-                <div class="minecraft-block w-full hidden">
-                    <h2 id="minecraft-title" class="text-xl font-bold text-center mb-4">Мой скин Minecraft</h2>
-                    <div id="skin-viewer-container" class="m3-shadow-md">
+                <!-- Секция 3D просмотра скина Minecraft -->
+                <section id="minecraft-block" class="w-full hidden md:flex-shrink-0 md:w-80 md:mt-12">
+                    <h2 id="minecraft-title" class="text-xl font-bold text-center mb-4"></h2>
+                    <div id="skin-viewer-container" class="m3-shadow-md w-full h-80">
                         <canvas id="skin-canvas"></canvas>
                     </div>
                     <div class="flex justify-center mt-4">
                         <button id="download-skin-button" class="primary-button flex items-center px-6 py-3 rounded-full font-medium m3-shadow-md">
                             <span class="material-symbols-outlined mr-2">download</span>
-                            <span id="download-skin-text">Скачать скин</span>
+                            <span id="download-skin-text"></span>
                         </button>
                     </div>
-                </div>
+                </section>
             </div>
 
-            <!-- YouTube Videos Section -->
-            <div id="youtube-videos-section" class="mb-8 hidden">
+            <!-- Секция последних видео YouTube -->
+            <section id="youtube-videos-section" class="mb-8 hidden">
                 <h2 id="recent-videos-title" class="text-xl font-bold mb-4"></h2>
                 <div id="video-carousel" class="flex overflow-x-auto space-x-4 pb-4 video-carousel scroll-smooth">
-                    <!-- YouTube video cards will be dynamically injected here by JavaScript -->
+                    <!-- Карточки видео будут динамически вставляться JavaScript'ом -->
                 </div>
-            </div>
-        </div> <!-- End of Main Content View -->
+            </section>
+        </div> <!-- Конец основного вида сайта -->
 
-        <!-- Developer View (initially hidden) -->
+        <!-- Вид для разработчиков (изначально скрыт) -->
         <div id="dev-view" class="hidden w-full max-w-4xl mx-auto py-8">
-            <h2 id="dev-title" class="text-3xl font-bold text-center mb-6">Информация для разработчиков</h2>
+            <h2 id="dev-title" class="text-3xl font-bold text-center mb-6"></h2>
             <div class="dev-page-content p-6 rounded-2xl m3-shadow-md">
-                <p class="mb-4"><span id="dev-last-updated-label" class="font-medium">Последнее обновление данных:</span> <span id="dev-last-updated" class="text-purple-400"></span></p>
-                <h3 class="text-xl font-bold text-left mb-3">Содержимое data.json:</h3>
+                <p class="mb-4"><span id="dev-last-updated-label" class="font-medium"></span> <span id="dev-last-updated" class="text-purple-400"></span></p>
+                <h3 class="text-xl font-bold text-left mb-3"></h3>
                 <pre class="text-left bg-gray-900 p-4 rounded-lg overflow-x-auto text-sm" style="max-height: 500px; white-space: pre-wrap; word-wrap: break-word;"><code id="dev-data-json-content"></code></pre>
-                <h3 class="text-xl font-bold text-left mt-6 mb-3">Отладочная информация API:</h3>
+                <h3 class="text-xl font-bold text-left mt-6 mb-3"></h3>
                 <pre class="text-left bg-gray-900 p-4 rounded-lg overflow-x-auto text-sm" style="max-height: 300px; white-space: pre-wrap; word-wrap: break-word;"><code id="dev-debug-info-content"></code></pre>
             </div>
             <div class="flex justify-center mt-8">
                 <button id="back-to-main-button" class="primary-button flex items-center px-6 py-3 rounded-full font-medium m3-shadow-md">
                     <span class="material-symbols-outlined mr-2">arrow_back</span>
-                    <span id="back-to-main-text">Назад к сайту</span>
+                    <span id="back-to-main-text"></span>
                 </button>
             </div>
         </div>
 
-        <!-- Global Controls (Theme/Language/Dev Toggle) -->
-        <div class="flex justify-center items-center space-x-4 mb-8">
-            <button id="theme-toggle" class="control-button p-3 rounded-full m3-shadow-md flex items-center justify-center">
+        <!-- Глобальные элементы управления (Тема/Язык/Переключение Dev-режима) -->
+        <div class="flex justify-center items-center space-x-4 mt-8 mb-8">
+            <button id="theme-toggle" class="control-button p-3 rounded-full m3-shadow-md flex items-center justify-center" aria-label="Toggle theme">
                 <span class="material-symbols-outlined" id="theme-icon">light_mode</span>
             </button>
-            <button id="language-toggle" class="control-button p-3 rounded-full m3-shadow-md flex items-center justify-center">
+            <button id="language-toggle" class="control-button p-3 rounded-full m3-shadow-md flex items-center justify-center" aria-label="Toggle language">
                 <span class="material-symbols-outlined">language</span>
             </button>
-            <button id="dev-toggle" class="control-button p-3 rounded-full m3-shadow-md flex items-center justify-center hidden">
+            <button id="dev-toggle" class="control-button p-3 rounded-full m3-shadow-md flex items-center justify-center hidden" aria-label="Toggle developer view">
                 <span class="material-symbols-outlined">code</span>
             </button>
         </div>
 
-        <!-- First Visit Instruction Modal -->
+        <!-- Модальное окно первого посещения -->
         <div id="first-visit-modal" class="modal">
             <div class="modal-content">
                 <h3 id="modal-title" class="text-2xl font-bold mb-4"></h3>
@@ -151,13 +154,28 @@
                 <button id="modal-close" class="primary-button px-6 py-3 rounded-full font-medium"></button>
             </div>
         </div>
+
+        <!-- Модальное окно предпросмотра ссылки -->
+        <div id="link-preview-modal" class="modal hidden">
+            <div class="modal-content text-center">
+                <img id="preview-avatar" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-purple-500 object-cover" src="./assets/avatar.png" alt="Аватар предпросмотра">
+                <h3 id="preview-name" class="text-3xl font-bold mb-2"></h3>
+                <p id="preview-description" class="text-base text-gray-400 mb-4"></p>
+                <div class="flex justify-center space-x-4">
+                    <a id="preview-open-link" href="#" target="_blank" rel="noopener noreferrer" class="primary-button px-6 py-3 rounded-full font-medium">Открыть ссылку</a>
+                    <button id="preview-close-button" class="control-button px-6 py-3 rounded-full font-medium">Закрыть</button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <!-- skinview3d library for Minecraft Skin Viewer -->
-    <script src="https://unpkg.com/skinview3d@2.0.7/bundle/skinview3d.min.js"></script>
-    <!-- CDN для Simple Icons - ОЧЕНЬ ВАЖНО: загружается ПЕРЕД main.js -->
-    <script src="https://cdn.jsdelivr.net/npm/simple-icons@11.16.0/simple-icons.min.js"></script>
-    <!-- Ссылка на основной JavaScript-файл -->
-    <script type="module" src="./js/main.js"></script>
+    <!-- Загрузка внешних скриптов (в правильном порядке!) -->
+    <!-- skinview3d library для Minecraft Skin Viewer -->
+    <script src="https://unpkg.com/skinview3d@2.0.7/bundle/skinview3d.min.js" defer></script>
+    <!-- CDN для Simple Icons -->
+    <script src="https://cdn.jsdelivr.net/npm/simple-icons@11.16.0/simple-icons.min.js" defer></script>
+    <!-- Основной JavaScript-файл приложения -->
+    <script type="module" src="./js/main.js" defer></script>
 </body>
 </html>

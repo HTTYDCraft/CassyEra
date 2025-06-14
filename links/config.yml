@@ -13,14 +13,14 @@ appConfig:
   showYouTubeVideosSection: true
   showSupportButton: true
   # Замените на вашу РЕАЛЬНУЮ ссылку для донатов!
-  supportUrl: "https://www.donationalerts.com/r/your_donate_page"
+  supportUrl: "https://www.donationalerts.com/r/bezzubickmcplay"
   # Установите true для отображения кнопки "Dev" и доступа к dev-странице.
   # В продакшене лучше установить false.
   developmentMode: true
 
 profileConfig:
-  name: "Ваше Имя Здесь" # Настройте ваше имя
-  description: "Разработчик | Создатель Контента | Исследователь" # Настройте ваше описание
+  name: "Bezzubick MCPlay" # Настройте ваше имя
+  description: "Стример | Видеоблогер | Майнкрафтер" # Настройте ваше описание
   # Пути к изображениям относительны links/index.html (т.е. links/assets/...)
   avatar: "./assets/avatar.png"
   minecraftSkinUrl: "./assets/cool-guy-skin.png"
@@ -34,17 +34,17 @@ linksConfig:
   # "active" - true/false для показа/скрытия ссылки.
 
   - label_key: "youtubeChannelLabel"
-    url: "https://www.youtube.com/channel/YOUR_YOUTUBE_CHANNEL_ID" # Замените!
+    url: "https://www.youtube.com/channel/UCm6mheCT60mZ5qlxG5r2GeA" # Замените!
     icon: "youtube"
     order: 1
     isSocial: true
     showSubscriberCount: true
     platformId: "youtube"
-    subscribeUrl: "https://www.youtube.com/channel/YOUR_YOUTUBE_CHANNEL_ID?sub_confirmation=1" # Замените!
+    subscribeUrl: "https://www.youtube.com/channel/UCm6mheCT60mZ5qlxG5r2GeA?sub_confirmation=1" # Замените!
     active: true
 
   - label_key: "telegramChannelLabel"
-    url: "https://t.me/your_telegram_channel" # Замените!
+    url: "https://t.me/bezzubickmcplay" # Замените!
     icon: "telegram"
     order: 2
     isSocial: true
@@ -53,7 +53,7 @@ linksConfig:
     active: true
 
   - label_key: "instagramProfileLabel"
-    url: "https://www.instagram.com/your_instagram_profile/" # Замените!
+    url: "https://www.instagram.com/bezzubickmcplay/" # Замените!
     icon: "instagram"
     order: 3
     isSocial: true
@@ -62,7 +62,7 @@ linksConfig:
     active: true
 
   - label_key: "xTwitterProfileLabel"
-    url: "https://x.com/your_x_profile" # Замените!
+    url: "https://x.com/bezzubickmcplay" # Замените!
     icon: "x" # Иконка X (бывший Twitter)
     order: 4
     isSocial: true
@@ -71,7 +71,7 @@ linksConfig:
     active: true
 
   - label_key: "twitchChannelLabel"
-    url: "https://www.twitch.tv/your_twitch_channel" # Замените!
+    url: "https://www.twitch.tv/bezzubickmcplay" # Замените!
     icon: "twitch"
     order: 5
     isSocial: true
@@ -80,7 +80,7 @@ linksConfig:
     active: true
 
   - label_key: "tiktokProfileLabel"
-    url: "https://www.tiktok.com/@your_tiktok_profile" # Замените!
+    url: "https://www.tiktok.com/@bezzubickmcplay" # Замените!
     icon: "tiktok"
     order: 6
     isSocial: true
@@ -89,7 +89,7 @@ linksConfig:
     active: true
 
   - label_key: "vkGroupLabel"
-    url: "https://vk.com/your_vk_group_id" # Замените!
+    url: "https://vk.com/bezzubickmcplay" # Замените!
     icon: "vk"
     order: 7
     isSocial: true
@@ -98,7 +98,7 @@ linksConfig:
     active: true
 
   - label_key: "vkPersonalPageLabel"
-    url: "https://vk.com/idYOUR_VK_USER_ID" # Замените!
+    url: "https://vk.com/BezzubickMCPlay_official" # Замените!
     icon: "vk" # Можно использовать ту же иконку VK
     order: 8
     isSocial: true

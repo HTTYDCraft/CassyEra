@@ -1,0 +1,300 @@
+/* links/css/style.css */
+
+/* CSS Variables for Theming - Material 3 inspired palette */
+:root {
+    /* Dark Theme (AMOLED Black) */
+    --md-sys-color-primary-dark: #BB86FC; /* Accent purple */
+    --md-sys-color-on-primary-dark: #000000;
+    --md-sys-color-primary-container-dark: #4A148C;
+    --md-sys-color-on-primary-container-dark: #FFFFFF;
+    --md-sys-color-secondary-dark: #03DAC6; /* Accent teal */
+    --md-sys-color-on-secondary-dark: #000000;
+    --md-sys-color-surface-dark: #000000; /* AMOLED Black for main background */
+    --md-sys-color-on-surface-dark: #FFFFFF; /* White text on black */
+    --md-sys-color-background-dark: #000000;
+    --md-sys-color-on-background-dark: #FFFFFF;
+    --md-sys-color-surface-container-low-dark: #1F1F1F; /* For cards/dialogs */
+    --md-sys-color-surface-container-dark: #2D2D2D; /* Slightly darker cards */
+    --md-sys-color-outline-dark: #8C8C8C; /* Border/separator */
+    --md-sys-color-error-dark: #CF6679; /* Error red */
+
+    /* Light Theme */
+    --md-sys-color-primary-light: #6200EE; /* Accent purple */
+    --md-sys-color-on-primary-light: #FFFFFF;
+    --md-sys-color-primary-container-light: #BB86FC;
+    --md-sys-color-on-primary-container-light: #000000;
+    --md-sys-color-secondary-light: #03DAC6;
+    --md-sys-color-on-secondary-light: #000000;
+    --md-sys-color-surface-light: #FFFFFF; /* White for main background */
+    --md-sys-color-on-surface-light: #000000; /* Black text on white */
+    --md-sys-color-background-light: #FFFFFF;
+    --md-sys-color-on-background-light: #000000;
+    --md-sys-color-surface-container-low-light: #F0F0F0; /* For cards/dialogs */
+    --md-sys-color-surface-container-light: #E0E0E0; /* Slightly darker cards */
+    --md-sys-color-outline-light: #BDBDBD;
+    --md-sys-color-error-light: #B00020;
+
+    --live-indicator-red: #FF0000; /* Bright red for live */
+}
+
+/* Base Body Styles and Theme Application */
+body {
+    font-family: 'Roboto', sans-serif;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth theme transition */
+    display: flex;
+    justify-content: center;
+    align-items: flex-start; /* Align content to the top */
+    min-height: 100vh; /* Ensure full viewport height */
+    padding: 20px;
+    box-sizing: border-box;
+    line-height: 1.6; /* Improved readability */
+    font-weight: 400; /* Roboto Regular */
+}
+
+/* Material 3 inspired box shadow */
+.m3-shadow-md {
+    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2), 0px 1px 18px rgba(0, 0, 0, 0.12), 0px 6px 10px rgba(0, 0, 0, 0.14);
+}
+.m3-shadow-lg {
+    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.2), 0px 3px 18px rgba(0, 0, 0, 0.12), 0px 9px 30px rgba(0, 0, 0, 0.14);
+}
+
+/* Dark Theme Specific Styles */
+body.dark-theme {
+    background-color: var(--md-sys-color-background-dark);
+    color: var(--md-sys-color-on-background-dark);
+}
+body.dark-theme .card {
+    background-color: var(--md-sys-color-surface-container-low-dark);
+    color: var(--md-sys-color-on-surface-dark);
+}
+body.dark-theme .modal-content, body.dark-theme .dev-page-content {
+    background-color: var(--md-sys-color-surface-container-dark);
+    color: var(--md-sys-color-on-surface-dark);
+}
+body.dark-theme .control-button {
+    background-color: var(--md-sys-color-surface-container-low-dark);
+    color: var(--md-sys-color-on-surface-dark);
+}
+body.dark-theme .control-button:hover {
+    background-color: var(--md-sys-color-surface-container-dark);
+}
+body.dark-theme .primary-button {
+    background-color: var(--md-sys-color-primary-dark);
+    color: var(--md-sys-color-on-primary-dark);
+}
+body.dark-theme .primary-button:hover {
+    background-color: var(--md-sys-color-primary-container-dark);
+    color: var(--md-sys-color-on-primary-container-dark);
+}
+body.dark-theme .support-button {
+    background-color: #4CAF50; /* A distinct green for support */
+    color: var(--md-sys-color-on-primary-dark);
+}
+body.dark-theme .support-button:hover {
+    background-color: #388E3C;
+}
+body.dark-theme .offline-warning {
+    background-color: #FFB300; /* Amber for warning */
+    color: #212121; /* Dark text on amber */
+}
+
+
+/* Light Theme Specific Styles */
+body.light-theme {
+    background-color: var(--md-sys-color-background-light);
+    color: var(--md-sys-color-on-background-light);
+}
+body.light-theme .card {
+    background-color: var(--md-sys-color-surface-container-low-light);
+    color: var(--md-sys-color-on-surface-light);
+}
+body.light-theme .modal-content, body.light-theme .dev-page-content {
+    background-color: var(--md-sys-color-surface-container-light);
+    color: var(--md-sys-color-on-surface-light);
+}
+body.light-theme .control-button {
+    background-color: var(--md-sys-color-surface-container-low-light);
+    color: var(--md-sys-color-on-surface-light);
+}
+body.light-theme .control-button:hover {
+    background-color: var(--md-sys-color-surface-container-light);
+}
+body.light-theme .primary-button {
+    background-color: var(--md-sys-color-primary-light);
+    color: var(--md-sys-color-on-primary-light);
+}
+body.light-theme .primary-button:hover {
+    background-color: var(--md-sys-color-primary-container-light);
+    color: var(--md-sys-color-on-primary-container-light);
+}
+body.light-theme .support-button {
+    background-color: #66BB6A; /* A distinct green for support */
+    color: var(--md-sys-color-on-primary-light);
+}
+body.light-theme .support-button:hover {
+    background-color: #43A047;
+}
+body.light-theme .offline-warning {
+    background-color: #FFD54F; /* Lighter amber for warning */
+    color: #212121;
+}
+
+/* Card Base Styles */
+.card {
+    border-radius: 16px; /* Material 3 large rounded corners */
+    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease; /* Smooth transitions */
+}
+
+/* Hover Effect for Cards */
+.card:hover {
+    transform: translateY(-3px); /* Lift card on hover */
+    box-shadow: var(--md-sys-color-primary-dark) 0px 4px 12px; /* Subtle shadow hint for Material 3 */
+}
+body.light-theme .card:hover {
+    box-shadow: var(--md-sys-color-primary-light) 0px 4px 12px;
+}
+
+/* Live Indicator Styling */
+.live-indicator {
+    background-color: var(--live-indicator-red);
+}
+
+/* Modal Overlay */
+.modal {
+    display: none; /* Hidden by default */
+    position: fixed;
+    z-index: 100; /* On top of other content */
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.7); /* Dim background */
+    align-items: center;
+    justify-content: center;
+}
+
+/* Modal Content Styling */
+.modal-content, .dev-page-content {
+    padding: 24px;
+    border-radius: 28px; /* Material 3 extra large rounded corners */
+    max-width: 90%;
+    animation: fadeIn 0.3s ease-out; /* Fade-in animation */
+    text-align: center; /* Center text in modal */
+    box-shadow: var(--md-sys-color-outline-dark) 0px 8px 16px; /* Stronger shadow for modal */
+}
+body.light-theme .modal-content, body.light-theme .dev-page-content {
+    box-shadow: var(--md-sys-color-outline-light) 0px 8px 16px;
+}
+
+/* Fade-in Animation for Modal */
+@keyframes fadeIn {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+/* Swipe Feedback Styles */
+.card.swiping-right {
+    transform: translateX(60px) scale(0.98); /* Shift and slightly scale right */
+    box-shadow: 0 0 20px var(--md-sys-color-primary-dark); /* Accent color glow */
+    background: linear-gradient(to right, var(--md-sys-color-primary-dark) 0%, transparent 100%); /* Gradient effect */
+}
+body.light-theme .card.swiping-right {
+     box-shadow: 0 0 20px var(--md-sys-color-primary-light);
+     background: linear-gradient(to right, var(--md-sys-color-primary-light) 0%, transparent 100%);
+}
+
+.card.swiping-left {
+    transform: translateX(-60px) scale(0.98); /* Shift and slightly scale left */
+    box-shadow: 0 0 20px var(--live-indicator-red); /* Red glow for action */
+    background: linear-gradient(to left, var(--live-indicator-red) 0%, transparent 100%); /* Gradient effect */
+}
+
+/* YouTube Video Container for responsive embed */
+.youtube-video-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
+    height: 0;
+    overflow: hidden;
+    border-radius: 16px; /* Material 3 rounded corners */
+    box-shadow: var(--md-sys-color-outline-dark) 0px 4px 8px;
+}
+body.light-theme .youtube-video-container {
+    box-shadow: var(--md-sys-color-outline-light) 0px 4px 8px;
+}
+
+.youtube-video-container iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+/* Custom Scrollbar for Video Carousel */
+.video-carousel::-webkit-scrollbar {
+    height: 8px; /* Height of horizontal scrollbar */
+}
+
+.video-carousel::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1); /* Transparent track for dark theme */
+    border-radius: 10px;
+}
+
+body.light-theme .video-carousel::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.1); /* Transparent track for light theme */
+}
+
+.video-carousel::-webkit-scrollbar-thumb {
+    background: var(--md-sys-color-outline-dark); /* Scrollbar thumb color */
+    border-radius: 10px;
+}
+
+body.light-theme .video-carousel::-webkit-scrollbar-thumb {
+    background: var(--md-sys-color-outline-light);
+}
+
+.video-carousel::-webkit-scrollbar-thumb:hover {
+    background: var(--md-sys-color-primary-dark); /* Hover color */
+}
+body.light-theme .video-carousel::-webkit-scrollbar-thumb:hover {
+    background: var(--md-sys-color-primary-light);
+}
+
+/* Minecraft Skin Viewer Canvas Styling */
+#skin-viewer-container {
+    width: 100%;
+    max-width: 300px; /* Limit width for cleaner look */
+    height: 300px;
+    margin: 0 auto; /* Center it */
+    border-radius: 16px;
+    overflow: hidden; /* Ensure canvas stays within bounds */
+    box-shadow: var(--md-sys-color-outline-dark) 0px 4px 8px;
+    background-color: var(--md-sys-color-surface-container-low-dark); /* Card-like background */
+    position: relative;
+    cursor: grab; /* Indicate draggable */
+}
+body.light-theme #skin-viewer-container {
+    box-shadow: var(--md-sys-color-outline-light) 0px 4px 8px;
+    background-color: var(--md-sys-color-surface-container-low-light);
+}
+#skin-viewer-container:active {
+    cursor: grabbing;
+}
+#skin-canvas {
+    width: 100%;
+    height: 100%;
+    display: block; /* Remove extra space below canvas */
+}
+
+/* Simple Icons styling */
+.si-icon {
+    display: inline-block;
+    width: 24px; /* Adjust size as needed */
+    height: 24px;
+    vertical-align: middle;
+    margin-right: 1rem; /* Tailwind: mr-4 */
+    fill: currentColor; /* Inherit text color */
+}

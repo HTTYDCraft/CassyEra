@@ -1,6 +1,6 @@
 // links/js/main.js
 // Основной JavaScript-файл для Personal Link Aggregator
-// ПЕРЕПИСАННЫЙ КОД
+// ПЕРЕПИСАННЫЙ КОД - v10
 
 // Импортируем конфигурационные данные и текстовые строки из отдельных файлов
 import { appConfig, profileConfig, linksConfig } from './config.js';
@@ -40,7 +40,7 @@ const DOM = {
     supportButtonText: document.getElementById('support-button-text'),
 
     // Minecraft Skin Viewer Section
-    minecraftBlock: document.querySelector('.minecraft-block'),
+    minecraftBlock: document.getElementById('minecraft-block'), // Использовать ID
     minecraftTitle: document.getElementById('minecraft-title'),
     skinViewerContainer: document.getElementById('skin-viewer-container'),
     skinCanvas: document.getElementById('skin-canvas'),
@@ -72,6 +72,14 @@ const DOM = {
     modalTitle: document.getElementById('modal-title'),
     modalDescription: document.getElementById('modal-description'),
     modalCloseBtn: document.getElementById('modal-close'),
+
+    // NEW: Link Preview Modal
+    linkPreviewModal: document.getElementById('link-preview-modal'),
+    previewAvatar: document.getElementById('preview-avatar'),
+    previewName: document.getElementById('preview-name'),
+    previewDescription: document.getElementById('preview-description'),
+    previewOpenLink: document.getElementById('preview-open-link'),
+    previewCloseButton: document.getElementById('preview-close-button'),
 };
 
 // --- Application State ---
@@ -139,22 +147,22 @@ const applyTheme = (theme) => {
  */
 const updateLanguage = () => {
     console.log(`[Language] Updating UI for language: ${currentLang}`);
-    DOM.recentVideosTitle.textContent = strings[currentLang].recentVideosTitle;
-    DOM.minecraftTitle.textContent = strings[currentLang].minecraftTitle;
-    DOM.downloadSkinText.textContent = strings[currentLang].downloadSkin;
-    DOM.supportButtonText.textContent = strings[currentLang].supportButton;
-    DOM.offlineMessage.textContent = strings[currentLang].offlineMessage;
-    DOM.twitchLinkText.textContent = strings[currentLang].watchOnTwitch;
+    if (DOM.recentVideosTitle) DOM.recentVideosTitle.textContent = strings[currentLang].recentVideosTitle;
+    if (DOM.minecraftTitle) DOM.minecraftTitle.textContent = strings[currentLang].minecraftTitle;
+    if (DOM.downloadSkinText) DOM.downloadSkinText.textContent = strings[currentLang].downloadSkin;
+    if (DOM.supportButtonText) DOM.supportButtonText.textContent = strings[currentLang].supportButton;
+    if (DOM.offlineMessage) DOM.offlineMessage.textContent = strings[currentLang].offlineMessage;
+    if (DOM.twitchLinkText) DOM.twitchLinkText.textContent = strings[currentLang].watchOnTwitch;
 
-    DOM.modalTitle.textContent = strings[currentLang].modalTitle;
-    DOM.modalDescription.textContent = strings[currentLang].modalDescription;
-    DOM.modalCloseBtn.textContent = strings[currentLang].gotItButton;
+    if (DOM.modalTitle) DOM.modalTitle.textContent = strings[currentLang].modalTitle;
+    if (DOM.modalDescription) DOM.modalDescription.textContent = strings[currentLang].modalDescription;
+    if (DOM.modalCloseBtn) DOM.modalCloseBtn.textContent = strings[currentLang].gotItButton;
 
-    DOM.devTitle.textContent = strings[currentLang].devPageTitle;
-    DOM.devLastUpdatedLabel.textContent = strings[currentLang].devLastUpdatedLabel;
-    DOM.devDataJsonContentLabel.textContent = strings[currentLang].devDataJsonContentLabel;
-    DOM.devDebugInfoContentLabel.textContent = strings[currentLang].devDebugInfoContentLabel;
-    DOM.backToMainText.textContent = strings[currentLang].backToMainText;
+    if (DOM.devTitle) DOM.devTitle.textContent = strings[currentLang].devPageTitle;
+    if (DOM.devLastUpdatedLabel) DOM.devLastUpdatedLabel.textContent = strings[currentLang].devLastUpdatedLabel;
+    if (DOM.devDataJsonContentLabel) DOM.devDataJsonContentLabel.textContent = strings[currentLang].devDataJsonContentLabel;
+    if (DOM.devDebugInfoContentLabel) DOM.devDebugInfoContentLabel.textContent = strings[currentLang].devDebugInfoContentLabel;
+    if (DOM.backToMainText) DOM.backToMainText.textContent = strings[currentLang].backToMainText;
 
     // После обновления языка, перерендерим компоненты, которые используют строки
     renderLinks(linksConfig);
@@ -252,12 +260,12 @@ const fetchAppData = async () => {
 /**
  * Рендерит секцию профиля.
  */
-const renderProfile = () => {
+const renderProfileSection = () => {
     setVisibility(DOM.profileSection, appConfig.showProfileSection);
     if (appConfig.showProfileSection) {
-        DOM.avatar.src = profileConfig.avatar;
-        DOM.profileName.textContent = profileConfig.name;
-        DOM.profileDescription.textContent = profileConfig.description;
+        if (DOM.avatar) DOM.avatar.src = profileConfig.avatar;
+        if (DOM.profileName) DOM.profileName.textContent = profileConfig.name;
+        if (DOM.profileDescription) DOM.profileDescription.textContent = profileConfig.description;
         console.log("[Render] Profile section rendered.");
     }
 };
@@ -266,7 +274,7 @@ const renderProfile = () => {
  * Рендерит карточки ссылок.
  * @param {Array<Object>} links - Массив объектов ссылок.
  */
-const renderLinks = (links) => {
+const renderLinksSection = (links) => {
     setVisibility(DOM.linksSection, appConfig.showLinksSection);
     if (appConfig.showLinksSection) {
         DOM.linksSection.innerHTML = ''; // Очищаем перед рендерингом
@@ -274,12 +282,24 @@ const renderLinks = (links) => {
 
         sortedLinks.forEach(link => {
             const card = document.createElement('a');
-            card.href = link.url;
+            // Важно: href для самой карточки - это основная ссылка, а не subscribeUrl для дефолтного клика
+            card.href = link.url; 
             card.target = "_blank";
             card.rel = "noopener noreferrer";
-            card.className = `card relative flex items-center justify-between p-4 rounded-2xl m3-shadow-md ${link.isSocial ? 'swipe-target' : ''}`;
+            card.className = `card relative flex items-center justify-between p-4 rounded-2xl m3-shadow-md ${link.isSocial ? 'swipe-target' : ''} cursor-pointer`; // Добавляем cursor-pointer
             card.setAttribute('data-link-id', link.label_key); // Используем label_key как ID
             card.setAttribute('data-platform-id', link.platformId || '');
+            
+            // NEW: Добавление слушателей для предпросмотра
+            card.addEventListener('mouseenter', (e) => showLinkPreview(e, link));
+            card.addEventListener('mouseleave', hideLinkPreview);
+            // Для мобильных устройств: tap to show preview, second tap to open link
+            card.addEventListener('click', (e) => {
+                // Предотвращаем дефолтное действие, чтобы сначала показать превью
+                e.preventDefault(); 
+                showLinkPreview(e, link);
+            });
+
 
             let iconHtml = '';
             if (link.icon) {
@@ -320,7 +340,7 @@ const renderLinks = (links) => {
 /**
  * Рендерит последние видео YouTube.
  */
-const renderYouTubeVideos = () => {
+const renderYouTubeVideosSection = () => {
     const videos = appData.youtubeVideos || [];
     setVisibility(DOM.youtubeVideosSection, appConfig.showYouTubeVideosSection && videos.length > 0);
 
@@ -347,7 +367,7 @@ const renderYouTubeVideos = () => {
 /**
  * Отображает встроенный плеер прямой трансляции и/или уведомление Twitch.
  */
-const displayLiveStream = () => {
+const displayLiveStreamSection = () => {
     const streamInfo = appData.liveStream || { type: 'none' };
     setVisibility(DOM.liveStreamSection, appConfig.showLiveStreamSection);
 
@@ -397,12 +417,26 @@ const manageFirstVisitModal = () => {
  * Инициализирует swipe-жесты для элементов с классом 'swipe-target'.
  */
 const initSwipeGestures = () => {
+    // Удаляем предыдущие слушатели, чтобы избежать дублирования после ререндера
+    document.querySelectorAll('.swipe-target').forEach(card => {
+        card.removeEventListener('mousedown', card._handleSwipeStart);
+        card.removeEventListener('mousemove', card._handleSwipeMove);
+        card.removeEventListener('mouseup', card._handleSwipeEnd);
+        card.removeEventListener('mouseleave', card._handleSwipeEnd);
+        card.removeEventListener('touchstart', card._handleSwipeStart);
+        card.removeEventListener('touchmove', card._handleSwipeMove);
+        card.removeEventListener('touchend', card._handleSwipeEnd);
+        // Также удаляем click-listener, который мы добавили для предпросмотра
+        card.removeEventListener('click', card._handleClickForPreview);
+    });
+
     const swipeTargets = document.querySelectorAll('.swipe-target');
     console.log(`[Gestures] Initializing swipe gestures for ${swipeTargets.length} elements.`);
     swipeTargets.forEach(card => {
         let startX = 0;
         let currentX = 0;
         let isSwiping = false;
+        let swipeStarted = false; // Флаг для отслеживания начала свайпа
 
         const linkData = linksConfig.find(link => link.label_key === card.getAttribute('data-link-id'));
         if (!linkData) {
@@ -412,6 +446,7 @@ const initSwipeGestures = () => {
 
         const handleStart = (e) => {
             isSwiping = true;
+            swipeStarted = false; // Сброс флага
             startX = e.touches ? e.touches[0].clientX : e.clientX;
             card.style.transition = 'none'; // Отключаем CSS-переход во время активного свайпа
             console.log(`[Gestures] Swipe start on ${linkData.label_key}`);
@@ -421,13 +456,17 @@ const initSwipeGestures = () => {
             if (!isSwiping) return;
             currentX = e.touches ? e.touches[0].clientX : e.clientX;
             const deltaX = currentX - startX;
-            card.style.transform = `translateX(${deltaX}px)`;
 
-            card.classList.remove('swiping-left', 'swiping-right');
-            if (deltaX > 20) {
-                card.classList.add('swiping-right');
-            } else if (deltaX < -20) {
-                card.classList.add('swiping-left');
+            if (Math.abs(deltaX) > 5) { // Минимальный порог для начала свайпа
+                swipeStarted = true;
+                card.style.transform = `translateX(${deltaX}px)`;
+
+                card.classList.remove('swiping-left', 'swiping-right');
+                if (deltaX > 20) {
+                    card.classList.add('swiping-right');
+                } else if (deltaX < -20) {
+                    card.classList.add('swiping-left');
+                }
             }
         };
 
@@ -440,7 +479,7 @@ const initSwipeGestures = () => {
             const deltaX = currentX - startX;
             const swipeThreshold = card.offsetWidth * 0.25;
 
-            if (Math.abs(deltaX) > swipeThreshold) {
+            if (swipeStarted && Math.abs(deltaX) > swipeThreshold) { // Проверяем, был ли полноценный свайп
                 if (deltaX > 0) { // Свайп вправо
                     const targetUrl = linkData.subscribeUrl || linkData.url; // Используем subscribeUrl если есть
                     window.open(targetUrl, '_blank');
@@ -467,19 +506,41 @@ const initSwipeGestures = () => {
             card.style.transform = 'translateX(0)'; // Сброс позиции карточки
         };
 
+        // Сохраняем ссылки на функции для их последующего удаления при ререндере
+        card._handleSwipeStart = handleStart;
+        card._handleSwipeMove = handleMove;
+        card._handleSwipeEnd = handleEnd;
+        card._handleClickForPreview = (e) => {
+            // Если свайп не начинался, значит это был обычный клик/тап
+            if (!swipeStarted) {
+                // Если предпросмотр уже открыт для этой ссылки, то открыть ссылку
+                // Иначе, показать предпросмотр
+                if (DOM.linkPreviewModal.classList.contains('active') && DOM.previewOpenLink.href === linkData.url) {
+                    window.open(linkData.url, '_blank');
+                    hideLinkPreview();
+                } else {
+                    e.preventDefault(); // Предотвращаем стандартное действие ссылки
+                    showLinkPreview(e, linkData);
+                }
+            }
+        };
+
         // События мыши для десктопа
-        card.addEventListener('mousedown', handleStart);
-        card.addEventListener('mousemove', handleMove);
-        card.addEventListener('mouseup', handleEnd);
-        card.addEventListener('mouseleave', handleEnd);
+        card.addEventListener('mousedown', card._handleSwipeStart);
+        card.addEventListener('mousemove', card._handleSwipeMove);
+        card.addEventListener('mouseup', card._handleSwipeEnd);
+        card.addEventListener('mouseleave', card._handleSwipeEnd);
 
         // Сенсорные события для мобильных устройств
-        card.addEventListener('touchstart', (e) => { handleStart(e); }, { passive: false });
-        card.addEventListener('touchmove', (e) => { handleMove(e); }, { passive: false });
-        card.addEventListener('touchend', handleEnd);
+        card.addEventListener('touchstart', (e) => { card._handleSwipeStart(e); }, { passive: false });
+        card.addEventListener('touchmove', (e) => { card._handleSwipeMove(e); }, { passive: false });
+        card.addEventListener('touchend', (e) => { card._handleSwipeEnd(e); }, { passive: false });
+
+        // Добавляем click-listener для показа предпросмотра (для мобильных или для обычных кликов)
+        // Этот слушатель должен быть последним, чтобы он срабатывал после свайпов
+        card.addEventListener('click', card._handleClickForPreview);
     });
 };
-
 
 /**
  * Инициализирует 3D-просмотрщик скина Minecraft.
@@ -493,6 +554,17 @@ const initMinecraftSkinViewer = () => {
         }
         if (!DOM.skinViewerContainer) {
             console.error("[SkinViewer] Skin viewer container #skin-viewer-container not found.");
+            return;
+        }
+
+        // Убедимся, что skinview3d загружен, прежде чем пытаться его использовать
+        if (typeof skinview3d === 'undefined' || !skinview3d.SkinViewer) {
+            console.error("[SkinViewer] skinview3d library not loaded.");
+            // Попробуем загрузить его динамически, если не загружен (крайний случай)
+            const script = document.createElement('script');
+            script.src = "https://unpkg.com/skinview3d@2.0.7/bundle/skinview3d.min.js";
+            script.onload = () => initMinecraftSkinViewer(); // Повторная попытка после загрузки
+            document.head.appendChild(script);
             return;
         }
 
@@ -596,8 +668,8 @@ const downloadMinecraftSkin = () => {
 const setupSupportButton = () => {
     setVisibility(DOM.supportSection, appConfig.showSupportButton);
     if (appConfig.showSupportButton) {
-        DOM.supportButton.href = appConfig.supportUrl;
-        DOM.supportButtonText.textContent = strings[currentLang].supportButton;
+        if (DOM.supportButton) DOM.supportButton.href = appConfig.supportUrl;
+        if (DOM.supportButtonText) DOM.supportButtonText.textContent = strings[currentLang].supportButton;
         console.log("[Render] Support button set up.");
     }
 };
@@ -620,62 +692,125 @@ const setupAnalytics = () => {
     // Здесь можно интегрировать реальный код Google Analytics
 };
 
+/**
+ * Показывает модальное окно предпросмотра ссылки.
+ * @param {Event} e - Событие, вызвавшее предпросмотр (например, mouseenter или click).
+ * @param {Object} linkData - Объект данных ссылки.
+ */
+const showLinkPreview = (e, linkData) => {
+    // Останавливаем скрытие, если оно было запланировано mouseleave
+    clearTimeout(DOM.linkPreviewModal._hideTimeout);
+
+    // Если предпросмотр уже открыт для этой ссылки, не открываем его снова
+    if (DOM.linkPreviewModal.classList.contains('active') && DOM.previewOpenLink.href === linkData.url) {
+        return;
+    }
+
+    if (DOM.previewAvatar) DOM.previewAvatar.src = profileConfig.avatar;
+    if (DOM.previewName) DOM.previewName.textContent = profileConfig.name;
+    if (DOM.previewDescription) DOM.previewDescription.textContent = profileConfig.description;
+    if (DOM.previewOpenLink) DOM.previewOpenLink.href = linkData.url;
+
+    setVisibility(DOM.linkPreviewModal, true);
+    DOM.linkPreviewModal.classList.add('active'); // Добавляем класс 'active' для стилей/анимаций
+
+    // Добавляем слушатель для закрытия по кнопке
+    DOM.previewCloseButton.onclick = hideLinkPreview;
+    
+    // Добавляем слушатель для открытия ссылки при клике на аватаре/имени/описании в предпросмотре
+    if (DOM.previewAvatar) DOM.previewAvatar.onclick = () => window.open(linkData.url, '_blank');
+    if (DOM.previewName) DOM.previewName.onclick = () => window.open(linkData.url, '_blank');
+    if (DOM.previewDescription) DOM.previewDescription.onclick = () => window.open(linkData.url, '_blank');
+
+    console.log(`[Preview] Showing link preview for: ${strings[currentLang][linkData.label_key]}`);
+};
+
+/**
+ * Скрывает модальное окно предпросмотра ссылки.
+ */
+const hideLinkPreview = () => {
+    // Добавляем небольшую задержку для mouseleave, чтобы избежать мгновенного скрытия
+    // если курсор ненадолго соскочил с элемента.
+    DOM.linkPreviewModal._hideTimeout = setTimeout(() => {
+        setVisibility(DOM.linkPreviewModal, false);
+        DOM.linkPreviewModal.classList.remove('active');
+        // Очищаем слушатель, чтобы избежать утечек памяти
+        DOM.previewCloseButton.onclick = null;
+        if (DOM.previewAvatar) DOM.previewAvatar.onclick = null;
+        if (DOM.previewName) DOM.previewName.onclick = null;
+        if (DOM.previewDescription) DOM.previewDescription.onclick = null;
+        console.log("[Preview] Hiding link preview.");
+    }, 100); // 100ms задержки
+};
+
 // --- Initial Load and Event Listeners Setup ---
 
-// Запускаем инициализацию после полной загрузки страницы и всех ресурсов
-window.onload = async () => {
+// Используем DOMContentLoaded для более ранней инициализации,
+// так как <script type="module" defer> гарантирует, что DOM уже загружен.
+document.addEventListener('DOMContentLoaded', async () => {
     console.log("------------------------------------------");
-    console.log("Окно загружено. Инициализация приложения Personal Link Aggregator.");
+    console.log("DOMContentLoaded fired. Initializing Personal Link Aggregator.");
 
     // 1. Fetch initial app data (from data.json or cache)
     appData = await fetchAppData();
     console.log("[Init] App Data loaded:", appData);
 
     // 2. Render Profile (visibility controlled by appConfig)
-    renderProfile();
+    renderProfileSection();
 
     // 3. Apply initial theme and language
     applyTheme(currentTheme);
-    updateLanguage(); // This call will now also trigger renderLinks and calculateAndDisplayTotalFollowers
+    updateLanguage(); // This call will now also trigger renderLinksSection and calculateAndDisplayTotalFollowers
 
     // 4. Set up Theme Toggle
-    DOM.themeToggle.addEventListener('click', () => {
-        currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        applyTheme(currentTheme);
-        console.log(`[Event] Theme toggled to: ${currentTheme}`);
-    });
-    console.log("[Init] Theme Toggle configured.");
+    if (DOM.themeToggle) {
+        DOM.themeToggle.addEventListener('click', () => {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(currentTheme);
+            console.log(`[Event] Theme toggled to: ${currentTheme}`);
+        });
+        console.log("[Init] Theme Toggle configured.");
+    } else {
+        console.warn("[Init] Theme Toggle element not found.");
+    }
 
     // 5. Set up Language Toggle
-    DOM.languageToggle.addEventListener('click', () => {
-        currentLang = currentLang === 'en' ? 'ru' : 'en';
-        localStorage.setItem('lang', currentLang);
-        updateLanguage();
-        console.log(`[Event] Language toggled to: ${currentLang}`);
-    });
-    console.log("[Init] Language Toggle configured.");
+    if (DOM.languageToggle) {
+        DOM.languageToggle.addEventListener('click', () => {
+            currentLang = currentLang === 'en' ? 'ru' : 'en';
+            localStorage.setItem('lang', currentLang);
+            updateLanguage();
+            console.log(`[Event] Language toggled to: ${currentLang}`);
+        });
+        console.log("[Init] Language Toggle configured.");
+    } else {
+        console.warn("[Init] Language Toggle element not found.");
+    }
+
 
     // 6. Setup Developer Mode Toggle
-    if (appConfig.developmentMode) {
+    if (appConfig.developmentMode && DOM.devToggle) {
         setVisibility(DOM.devToggle, true);
         DOM.devToggle.addEventListener('click', () => {
             window.location.hash = (window.location.hash === '#/dev') ? '' : '#/dev';
             console.log(`[Event] Dev toggle clicked. New hash: ${window.location.hash}`);
         });
-        DOM.backToMainButton.addEventListener('click', () => {
-            window.location.hash = '';
-            console.log("[Event] Back to main button clicked.");
-        });
+        if (DOM.backToMainButton) {
+            DOM.backToMainButton.addEventListener('click', () => {
+                window.location.hash = '';
+                console.log("[Event] Back to main button clicked.");
+            });
+        }
         console.log("[Init] Developer Mode Toggle configured.");
     } else {
         setVisibility(DOM.devToggle, false);
-        console.log("[Init] Developer Mode is disabled.");
+        console.log("[Init] Developer Mode is disabled or toggle not found.");
     }
     handleHashChange(); // Check URL hash on load to set initial view
 
     // 7. Initialize Minecraft Skin Viewer (visibility controlled by appConfig)
     initMinecraftSkinViewer();
-    DOM.downloadSkinButton.addEventListener('click', downloadMinecraftSkin);
+    if (DOM.downloadSkinButton) DOM.downloadSkinButton.addEventListener('click', downloadMinecraftSkin);
     console.log("[Init] Minecraft Skin Viewer configured.");
 
     // 8. Setup Support Button (visibility controlled by appConfig)
@@ -683,11 +818,11 @@ window.onload = async () => {
     console.log("[Init] Support Button configured.");
 
     // 9. Render YouTube Videos (visibility controlled by appConfig)
-    renderYouTubeVideos();
+    renderYouTubeVideosSection();
     console.log("[Init] YouTube Videos section configured.");
 
     // 10. Display Live Streams (visibility controlled by appConfig)
-    displayLiveStream();
+    displayLiveStreamSection();
     console.log("[Init] Live Stream section configured.");
 
     // 11. Manage First Visit Modal
@@ -699,4 +834,4 @@ window.onload = async () => {
     console.log("[Init] Hash Change Listener added.");
     console.log("Инициализация Personal Link Aggregator завершена.");
     console.log("------------------------------------------");
-};
+});

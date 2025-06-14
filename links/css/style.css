@@ -169,11 +169,18 @@ body.light-theme .card:hover {
     top: 0;
     width: 100%;
     height: 100%;
-    overflow: auto;
     background-color: rgba(0,0,0,0.7); /* Dim background */
     align-items: center;
     justify-content: center;
+    backdrop-filter: blur(5px); /* Размытие фона для модальных окон */
+    animation: fadeInBackground 0.3s ease-out; /* Анимация для фона */
 }
+/* Анимация для фона модальных окон */
+@keyframes fadeInBackground {
+    from { background-color: rgba(0,0,0,0); backdrop-filter: blur(0px); }
+    to { background-color: rgba(0,0,0,0.7); backdrop-filter: blur(5px); }
+}
+
 
 /* Modal Content Styling */
 .modal-content, .dev-page-content {
@@ -263,32 +270,6 @@ body.light-theme .video-carousel::-webkit-scrollbar-thumb:hover {
     background: var(--md-sys-color-primary-light);
 }
 
-/* Minecraft Skin Viewer Canvas Styling */
-#skin-viewer-container {
-    width: 100%;
-    max-width: 300px; /* Limit width for cleaner look */
-    height: 300px;
-    margin: 0 auto; /* Center it */
-    border-radius: 16px;
-    overflow: hidden; /* Ensure canvas stays within bounds */
-    box-shadow: var(--md-sys-color-outline-dark) 0px 4px 8px;
-    background-color: var(--md-sys-color-surface-container-low-dark); /* Card-like background */
-    position: relative;
-    cursor: grab; /* Indicate draggable */
-}
-body.light-theme #skin-viewer-container {
-    box-shadow: var(--md-sys-color-outline-light) 0px 4px 8px;
-    background-color: var(--md-sys-color-surface-container-low-light);
-}
-#skin-viewer-container:active {
-    cursor: grabbing;
-}
-#skin-canvas {
-    width: 100%;
-    height: 100%;
-    display: block; /* Remove extra space below canvas */
-}
-
 /* Simple Icons styling */
 .si-icon {
     display: inline-block;
@@ -297,4 +278,64 @@ body.light-theme #skin-viewer-container {
     vertical-align: middle;
     margin-right: 1rem; /* Tailwind: mr-4 */
     fill: currentColor; /* Inherit text color */
+}
+
+/* Responsive layout for main content */
+.content-container {
+    display: flex;
+    flex-direction: column;
+    gap: 24px; /* Space between sections */
+    width: 100%;
+}
+
+@media (min-width: 768px) { /* Tablet and Desktop layout */
+    .content-container {
+        flex-direction: row; /* Side-by-side on larger screens */
+        align-items: flex-start; /* Align items to the top */
+        justify-content: center;
+    }
+    .main-links-block {
+        flex: 1; /* Take available space */
+        min-width: 320px; /* Ensure minimum width */
+        max-width: 450px; /* Control max width for links */
+    }
+    #minecraft-block { /* Use ID for specific targeting */
+        flex-shrink: 0; /* Don't shrink */
+        width: 350px; /* Fixed width for desktop for clarity */
+        padding-top: 50px; /* Align with profile section */
+    }
+}
+
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+    .modal-content, .dev-page-content {
+        padding: 15px;
+        border-radius: 16px;
+    }
+    #profile-name {
+        font-size: 2.25rem; /* Adjust font size for mobile */
+    }
+    #profile-description {
+        font-size: 1rem;
+    }
+    .card {
+        padding: 12px;
+    }
+    .card .material-symbols-outlined {
+        font-size: 20px; /* Smaller icon on mobile */
+    }
+    .card .text-lg {
+        font-size: 1rem;
+    }
+    .card .text-sm {
+        font-size: 0.875rem;
+    }
+    #skin-viewer-container {
+        width: 250px;
+        height: 250px;
+    }
 }

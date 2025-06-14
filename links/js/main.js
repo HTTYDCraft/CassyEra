@@ -253,13 +253,15 @@ const renderLinks = async (links) => {
             let iconHtml = '';
             if (link.icon) {
                 // simpleIcons.get(link.icon) возвращает объект с SVG-путем
+                // Убедимся, что SimpleIcons доступен в window
                 const simpleIcon = window.SimpleIcons && window.SimpleIcons.get(link.icon);
                 if (simpleIcon) {
+                    // Используем HEX цвет из Simple Icons, если доступен, иначе currentColor
                     iconHtml = `<svg role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" class="si-icon" style="fill:#${simpleIcon.hex || 'currentColor'};"><title>${link.label_key}</title><path d="${simpleIcon.path}"/></svg>`;
                 } else {
-                    // Fallback to Material Symbols if Simple Icon not found
+                    // Fallback to Material Symbols if Simple Icon not found or SimpleIcons not loaded
                     iconHtml = `<span class="material-symbols-outlined text-2xl mr-4">${link.icon}</span>`;
-                    console.warn(`Simple Icon '${link.icon}' not found, falling back to Material Symbols.`);
+                    console.warn(`Simple Icon '${link.icon}' not found or SimpleIcons library not loaded, falling back to Material Symbols.`);
                 }
             }
 
@@ -370,7 +372,6 @@ const initSwipeGestures = () => {
         let currentX = 0;
         let isSwiping = false;
 
-        // NEW: Используем data-link-id для поиска ссылки, так как label теперь ключ
         const linkData = linksConfig.find(link => link.label_key === card.getAttribute('data-link-id'));
         if (!linkData) return;
 
@@ -405,7 +406,6 @@ const initSwipeGestures = () => {
 
             if (Math.abs(deltaX) > swipeThreshold) { // Check if swipe distance is significant
                 if (deltaX > 0) { // Swiped right
-                    // NEW: Используем subscribeUrl для свайпа вправо, если оно есть
                     if (linkData.subscribeUrl) {
                         window.open(linkData.subscribeUrl, '_blank');
                         console.log(`Свайп вправо: Попытка подписаться на ${strings[currentLang][linkData.label_key]}`);
@@ -414,7 +414,6 @@ const initSwipeGestures = () => {
                         console.log(`Свайп вправо: Открытие ${strings[currentLang][linkData.label_key]}`);
                     }
                 } else { // Swiped left
-                    // Only specific action for YouTube on left swipe (open latest video/stream)
                     if (linkData.platformId === 'youtube') {
                         const liveStream = appData.liveStream;
                         if (liveStream && liveStream.type === 'youtube' && liveStream.id) {

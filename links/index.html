@@ -28,8 +28,6 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- NEW: Ссылка на внешний CSS-файл -->
     <link rel="stylesheet" href="./css/style.css">
-    <!-- NEW: CDN для Simple Icons -->
-    <script src="https://cdn.jsdelivr.net/npm/simple-icons@11.16.0/simple-icons.min.js"></script>
 </head>
 <body class="dark-theme"> <!-- Default to dark theme -->
     <!-- Main Application Container -->
@@ -157,8 +155,9 @@
 
     <!-- skinview3d library for Minecraft Skin Viewer -->
     <script src="https://unpkg.com/skinview3d@2.0.7/bundle/skinview3d.min.js"></script>
-
-    <!-- NEW: Ссылка на основной JavaScript-файл -->
+    <!-- CDN для Simple Icons - ОЧЕНЬ ВАЖНО: загружается ПЕРЕД main.js -->
+    <script src="https://cdn.jsdelivr.net/npm/simple-icons@11.16.0/simple-icons.min.js"></script>
+    <!-- Ссылка на основной JavaScript-файл -->
     <script type="module" src="./js/main.js"></script>
 </body>
 </html>

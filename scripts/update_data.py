@@ -1,0 +1,434 @@
+# scripts/update_data.py
+import os
+import json
+import requests
+from datetime import datetime
+
+# --- ВАШИ КОНФИГУРАЦИИ ---
+# Используйте переменные окружения, чтобы получить секреты GitHub
+YOUTUBE_API_KEY = os.environ.get('YOUTUBE_API_KEY')
+TWITCH_CLIENT_ID = os.environ.get('TWITCH_CLIENT_ID')
+TWITCH_CLIENT_SECRET = os.environ.get('TWITCH_CLIENT_SECRET')
+YOUR_YOUTUBE_CHANNEL_ID = os.environ.get('YOUR_YOUTUBE_CHANNEL_ID')
+YOUR_TWITCH_USERNAME = os.environ.get('YOUR_TWITCH_USERNAME')
+YOUR_VK_GROUP_ID = os.environ.get('YOUR_VK_GROUP_ID') # Опционально
+YOUR_VK_USER_ID = os.environ.get('YOUR_VK_USER_ID') # Опционально
+TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
+TELEGRAM_CHANNEL_CHAT_ID = os.environ.get('TELEGRAM_CHANNEL_CHAT_ID')
+INSTAGRAM_PAGE_ID = os.environ.get('INSTAGRAM_PAGE_ID') # ID Facebook Page, связанной с Instagram Business Account
+INSTAGRAM_BUSINESS_ACCOUNT_ID = os.environ.get('INSTAGRAM_BUSINESS_ACCOUNT_ID') # ID Instagram Business Account
+INSTAGRAM_ACCESS_TOKEN = os.environ.get('INSTAGRAM_ACCESS_TOKEN') # Долгосрочный токен Instagram Graph API
+X_BEARER_TOKEN = os.environ.get('X_BEARER_TOKEN') # Bearer Token для X API v2
+YOUR_X_USER_ID = os.environ.get('YOUR_X_USER_ID') # Ваш User ID на X (числовой ID)
+TIKAPI_IO_API_KEY = os.environ.get('TIKAPI_IO_API_KEY') # Новый секрет для tikapi.io
+YOUR_TIKTOK_USERNAME = os.environ.get('YOUR_TIKTOK_USERNAME') # Новый секрет для имени пользователя TikTok
+
+
+# URL для сохранения обновленных данных
+DATA_FILE_PATH = 'data.json' # <-- ЭТОТ ПУТЬ ВЕРЕН, так как скрипт запускается из корня репозитория
+
+# --- Загрузка текущих данных для сохранения заглушек ---
+current_data = {
+    "followerCounts": {
+        "youtube": 0,
+        "telegram": 0,
+        "instagram": 0,
+        "x": 0,
+        "twitch": 0,
+        "tiktok": 0,
+        "vk_group": 0,
+        "vk_personal": 0
+    },
+    "youtubeVideos": [],
+    "liveStream": {"type": "none"},
+    "lastUpdated": datetime.now().isoformat(),
+    "debugInfo": {}
+}
+if os.path.exists(DATA_FILE_PATH):
+    try:
+        with open(DATA_FILE_PATH, 'r', encoding='utf-8') as f:
+            existing_data = json.load(f)
+            # Переносим существующие значения подписчиков, сохраняя те, что не обновляются автоматически
+            # Теперь 'tiktok' удален из списка, так как он будет обновляться автоматически
+            for platform, count in current_data['followerCounts'].items():
+                if platform not in ['youtube', 'twitch', 'vk_group', 'vk_personal', 'telegram', 'instagram', 'x', 'tiktok'] and \
+                   platform in existing_data.get('followerCounts', {}):
+                    current_data['followerCounts'][platform] = existing_data['followerCounts'][platform]
+            
+            # Переносим существующие значения для остальных полей, если они есть
+            if 'youtubeVideos' in existing_data:
+                current_data['youtubeVideos'] = existing_data['youtubeVideos']
+            if 'liveStream' in existing_data:
+                current_data['liveStream'] = existing_data['liveStream']
+            if 'debugInfo' in existing_data:
+                current_data['debugInfo'] = existing_data['debugInfo']
+
+    except json.JSONDecodeError:
+        print("Warning: data.json is corrupted or empty, starting with default values.")
+
+data = current_data
+data['debugInfo'] = {} # Очищаем debugInfo для нового запуска
+
+# --- Функции получения данных ---
+
+def get_youtube_channel_stats(channel_id, api_key):
+    if not channel_id or not api_key:
+        data['debugInfo']['youtube_subs_error'] = "YouTube API Key or Channel ID missing."
+        print("YouTube API Key or Channel ID missing.")
+        return None
+    url = f"https://www.googleapis.com/youtube/v3/channels?part=statistics&id={channel_id}&key={api_key}"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        json_data = response.json()
+        if json_data.get('items'):
+            return int(json_data['items'][0]['statistics']['subscriberCount'])
+        else:
+            data['debugInfo']['youtube_subs_error'] = "No YouTube channel data found."
+            print("No YouTube channel data found.")
+    except Exception as e:
+        data['debugInfo']['youtube_subs_error'] = str(e)
+        print(f"Error fetching YouTube subs: {e}")
+    return None
+
+def get_youtube_recent_videos(channel_id, api_key, max_results=20):
+    if not channel_id or not api_key:
+        data['debugInfo']['youtube_videos_error'] = "YouTube API Key or Channel ID missing for videos."
+        print("YouTube API Key or Channel ID missing for videos.")
+        return []
+    url_channel = f"https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id={channel_id}&key={api_key}"
+    try:
+        response_channel = requests.get(url_channel)
+        response_channel.raise_for_status()
+        channel_json = response_channel.json()
+        if not channel_json.get('items'):
+            data['debugInfo']['youtube_videos_error'] = "No YouTube channel contentDetails found."
+            print("No YouTube channel contentDetails found.")
+            return []
+        uploads_playlist_id = channel_json['items'][0]['contentDetails']['relatedPlaylists']['uploads']
+
+        url_playlist = f"https://www.googleapis.com/youtube/v3/playlistItems?part=snippet&playlistId={uploads_playlist_id}&key={api_key}&maxResults={max_results}"
+        response_playlist = requests.get(url_playlist)
+        response_playlist.raise_for_status()
+        playlist_json = response_playlist.json()
+        videos = []
+        for item in playlist_json.get('items', []):
+            snippet = item['snippet']
+            video_id = snippet['resourceId']['videoId']
+            title = snippet['title']
+            thumbnail_url = snippet.get('thumbnails', {}).get('maxres', {}).get('url') or \
+                            snippet.get('thumbnails', {}).get('standard', {}).get('url') or \
+                            snippet.get('thumbnails', {}).get('high', {}).get('url') or \
+                            snippet.get('thumbnails', {}).get('medium', {}).get('url') or \
+                            snippet.get('thumbnails', {}).get('default', {}).get('url')
+            videos.append({"id": video_id, "title": title, "thumbnailUrl": thumbnail_url})
+        return videos
+    except Exception as e:
+        data['debugInfo']['youtube_videos_error'] = str(e)
+        print(f"Error fetching YouTube videos: {e}")
+    return []
+
+def get_youtube_live_status(channel_id, api_key):
+    if not channel_id or not api_key:
+        data['debugInfo']['youtube_live_error'] = "YouTube API Key or Channel ID missing for live status."
+        print("YouTube API Key or Channel ID missing for live status.")
+        return None
+    url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={channel_id}&eventType=live&type=video&key={api_key}"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        json_data = response.json()
+        if json_data.get('items'):
+            video_id = json_data['items'][0]['id']['videoId']
+            title = json_data['items'][0]['snippet']['title']
+            return {"type": "youtube", "id": video_id, "title": title, "youtubeChannelId": channel_id}
+    except Exception as e:
+        data['debugInfo']['youtube_live_error'] = str(e)
+        print(f"Error fetching YouTube live status: {e}")
+    return None
+
+def get_twitch_access_token(client_id, client_secret):
+    if not client_id or not client_secret:
+        data['debugInfo']['twitch_token_error'] = "Twitch Client ID or Client Secret missing."
+        print("Twitch Client ID or Client Secret missing.")
+        return None
+    url = f"https://id.twitch.tv/oauth2/token?client_id={client_id}&client_secret={client_secret}&grant_type=client_credentials"
+    try:
+        response = requests.post(url)
+        response.raise_for_status()
+        return response.json()['access_token']
+    except Exception as e:
+        data['debugInfo']['twitch_token_error'] = str(e)
+        print(f"Error getting Twitch access token: {e}")
+    return None
+
+def get_twitch_user_info(username, client_id, access_token):
+    if not username or not client_id or not access_token: return None
+    url = f"https://api.twitch.tv/helix/users?login={username}"
+    headers = {"Client-ID": client_id, "Authorization": f"Bearer {access_token}"}
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        json_data = response.json()
+        if json_data.get('data'):
+            return json_data['data'][0]['id']
+        else:
+            data['debugInfo']['twitch_user_error'] = f"No Twitch user data found for {username}."
+            print(f"No Twitch user data found for {username}.")
+    except Exception as e:
+        data['debugInfo']['twitch_user_error'] = str(e)
+        print(f"Error fetching Twitch user ID for {username}: {e}")
+    return None
+
+def get_twitch_follower_count(user_id, client_id, access_token):
+    if not user_id or not client_id or not access_token: return None
+    url = f"https://api.twitch.tv/helix/channels/followers?broadcaster_id={user_id}"
+    headers = {"Client-ID": client_id, "Authorization": f"Bearer {access_token}"}
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        json_data = response.json()
+        return json_data['total']
+    except Exception as e:
+        data['debugInfo']['twitch_followers_error'] = str(e)
+        print(f"Error fetching Twitch followers for {user_id}: {e}")
+    return None
+
+def get_twitch_live_status(username, client_id, access_token):
+    if not username or not client_id or not access_token: return None
+    url = f"https://api.twitch.tv/helix/streams?user_login={username}"
+    headers = {"Client-ID": client_id, "Authorization": f"Bearer {access_token}"}
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        json_data = response.json()
+        if json_data.get('data'):
+            stream_info = json_data['data'][0]
+            return {"type": "twitch", "id": stream_info['id'], "title": stream_info['title'], "twitchChannelName": username}
+        else:
+            data['debugInfo']['twitch_live_error'] = f"No active Twitch stream found for {username}."
+            print(f"No active Twitch stream found for {username}.")
+    except Exception as e:
+        data['debugInfo']['twitch_live_error'] = str(e)
+        print(f"Error fetching Twitch live status for {username}: {e}")
+    return None
+
+def get_vk_group_members(group_id):
+    if not group_id:
+        print("VK Group ID missing.")
+        return None
+    url = f"https://api.vk.com/method/groups.getById?group_id={group_id}&fields=members_count&v=5.199"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        json_data = response.json()
+        if 'response' in json_data and json_data['response']:
+            return json_data['response'][0].get('members_count')
+        else:
+            data['debugInfo']['vk_group_error'] = "No VK group data found."
+            print("No VK group data found.")
+    except Exception as e:
+        data['debugInfo']['vk_group_error'] = str(e)
+        print(f"Error fetching VK group members for {group_id}: {e}")
+    return None
+
+def get_vk_user_followers(user_id):
+    if not user_id:
+        print("VK User ID missing.")
+        return None
+    url = f"https://api.vk.com/method/users.get?user_ids={user_id}&fields=followers_count&v=5.199"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        json_data = response.json()
+        if 'response' in json_data and json_data['response']:
+            return json_data['response'][0].get('followers_count')
+        else:
+            data['debugInfo']['vk_personal_error'] = "No VK personal user data found."
+            print("No VK personal user data found.")
+    except Exception as e:
+        data['debugInfo']['vk_personal_error'] = str(e)
+        print(f"Error fetching VK user followers for {user_id}: {e}")
+    return None
+
+def get_telegram_channel_members(bot_token, channel_chat_id):
+    if not bot_token or not channel_chat_id:
+        data['debugInfo']['telegram_error'] = "Telegram Bot Token or Channel Chat ID missing."
+        print("Telegram Bot Token or Channel Chat ID missing.")
+        return None
+    url = f"https://api.telegram.org/bot{bot_token}/getChatMembersCount?chat_id={channel_chat_id}"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        json_data = response.json()
+        if json_data.get('ok') and 'result' in json_data:
+            return json_data['result']
+        else:
+            data['debugInfo']['telegram_error'] = f"Telegram API error: {json_data.get('description', 'Unknown error')}"
+            print(f"Telegram API error: {json_data.get('description', 'Unknown error')}")
+    except Exception as e:
+        data['debugInfo']['telegram_error'] = str(e)
+        print(f"Error fetching Telegram channel members: {e}")
+    return None
+
+def get_instagram_follower_count(business_account_id, access_token):
+    if not business_account_id or not access_token:
+        data['debugInfo']['instagram_error'] = "Instagram Business Account ID or Access Token missing."
+        print("Instagram Business Account ID or Access Token missing.")
+        return None
+    
+    url = f"https://graph.facebook.com/v19.0/{business_account_id}/insights?metric=followers_count&period=day&access_token={access_token}"
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        json_data = response.json()
+        if json_data.get('data') and json_data['data'][0].get('values'):
+            return json_data['data'][0]['values'][0]['value']
+        else:
+            data['debugInfo']['instagram_error'] = "No Instagram follower data found or API response format unexpected."
+            print("No Instagram follower data found.")
+    except Exception as e:
+        data['debugInfo']['instagram_error'] = str(e)
+        print(f"Error fetching Instagram followers: {e}")
+    return None
+
+def get_x_follower_count(user_id, bearer_token):
+    if not user_id or not bearer_token:
+        data['debugInfo']['x_error'] = "X (Twitter) User ID or Bearer Token missing."
+        print("X (Twitter) User ID or Bearer Token missing.")
+        return None
+    
+    url = f"https://api.twitter.com/2/users/{user_id}?user.fields=public_metrics"
+    headers = {"Authorization": f"Bearer {bearer_token}"}
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status()
+        json_data = response.json()
+        if json_data.get('data') and json_data['data'].get('public_metrics'):
+            return json_data['data']['public_metrics']['followers_count']
+        else:
+            data['debugInfo']['x_error'] = "No X (Twitter) public_metrics data found or API response format unexpected."
+            print("No X (Twitter) public_metrics data found.")
+    except Exception as e:
+        data['debugInfo']['x_error'] = str(e)
+        print(f"Error fetching X (Twitter) followers: {e}")
+    return None
+
+def get_tiktok_follower_count(username, api_key):
+    if not username or not api_key:
+        data['debugInfo']['tiktok_error'] = "TikTok username or TikAPI.io API Key missing."
+        print("TikTok username or TikAPI.io API Key missing.")
+        return None
+    
+    # URL для TikAPI.io - измените, если у них другой endpoint для профиля
+    # Пример endpoint: https://api.tikapi.io/profile/user/{username}
+    url = f"https://api.tikapi.io/profile/user/{username}"
+    headers = {
+        "x-api-key": api_key,
+        "Accept": "application/json"
+    }
+    try:
+        response = requests.get(url, headers=headers)
+        response.raise_for_status() # Вызывает исключение для ошибок HTTP (4xx или 5xx)
+        json_data = response.json()
+        
+        # Проверьте структуру ответа TikAPI.io. Возможно, путь к данным другой.
+        # Это предположение, основываясь на типичных ответах API.
+        if json_data.get('data') and json_data['data'].get('stats'):
+            return json_data['data']['stats'].get('followerCount')
+        elif json_data.get('user') and json_data['user'].get('stats'): # Альтернативная структура
+            return json_data['user']['stats'].get('followerCount')
+        else:
+            data['debugInfo']['tiktok_error'] = f"TikAPI.io response format unexpected: {json_data}"
+            print(f"TikAPI.io response format unexpected: {json_data}")
+    except requests.exceptions.RequestException as e:
+        data['debugInfo']['tiktok_error'] = f"Error fetching TikTok followers from TikAPI.io: {e}"
+        print(f"Error fetching TikTok followers from TikAPI.io: {e}")
+    except json.JSONDecodeError as e:
+        data['debugInfo']['tiktok_error'] = f"Error decoding TikAPI.io response JSON: {e}"
+        print(f"Error decoding TikAPI.io response JSON: {e}")
+    return None
+
+# --- Выполнение запросов и обновление данных ---
+
+# YouTube
+yt_subs = get_youtube_channel_stats(YOUR_YOUTUBE_CHANNEL_ID, YOUTUBE_API_KEY)
+if yt_subs is not None: data['followerCounts']['youtube'] = yt_subs
+data['youtubeVideos'] = get_youtube_recent_videos(YOUR_YOUTUBE_CHANNEL_ID, YOUTUBE_API_KEY)
+yt_live = get_youtube_live_status(YOUR_YOUTUBE_CHANNEL_ID, YOUTUBE_API_KEY)
+
+# Twitch
+twitch_access_token = get_twitch_access_token(TWITCH_CLIENT_ID, TWITCH_CLIENT_SECRET)
+twitch_user_id = None
+if twitch_access_token:
+    twitch_user_id = get_twitch_user_info(YOUR_TWITCH_USERNAME, TWITCH_CLIENT_ID, twitch_access_token)
+    if twitch_user_id:
+        twitch_followers = get_twitch_follower_count(twitch_user_id, TWITCH_CLIENT_ID, twitch_access_token)
+        if twitch_followers is not None: data['followerCounts']['twitch'] = twitch_followers
+        twitch_live = get_twitch_live_status(YOUR_TWITCH_USERNAME, TWITCH_CLIENT_ID, twitch_access_token)
+        
+        if yt_live:
+            data['liveStream'] = yt_live
+            if twitch_live:
+                data['liveStream']['twitchLive'] = twitch_live
+        elif twitch_live:
+            data['liveStream'] = twitch_live
+        else:
+            data['liveStream'] = {"type": "none"}
+    else:
+        if 'twitch_user_error' not in data['debugInfo']:
+            data['debugInfo']['twitch_general_error'] = "Twitch user ID could not be fetched, skipping Twitch live/followers."
+        data['liveStream'] = {"type": "none"}
+else:
+    if 'twitch_token_error' not in data['debugInfo']:
+        data['debugInfo']['twitch_general_error'] = "Twitch access token could not be fetched, skipping Twitch live/followers."
+    data['liveStream'] = {"type": "none"}
+
+if yt_live and data['liveStream']['type'] != 'youtube':
+    data['liveStream'] = yt_live
+
+# VK
+vk_group_members = get_vk_group_members(YOUR_VK_GROUP_ID)
+if vk_group_members is not None: data['followerCounts']['vk_group'] = vk_group_members
+
+vk_personal_followers = get_vk_user_followers(YOUR_VK_USER_ID)
+if vk_personal_followers is not None: data['followerCounts']['vk_personal'] = vk_personal_followers
+
+# Telegram
+tg_members = get_telegram_channel_members(TELEGRAM_BOT_TOKEN, TELEGRAM_CHANNEL_CHAT_ID)
+if tg_members is not None: data['followerCounts']['telegram'] = tg_members
+
+# Instagram
+if INSTAGRAM_BUSINESS_ACCOUNT_ID and INSTAGRAM_ACCESS_TOKEN:
+    ig_followers = get_instagram_follower_count(INSTAGRAM_BUSINESS_ACCOUNT_ID, INSTAGRAM_ACCESS_TOKEN)
+    if ig_followers is not None:
+        data['followerCounts']['instagram'] = ig_followers
+else:
+    data['debugInfo']['instagram_setup_warning'] = "Instagram API credentials (BUSINESS_ACCOUNT_ID, ACCESS_TOKEN) are missing. Instagram follower count will not be updated automatically."
+
+
+# X (Twitter)
+if YOUR_X_USER_ID and X_BEARER_TOKEN:
+    x_followers = get_x_follower_count(YOUR_X_USER_ID, X_BEARER_TOKEN)
+    if x_followers is not None:
+        data['followerCounts']['x'] = x_followers
+else:
+    data['debugInfo']['x_setup_warning'] = "X (Twitter) API credentials (USER_ID, BEARER_TOKEN) are missing. X follower count will not be updated automatically."
+
+# TikTok
+if YOUR_TIKTOK_USERNAME and TIKAPI_IO_API_KEY:
+    tiktok_followers = get_tiktok_follower_count(YOUR_TIKTOK_USERNAME, TIKAPI_IO_API_KEY)
+    if tiktok_followers is not None:
+        data['followerCounts']['tiktok'] = tiktok_followers
+else:
+    data['debugInfo']['tiktok_setup_warning'] = "TikTok API credentials (username, API Key for TikAPI.io) are missing. TikTok follower count will not be updated automatically."
+
+
+# Обновляем отметку времени последнего обновления
+data['lastUpdated'] = datetime.now().isoformat()
+
+# Save updated data
+with open(DATA_FILE_PATH, 'w', encoding='utf-8') as f:
+    json.dump(data, f, ensure_ascii=False, indent=2)
+
+print(f"Data updated and saved to {DATA_FILE_PATH}")

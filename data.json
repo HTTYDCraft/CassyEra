@@ -1,0 +1,18 @@
+{
+  "followerCounts": {
+    "youtube": 0,
+    "telegram": 0,
+    "instagram": 0,
+    "x": 0,
+    "twitch": 0,
+    "tiktok": 0,
+    "vk_group": 0,
+    "vk_personal": 0
+  },
+  "youtubeVideos": [],
+  "liveStream": {
+    "type": "none"
+  },
+  "lastUpdated": "2025-06-14T05:17:33.000Z",
+  "debugInfo": {}
+}

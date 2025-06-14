@@ -19,7 +19,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install requests
+        run: pip install requests pyyaml # NEW: Добавлена установка pyyaml
 
       - name: Run script to update data
         env:
@@ -38,14 +38,15 @@ jobs:
           INSTAGRAM_ACCESS_TOKEN: ${{ secrets.INSTAGRAM_ACCESS_TOKEN }}
           X_BEARER_TOKEN: ${{ secrets.X_BEARER_TOKEN }}
           YOUR_X_USER_ID: ${{ secrets.YOUR_X_USER_ID }}
-          TIKAPI_IO_API_KEY: ${{ secrets.TIKAPI_IO_API_KEY }} # Новый секрет
-          YOUR_TIKTOK_USERNAME: ${{ secrets.YOUR_TIKTOK_USERNAME }} # Новый секрет
+          TIKAPI_IO_API_KEY: ${{ secrets.TIKAPI_IO_API_KEY }}
+          YOUR_TIKTOK_USERNAME: ${{ secrets.YOUR_TIKTOK_USERNAME }}
         run: python scripts/update_data.py
 
       - name: Commit and push changes
+        # Только если есть изменения в data.json ИЛИ config.js
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data.json
-          git commit -m "Автоматическое обновление данных социальных сетей" || echo "Изменений нет, пропускаем коммит."
+          git add data.json links/js/config.js # NEW: Добавляем config.js
+          git commit -m "Автоматическое обновление данных социальных сетей и генерация config.js" || echo "Изменений нет, пропускаем коммит."
           git push

@@ -10,13 +10,13 @@ export const appConfig = {
     "showLinksSection": true,
     "showYouTubeVideosSection": true,
     "showSupportButton": true,
-    "supportUrl": "https://www.donationalerts.com/r/your_donate_page",
+    "supportUrl": "https://www.donationalerts.com/r/bezzubickmcplay",
     "developmentMode": true
 };
 
 export const profileConfig = {
-    "name": "Ваше Имя Здесь",
-    "description": "Разработчик | Создатель Контента | Исследователь",
+    "name": "Bezzubick MCPlay",
+    "description": "Стример | Видеоблогер | Майнкрафтер",
     "avatar": "./assets/avatar.png",
     "minecraftSkinUrl": "./assets/cool-guy-skin.png"
 };
@@ -24,18 +24,18 @@ export const profileConfig = {
 export const linksConfig = [
     {
         "label_key": "youtubeChannelLabel",
-        "url": "https://www.youtube.com/channel/YOUR_YOUTUBE_CHANNEL_ID",
+        "url": "https://www.youtube.com/channel/UCm6mheCT60mZ5qlxG5r2GeA",
         "icon": "youtube",
         "order": 1,
         "isSocial": true,
         "showSubscriberCount": true,
         "platformId": "youtube",
-        "subscribeUrl": "https://www.youtube.com/channel/YOUR_YOUTUBE_CHANNEL_ID?sub_confirmation=1",
+        "subscribeUrl": "https://www.youtube.com/channel/UCm6mheCT60mZ5qlxG5r2GeA?sub_confirmation=1",
         "active": true
     },
     {
         "label_key": "telegramChannelLabel",
-        "url": "https://t.me/your_telegram_channel",
+        "url": "https://t.me/bezzubickmcplay",
         "icon": "telegram",
         "order": 2,
         "isSocial": true,
@@ -45,7 +45,7 @@ export const linksConfig = [
     },
     {
         "label_key": "instagramProfileLabel",
-        "url": "https://www.instagram.com/your_instagram_profile/",
+        "url": "https://www.instagram.com/bezzubickmcplay/",
         "icon": "instagram",
         "order": 3,
         "isSocial": true,
@@ -55,7 +55,7 @@ export const linksConfig = [
     },
     {
         "label_key": "xTwitterProfileLabel",
-        "url": "https://x.com/your_x_profile",
+        "url": "https://x.com/bezzubickmcplay",
         "icon": "x",
         "order": 4,
         "isSocial": true,
@@ -65,7 +65,7 @@ export const linksConfig = [
     },
     {
         "label_key": "twitchChannelLabel",
-        "url": "https://www.twitch.tv/your_twitch_channel",
+        "url": "https://www.twitch.tv/bezzubickmcplay",
         "icon": "twitch",
         "order": 5,
         "isSocial": true,
@@ -75,7 +75,7 @@ export const linksConfig = [
     },
     {
         "label_key": "tiktokProfileLabel",
-        "url": "https://www.tiktok.com/@your_tiktok_profile",
+        "url": "https://www.tiktok.com/@bezzubickmcplay",
         "icon": "tiktok",
         "order": 6,
         "isSocial": true,
@@ -85,7 +85,7 @@ export const linksConfig = [
     },
     {
         "label_key": "vkGroupLabel",
-        "url": "https://vk.com/your_vk_group_id",
+        "url": "https://vk.com/bezzubickmcplay",
         "icon": "vk",
         "order": 7,
         "isSocial": true,
@@ -95,7 +95,7 @@ export const linksConfig = [
     },
     {
         "label_key": "vkPersonalPageLabel",
-        "url": "https://vk.com/idYOUR_VK_USER_ID",
+        "url": "https://vk.com/BezzubickMCPlay_official",
         "icon": "vk",
         "order": 8,
         "isSocial": true,

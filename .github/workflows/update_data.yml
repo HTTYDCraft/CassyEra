@@ -9,6 +9,8 @@ on:
 jobs:
   update-data:
     runs-on: ubuntu-latest
+    permissions: # NEW: Добавляем секцию разрешений
+      contents: write # Даем боту права на запись в репозиторий
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -19,7 +21,7 @@ jobs:
           python-version: '3.x'
 
       - name: Install dependencies
-        run: pip install requests pyyaml # NEW: Добавлена установка pyyaml
+        run: pip install requests pyyaml
 
       - name: Run script to update data
         env:
@@ -43,10 +45,9 @@ jobs:
         run: python scripts/update_data.py
 
       - name: Commit and push changes
-        # Только если есть изменения в data.json ИЛИ config.js
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data.json links/js/config.js # NEW: Добавляем config.js
+          git add data.json links/js/config.js
           git commit -m "Автоматическое обновление данных социальных сетей и генерация config.js" || echo "Изменений нет, пропускаем коммит."
           git push

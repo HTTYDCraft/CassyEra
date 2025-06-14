@@ -1,0 +1,122 @@
+# links/config.yml
+# Этот файл содержит конфигурацию для вашего агрегатора ссылок.
+# Он будет прочитан скриптом Python и преобразован в links/js/config.js.
+
+appConfig:
+  # Путь к data.json. data.json находится в корне репозитория относительно HTML-файла,
+  # поэтому из links/index.html путь будет "../data.json".
+  dataUrl: "../data.json"
+  showLiveStreamSection: true
+  showProfileSection: true
+  showMinecraftSkinSection: true
+  showLinksSection: true
+  showYouTubeVideosSection: true
+  showSupportButton: true
+  # Замените на вашу РЕАЛЬНУЮ ссылку для донатов!
+  supportUrl: "https://www.donationalerts.com/r/your_donate_page"
+  # Установите true для отображения кнопки "Dev" и доступа к dev-странице.
+  # В продакшене лучше установить false.
+  developmentMode: true
+
+profileConfig:
+  name: "Ваше Имя Здесь" # Настройте ваше имя
+  description: "Разработчик | Создатель Контента | Исследователь" # Настройте ваше описание
+  # Пути к изображениям относительны links/index.html (т.е. links/assets/...)
+  avatar: "./assets/avatar.png"
+  minecraftSkinUrl: "./assets/cool-guy-skin.png"
+
+linksConfig:
+  # Каждая ссылка - это объект.
+  # "label_key" используется для поиска перевода в strings.js.
+  # "icon" - это имя иконки из Simple Icons (https://simpleicons.org/).
+  # "url" - основная ссылка.
+  # "subscribeUrl" - ссылка для быстрой подписки (если отличается от основной).
+  # "active" - true/false для показа/скрытия ссылки.
+
+  - label_key: "youtubeChannelLabel"
+    url: "https://www.youtube.com/channel/YOUR_YOUTUBE_CHANNEL_ID" # Замените!
+    icon: "youtube"
+    order: 1
+    isSocial: true
+    showSubscriberCount: true
+    platformId: "youtube"
+    subscribeUrl: "https://www.youtube.com/channel/YOUR_YOUTUBE_CHANNEL_ID?sub_confirmation=1" # Замените!
+    active: true
+
+  - label_key: "telegramChannelLabel"
+    url: "https://t.me/your_telegram_channel" # Замените!
+    icon: "telegram"
+    order: 2
+    isSocial: true
+    showSubscriberCount: true
+    platformId: "telegram"
+    active: true
+
+  - label_key: "instagramProfileLabel"
+    url: "https://www.instagram.com/your_instagram_profile/" # Замените!
+    icon: "instagram"
+    order: 3
+    isSocial: true
+    showSubscriberCount: true
+    platformId: "instagram"
+    active: true
+
+  - label_key: "xTwitterProfileLabel"
+    url: "https://x.com/your_x_profile" # Замените!
+    icon: "x" # Иконка X (бывший Twitter)
+    order: 4
+    isSocial: true
+    showSubscriberCount: true
+    platformId: "x"
+    active: true
+
+  - label_key: "twitchChannelLabel"
+    url: "https://www.twitch.tv/your_twitch_channel" # Замените!
+    icon: "twitch"
+    order: 5
+    isSocial: true
+    showSubscriberCount: true
+    platformId: "twitch"
+    active: true
+
+  - label_key: "tiktokProfileLabel"
+    url: "https://www.tiktok.com/@your_tiktok_profile" # Замените!
+    icon: "tiktok"
+    order: 6
+    isSocial: true
+    showSubscriberCount: true
+    platformId: "tiktok"
+    active: true
+
+  - label_key: "vkGroupLabel"
+    url: "https://vk.com/your_vk_group_id" # Замените!
+    icon: "vk"
+    order: 7
+    isSocial: true
+    showSubscriberCount: true
+    platformId: "vk_group"
+    active: true
+
+  - label_key: "vkPersonalPageLabel"
+    url: "https://vk.com/idYOUR_VK_USER_ID" # Замените!
+    icon: "vk" # Можно использовать ту же иконку VK
+    order: 8
+    isSocial: true
+    showSubscriberCount: true
+    platformId: "vk_personal"
+    active: true
+
+  - label_key: "myPortfolioLabel"
+    url: "https://example.com/portfolio"
+    icon: "folderopen" # Пример иконки, можно использовать Material Symbols
+    order: 9
+    isSocial: false
+    active: true
+
+  # Пример неактивной ссылки (не будет отображаться)
+  - label_key: "hiddenLinkExample"
+    url: "https://example.com/hidden"
+    icon: "visibilityoff"
+    order: 10
+    isSocial: false
+    active: false

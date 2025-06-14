@@ -1,6 +1,10 @@
-// links/js/strings.js
+// strings.js - Локализованные текстовые строки для приложения
 
-// Текстовые строки для поддержки мультиязычности
+/**
+ * @constant {object} strings - Объект для хранения всех локализованных текстовых строк.
+ * Ключи верхнего уровня соответствуют кодам языков (например, "en", "ru").
+ * Вложенные объекты содержат ключи строк и их значения на соответствующем языке.
+ */
 export const strings = {
     "en": {
         "recentVideosTitle": "Recent Videos",
@@ -21,16 +25,26 @@ export const strings = {
         "devDataJsonContentLabel": "data.json Content:",
         "devDebugInfoContentLabel": "API Debug Info:",
         "backToMainText": "Back to Main Site",
-        
-        // NEW: Labels for social media links
+        "openLinkButton": "Open Link",
+        "closeButton": "Close",
+
+        "profileName": "BezzubickMCPlay",
+        "profileDescription": "Minecraft adventures | Streams | Creativity",
+        "avatarAlt": "BezzubickMCPlay profile avatar",
+        "previewAvatarAlt": "Link preview avatar",
+        "twitchStreamAlsoLive": "Stream also live on Twitch!",
+        "localIconExample": "Custom Local Icon Example",
+        "skinViewerLoadError": "3D Skin Viewer failed to load. Please check your internet connection and browser extensions.",
+
+        // Link labels
         "youtubeChannelLabel": "YouTube Channel",
         "telegramChannelLabel": "Telegram Channel",
         "instagramProfileLabel": "Instagram Profile",
         "xTwitterProfileLabel": "X (Twitter) Profile",
         "twitchChannelLabel": "Twitch Channel",
         "tiktokProfileLabel": "TikTok Profile",
-        "vkGroupLabel": "VK (Group)",
-        "vkPersonalPageLabel": "VK (Personal)",
+        "vkGroupLabel": "VK Group",
+        "vkPersonalPageLabel": "VK Personal Page",
         "myPortfolioLabel": "My Portfolio",
         "hiddenLinkExample": "Hidden Link Example"
     },
@@ -53,17 +67,27 @@ export const strings = {
         "devDataJsonContentLabel": "Содержимое data.json:",
         "devDebugInfoContentLabel": "Отладочная информация API:",
         "backToMainText": "Назад к сайту",
+        "openLinkButton": "Открыть ссылку",
+        "closeButton": "Закрыть",
 
-        // NEW: Labels for social media links
+        "profileName": "BezzubickMCPlay",
+        "profileDescription": "Приключения в Minecraft | Стримы | Творчество",
+        "avatarAlt": "Аватар профиля BezzubickMCPlay",
+        "previewAvatarAlt": "Аватар предпросмотра ссылки",
+        "twitchStreamAlsoLive": "Стрим также идёт на Twitch!",
+        "localIconExample": "Пример локальной иконки",
+        "skinViewerLoadError": "3D-просмотрщик скина не загрузился. Пожалуйста, проверьте подключение к интернету и расширения браузера.",
+
+        // Link labels
         "youtubeChannelLabel": "YouTube Канал",
         "telegramChannelLabel": "Telegram Канал",
-        "instagramProfileLabel": "Instagram Профиль",
-        "xTwitterProfileLabel": "X (Twitter) Профиль",
+        "instagramProfileLabel": "Профиль Instagram",
+        "xTwitterProfileLabel": "Профиль X (Twitter)",
         "twitchChannelLabel": "Twitch Канал",
-        "tiktokProfileLabel": "TikTok Профиль",
-        "vkGroupLabel": "ВКонтакте (Группа)",
-        "vkPersonalPageLabel": "ВКонтакте (Личная)",
-        "myPortfolioLabel": "Мое Портфолио",
+        "tiktokProfileLabel": "Профиль TikTok",
+        "vkGroupLabel": "Группа VK",
+        "vkPersonalPageLabel": "Личная страница VK",
+        "myPortfolioLabel": "Мое портфолио",
         "hiddenLinkExample": "Пример скрытой ссылки"
     }
 };

@@ -7,7 +7,7 @@
     "twitch": 3,
     "tiktok": 0,
     "vk_group": 0,
-    "vk_personal": 0
+    "vk_personal": 983
   },
   "youtubeVideos": [
     {
@@ -114,13 +114,12 @@
   "liveStream": {
     "type": "none"
   },
-  "lastUpdated": "2025-06-14T23:31:41.238407",
+  "lastUpdated": "2025-06-15T00:06:57.498125",
   "debugInfo": {
     "twitch_live_error": "No active Twitch stream found for bezzubickmcplay.",
-    "vk_group_error": "No VK group data found.",
-    "vk_personal_error": "No VK personal user data found.",
+    "vk_group_error": "Unexpected error fetching VK group members: 0",
     "instagram_setup_warning": "Instagram API credentials (BUSINESS_ACCOUNT_ID, ACCESS_TOKEN) are missing. Instagram follower count will not be updated automatically.",
-    "x_error": "429 Client Error: Too Many Requests for url: https://api.twitter.com/2/users/1646676312608710657?user.fields=public_metrics",
+    "x_error": "Error fetching X (Twitter) followers (request): 429 Client Error: Too Many Requests for url: https://api.twitter.com/2/users/1646676312608710657?user.fields=public_metrics",
     "tiktok_setup_warning": "TikTok API credentials (username, API Key for TikAPI.io) are missing. TikTok follower count will not be updated automatically."
   }
 }

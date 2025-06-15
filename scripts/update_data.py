@@ -1,9 +1,18 @@
+# scripts/update_data.py - Скрипт для обновления данных социальных сетей
+
 import os
 import json
 import requests
 from datetime import datetime
 import yaml # Оставляем yaml, так как он может использоваться для других целей, если config.yml все еще существует, но не для генерации JS
 import requests.exceptions
+
+# --- ВАЖНО: НАСТРОЙТЕ СЕКРЕТЫ GITHUB ACTIONS ---
+# Все API-ключи, токены и идентификаторы должны быть настроены как Secrets в вашем репозитории GitHub.
+# Перейдите в Settings -> Secrets and variables -> Actions и добавьте каждую переменную окружения,
+# которая используется ниже (например, YOUTUBE_API_KEY, TWITCH_CLIENT_ID и т.д.)
+# Пример: YOUTUBE_API_KEY: 'ВАШ_КЛЮЧ'
+# Если секрет отсутствует, функция API пропустит запрос и запишет ошибку в debugInfo.
 
 # --- ВАШИ КОНФИГУРАЦИИ ---
 # Используйте переменные окружения, чтобы получить секреты GitHub
@@ -12,10 +21,10 @@ TWITCH_CLIENT_ID = os.environ.get('TWITCH_CLIENT_ID')
 TWITCH_CLIENT_SECRET = os.environ.get('TWITCH_CLIENT_SECRET')
 YOUR_YOUTUBE_CHANNEL_ID = os.environ.get('YOUR_YOUTUBE_CHANNEL_ID')
 YOUR_TWITCH_USERNAME = os.environ.get('YOUR_TWITCH_USERNAME')
-YOUR_VK_GROUP_ID = os.environ.get('YOUR_VK_GROUP_ID') # Убедитесь, что это ID группы (например, public12345)
-YOUR_VK_USER_ID = os.environ.get('YOUR_VK_USER_ID') # Убедитесь, что это ID пользователя (например, id12345)
-VK_GROUP_ACCESS_TOKEN = os.environ.get('VK_GROUP_ACCESS_TOKEN')
-VK_USER_ACCESS_TOKEN = os.environ.get('VK_USER_ACCESS_TOKEN')
+YOUR_VK_GROUP_ID = os.environ.get('YOUR_VK_GROUP_ID') # Убедитесь, что это ID группы (например, 123456789 - числовой ID)
+YOUR_VK_USER_ID = os.environ.get('YOUR_VK_USER_ID') # Убедитесь, что это ID пользователя (например, 123456789 - числовой ID)
+VK_GROUP_ACCESS_TOKEN = os.environ.get('VK_GROUP_ACCESS_TOKEN') # Токен с правами доступа к группам
+VK_USER_ACCESS_TOKEN = os.environ.get('VK_USER_ACCESS_TOKEN') # Токен с правами доступа к пользователям (для подписчиков)
 TELEGRAM_BOT_TOKEN = os.environ.get('TELEGRAM_BOT_TOKEN')
 TELEGRAM_CHANNEL_CHAT_ID = os.environ.get('TELEGRAM_CHANNEL_CHAT_ID')
 INSTAGRAM_PAGE_ID = os.environ.get('INSTAGRAM_PAGE_ID') # В большинстве случаев используется Business Account ID
@@ -74,9 +83,13 @@ data['debugInfo'] = {} # Убедимся, что debugInfo чисто для т
 
 def get_youtube_channel_stats(channel_id, api_key):
     """Получает количество подписчиков YouTube канала."""
-    if not channel_id or not api_key:
-        data['debugInfo']['youtube_subs_error'] = "YouTube API Key or Channel ID missing."
-        print("YouTube API Key or Channel ID missing.")
+    if not channel_id:
+        data['debugInfo']['youtube_subs_error'] = "YouTube Channel ID missing."
+        print("YouTube Channel ID missing.")
+        return None
+    if not api_key:
+        data['debugInfo']['youtube_subs_error'] = "YouTube API Key missing."
+        print("YouTube API Key missing.")
         return None
     url = f"https://www.googleapis.com/youtube/v3/channels?part=statistics&id={channel_id}&key={api_key}"
     try:
@@ -98,9 +111,13 @@ def get_youtube_channel_stats(channel_id, api_key):
 
 def get_youtube_recent_videos(channel_id, api_key, max_results=20):
     """Получает список последних видео YouTube канала."""
-    if not channel_id or not api_key:
-        data['debugInfo']['youtube_videos_error'] = "YouTube API Key or Channel ID missing for videos."
-        print("YouTube API Key or Channel ID missing for videos.")
+    if not channel_id:
+        data['debugInfo']['youtube_videos_error'] = "YouTube Channel ID missing for videos."
+        print("YouTube Channel ID missing for videos.")
+        return []
+    if not api_key:
+        data['debugInfo']['youtube_videos_error'] = "YouTube API Key missing for videos."
+        print("YouTube API Key missing for videos.")
         return []
     url_channel = f"https://www.googleapis.com/youtube/v3/channels?part=contentDetails&id={channel_id}&key={api_key}"
     try:
@@ -140,9 +157,13 @@ def get_youtube_recent_videos(channel_id, api_key, max_results=20):
 
 def get_youtube_live_status(channel_id, api_key):
     """Проверяет, ведет ли YouTube канал прямую трансляцию."""
-    if not channel_id or not api_key:
-        data['debugInfo']['youtube_live_error'] = "YouTube API Key or Channel ID missing for live status."
-        print("YouTube API Key or Channel ID missing for live status.")
+    if not channel_id:
+        data['debugInfo']['youtube_live_error'] = "YouTube Channel ID missing for live status."
+        print("YouTube Channel ID missing for live status.")
+        return None
+    if not api_key:
+        data['debugInfo']['youtube_live_error'] = "YouTube API Key missing for live status."
+        print("YouTube API Key missing for live status.")
         return None
     url = f"https://www.googleapis.com/youtube/v3/search?part=snippet&channelId={channel_id}&eventType=live&type=video&key={api_key}"
     try:
@@ -163,9 +184,13 @@ def get_youtube_live_status(channel_id, api_key):
 
 def get_twitch_access_token(client_id, client_secret):
     """Получает токен доступа Twitch API."""
-    if not client_id or not client_secret:
-        data['debugInfo']['twitch_token_error'] = "Twitch Client ID or Client Secret missing."
-        print("Twitch Client ID or Client Secret missing.")
+    if not client_id:
+        data['debugInfo']['twitch_token_error'] = "Twitch Client ID missing."
+        print("Twitch Client ID missing.")
+        return None
+    if not client_secret:
+        data['debugInfo']['twitch_token_error'] = "Twitch Client Secret missing."
+        print("Twitch Client Secret missing.")
         return None
     url = f"https://id.twitch.tv/oauth2/token?client_id={client_id}&client_secret={client_secret}&grant_type=client_credentials"
     try:
@@ -182,7 +207,18 @@ def get_twitch_access_token(client_id, client_secret):
 
 def get_twitch_user_info(username, client_id, access_token):
     """Получает ID пользователя Twitch по его имени пользователя."""
-    if not username or not client_id or not access_token: return None
+    if not username:
+        data['debugInfo']['twitch_user_error'] = "Twitch Username missing."
+        print("Twitch Username missing.")
+        return None
+    if not client_id:
+        data['debugInfo']['twitch_user_error'] = "Twitch Client ID missing for user info."
+        print("Twitch Client ID missing for user info.")
+        return None
+    if not access_token:
+        data['debugInfo']['twitch_user_error'] = "Twitch Access Token missing for user info."
+        print("Twitch Access Token missing for user info.")
+        return None
     url = f"https://api.twitch.tv/helix/users?login={username}"
     headers = {"Client-ID": client_id, "Authorization": f"Bearer {access_token}"}
     try:
@@ -204,7 +240,18 @@ def get_twitch_user_info(username, client_id, access_token):
 
 def get_twitch_follower_count(user_id, client_id, access_token):
     """Получает количество фолловеров Twitch канала."""
-    if not user_id or not client_id or not access_token: return None
+    if not user_id:
+        data['debugInfo']['twitch_followers_error'] = "Twitch User ID missing for followers."
+        print("Twitch User ID missing for followers.")
+        return None
+    if not client_id:
+        data['debugInfo']['twitch_followers_error'] = "Twitch Client ID missing for followers."
+        print("Twitch Client ID missing for followers.")
+        return None
+    if not access_token:
+        data['debugInfo']['twitch_followers_error'] = "Twitch Access Token missing for followers."
+        print("Twitch Access Token missing for followers.")
+        return None
     url = f"https://api.twitch.tv/helix/channels/followers?broadcaster_id={user_id}"
     headers = {"Client-ID": client_id, "Authorization": f"Bearer {access_token}"}
     try:
@@ -222,7 +269,18 @@ def get_twitch_follower_count(user_id, client_id, access_token):
 
 def get_twitch_live_status(username, client_id, access_token):
     """Проверяет, ведет ли Twitch канал прямую трансляцию."""
-    if not username or not client_id or not access_token: return None
+    if not username:
+        data['debugInfo']['twitch_live_error'] = "Twitch Username missing for live status."
+        print("Twitch Username missing for live status.")
+        return None
+    if not client_id:
+        data['debugInfo']['twitch_live_error'] = "Twitch Client ID missing for live status."
+        print("Twitch Client ID missing for live status.")
+        return None
+    if not access_token:
+        data['debugInfo']['twitch_live_error'] = "Twitch Access Token missing for live status."
+        print("Twitch Access Token missing for live status.")
+        return None
     url = f"https://api.twitch.tv/helix/streams?user_login={username}"
     headers = {"Client-ID": client_id, "Authorization": f"Bearer {access_token}"}
     try:
@@ -254,29 +312,41 @@ def get_vk_group_members(group_id, access_token): # Использует VK_GROU
         print("VK Group Access Token missing. Cannot fetch group members.")
         return None
 
+    # VK API method: groups.getById, parameter group_id (not group_ids)
+    # The 'group_id' parameter takes a numeric ID directly.
+    # If the group is public and the token has 'groups' scope, it should work.
     url = f"https://api.vk.com/method/groups.getById?group_id={group_id}&fields=members_count&v=5.199&access_token={access_token}"
+    print(f"Fetching VK group members from URL: {url}") # Для отладки
+
     try:
         response = requests.get(url)
-        response.raise_for_status()
+        response.raise_for_status() # Вызывает HTTPError для плохих ответов (4xx, 5xx)
         json_data = response.json()
 
         if 'error' in json_data:
-            error_msg = json_data['error'].get('error_msg', 'Unknown VK API error')
-            error_code = json_data['error'].get('error_code', 'N/A')
-            data['debugInfo']['vk_group_error'] = f"VK Group API Error {error_code}: {error_msg}"
+            error_obj = json_data['error']
+            error_msg = error_obj.get('error_msg', 'Unknown VK API error')
+            error_code = error_obj.get('error_code', 'N/A')
+            data['debugInfo']['vk_group_error'] = f"VK Group API Error {error_code}: {error_msg}. Request params: group_id={group_id}"
             print(f"VK Group API Error {error_code}: {error_msg}")
             return None
 
         if 'response' in json_data and json_data['response']:
-            return json_data['response'][0].get('members_count')
+            # Проверяем, есть ли поле members_count. Если нет, это может быть приватная группа или проблема с правами токена.
+            if 'members_count' in json_data['response'][0]:
+                return json_data['response'][0].get('members_count')
+            else:
+                data['debugInfo']['vk_group_error'] = "VK group data found but 'members_count' is missing (possibly private group or insufficient token permissions)."
+                print("VK group data found but 'members_count' is missing (possibly private group or insufficient token permissions).")
+                return None
         else:
-            data['debugInfo']['vk_group_error'] = "No VK group data found in response."
-            print("No VK group data found in response.")
+            data['debugInfo']['vk_group_error'] = "No VK group data found in response or empty response."
+            print("No VK group data found in response or empty response.")
     except requests.exceptions.RequestException as e:
-        data['debugInfo']['vk_group_error'] = f"Error fetching VK group members (request): {e}"
-        print(f"Error fetching VK group members (request): {e}")
+        data['debugInfo']['vk_group_error'] = f"Error fetching VK group members (request exception): {e}"
+        print(f"Error fetching VK group members (request exception): {e}")
     except json.JSONDecodeError as e:
-        data['debugInfo']['vk_group_error'] = f"Error decoding VK group response JSON: {e}"
+        data['debugInfo']['vk_group_error'] = f"Error decoding VK group response JSON: {e}. Response content: {response.text[:200]}..."
         print(f"Error decoding VK group response JSON: {e}")
     except Exception as e:
         data['debugInfo']['vk_group_error'] = f"Unexpected error fetching VK group members: {e}"
@@ -295,15 +365,18 @@ def get_vk_user_followers(user_id, access_token): # Использует VK_USER
         return None
 
     url = f"https://api.vk.com/method/users.get?user_ids={user_id}&fields=followers_count&v=5.199&access_token={access_token}"
+    print(f"Fetching VK user followers from URL: {url}") # Для отладки
+
     try:
         response = requests.get(url)
         response.raise_for_status()
         json_data = response.json()
 
         if 'error' in json_data:
-            error_msg = json_data['error'].get('error_msg', 'Unknown VK API error')
-            error_code = json_data['error'].get('error_code', 'N/A')
-            data['debugInfo']['vk_personal_error'] = f"VK User API Error {error_code}: {error_msg}"
+            error_obj = json_data['error']
+            error_msg = error_obj.get('error_msg', 'Unknown VK API error')
+            error_code = error_obj.get('error_code', 'N/A')
+            data['debugInfo']['vk_personal_error'] = f"VK User API Error {error_code}: {error_msg}. Request params: user_id={user_id}"
             print(f"VK User API Error {error_code}: {error_msg}")
             return None
 
@@ -316,13 +389,13 @@ def get_vk_user_followers(user_id, access_token): # Использует VK_USER
                 print("VK user data found but 'followers_count' is missing (possibly private profile or insufficient token permissions).")
                 return None
         else:
-            data['debugInfo']['vk_personal_error'] = "No VK personal user data found in response."
-            print("No VK personal user data found in response.")
+            data['debugInfo']['vk_personal_error'] = "No VK personal user data found in response or empty response."
+            print("No VK personal user data found in response or empty response.")
     except requests.exceptions.RequestException as e:
-        data['debugInfo']['vk_personal_error'] = f"Error fetching VK user followers (request): {e}"
-        print(f"Error fetching VK user followers (request): {e}")
+        data['debugInfo']['vk_personal_error'] = f"Error fetching VK user followers (request exception): {e}"
+        print(f"Error fetching VK user followers (request exception): {e}")
     except json.JSONDecodeError as e:
-        data['debugInfo']['vk_personal_error'] = f"Error decoding VK user response JSON: {e}"
+        data['debugInfo']['vk_personal_error'] = f"Error decoding VK user response JSON: {e}. Response content: {response.text[:200]}..."
         print(f"Error decoding VK user response JSON: {e}")
     except Exception as e:
         data['debugInfo']['vk_personal_error'] = f"Unexpected error fetching VK user followers: {e}"
@@ -331,9 +404,13 @@ def get_vk_user_followers(user_id, access_token): # Использует VK_USER
 
 def get_telegram_channel_members(bot_token, channel_chat_id):
     """Получает количество участников Telegram канала."""
-    if not bot_token or not channel_chat_id:
-        data['debugInfo']['telegram_error'] = "Telegram Bot Token or Channel Chat ID missing."
-        print("Telegram Bot Token or Channel Chat ID missing.")
+    if not bot_token:
+        data['debugInfo']['telegram_error'] = "Telegram Bot Token missing."
+        print("Telegram Bot Token missing.")
+        return None
+    if not channel_chat_id:
+        data['debugInfo']['telegram_error'] = "Telegram Channel Chat ID missing."
+        print("Telegram Channel Chat ID missing.")
         return None
     url = f"https://api.telegram.org/bot{bot_token}/getChatMembersCount?chat_id={channel_chat_id}"
     try:
@@ -355,9 +432,13 @@ def get_telegram_channel_members(bot_token, channel_chat_id):
 
 def get_instagram_follower_count(business_account_id, access_token):
     """Получает количество фолловеров Instagram бизнес-аккаунта."""
-    if not business_account_id or not access_token:
-        data['debugInfo']['instagram_error'] = "Instagram Business Account ID or Access Token missing."
-        print("Instagram Business Account ID or Access Token missing.")
+    if not business_account_id:
+        data['debugInfo']['instagram_error'] = "Instagram Business Account ID missing."
+        print("Instagram Business Account ID missing.")
+        return None
+    if not access_token:
+        data['debugInfo']['instagram_error'] = "Instagram Access Token missing."
+        print("Instagram Access Token missing.")
         return None
 
     url = f"https://graph.facebook.com/v19.0/{business_account_id}/insights?metric=followers_count&period=day&access_token={access_token}"
@@ -380,9 +461,13 @@ def get_instagram_follower_count(business_account_id, access_token):
 
 def get_x_follower_count(user_id, bearer_token):
     """Получает количество фолловеров X (Twitter) аккаунта."""
-    if not user_id or not bearer_token:
-        data['debugInfo']['x_error'] = "X (Twitter) User ID or Bearer Token missing."
-        print("X (Twitter) User ID or Bearer Token missing.")
+    if not user_id:
+        data['debugInfo']['x_error'] = "X (Twitter) User ID missing."
+        print("X (Twitter) User ID missing.")
+        return None
+    if not bearer_token:
+        data['debugInfo']['x_error'] = "X (Twitter) Bearer Token missing."
+        print("X (Twitter) Bearer Token missing.")
         return None
 
     url = f"https://api.twitter.com/2/users/{user_id}?user.fields=public_metrics"
@@ -406,9 +491,13 @@ def get_x_follower_count(user_id, bearer_token):
 
 def get_tiktok_follower_count(username, api_key):
     """Получает количество фолловеров TikTok аккаунта через TikAPI.io."""
-    if not username or not api_key:
-        data['debugInfo']['tiktok_error'] = "TikTok username or TikAPI.io API Key missing."
-        print("TikTok username or TikAPI.io API Key missing.")
+    if not username:
+        data['debugInfo']['tiktok_error'] = "TikTok username missing."
+        print("TikTok username missing.")
+        return None
+    if not api_key:
+        data['debugInfo']['tiktok_error'] = "TikAPI.io API Key missing."
+        print("TikAPI.io API Key missing.")
         return None
 
     url = f"https://api.tikapi.io/profile/user/{username}"
@@ -423,7 +512,7 @@ def get_tiktok_follower_count(username, api_key):
 
         if json_data.get('data') and json_data['data'].get('stats'):
             return json_data['data']['stats'].get('followerCount')
-        elif json_data.get('user') and json_data['user'].get('stats'):
+        elif json_data.get('user') and json_data['user'].get('stats'): # Альтернативный путь в ответе
             return json_data['user']['stats'].get('followerCount')
         else:
             data['debugInfo']['tiktok_error'] = f"TikAPI.io response format unexpected: {json_data}"

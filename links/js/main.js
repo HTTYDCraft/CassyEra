@@ -2,18 +2,16 @@
 // Версия v10 (разделенные файлы, имитация данных, Skinview3D как ES-модуль, полная локализация, Material Symbols, гибкая конфигурация)
 
 // Импорт конфигурационных файлов
-import { appConfig, profileConfig, linksConfig } from '../config.js';
-import { strings } from '../strings.js';
+import { appConfig, profileConfig, linksConfig } from '../config.js'; // Исправлен путь
+import { strings } from '../strings.js'; // Исправлен путь
 
 /**
  * Импорт библиотеки Skinview3D.
+ * Обновлено до версии 3.4.1.
  * Используется синтаксис `import * as` для импорта всех экспортов модуля.
  * Это делает классы и функции Skinview3D доступными через объект `skinview3d` (например, `skinview3d.SkinViewer`).
- * Если CDN-ссылка изменится или станет недоступной, этот импорт завершится ошибкой,
- * и 3D-просмотрщик скина не будет инициализирован.
  */
-import * as skinview3d from "https://cdn.jsdelivr.net/npm/skinview3d@2.0.0/+esm";
-
+import * as skinview3d from "https://cdn.jsdelivr.net/npm/skinview3d@3.4.1/+esm";
 
 /**
  * @constant {object} DOM - Объект, содержащий ссылки на все используемые DOM-элементы.
@@ -25,37 +23,30 @@ const DOM = {
     devView: document.getElementById('dev-view'),
     offlineWarning: document.getElementById('offline-warning'),
     offlineMessage: document.getElementById('offline-message'),
-
     liveStreamSection: document.getElementById('live-stream-section'),
     liveEmbed: document.getElementById('live-embed'),
     twitchNotification: document.getElementById('twitch-notification'),
     twitchMessage: document.getElementById('twitch-message'),
     twitchLink: document.getElementById('twitch-link'),
     twitchLinkText: document.getElementById('twitch-link-text'),
-
     profileSection: document.getElementById('profile-section'),
     avatar: document.getElementById('avatar'),
     profileName: document.getElementById('profile-name'),
     profileDescription: document.getElementById('profile-description'),
     totalFollowers: document.getElementById('total-followers'),
-
     linksSection: document.getElementById('links-section'),
-
     supportSection: document.getElementById('support-section'),
     supportButton: document.getElementById('support-button'),
     supportButtonText: document.getElementById('support-button-text'),
-
     minecraftBlock: document.getElementById('minecraft-block'),
     minecraftTitle: document.getElementById('minecraft-title'),
     skinViewerContainer: document.getElementById('skin-viewer-container'),
     skinCanvas: document.getElementById('skin-canvas'),
     downloadSkinButton: document.getElementById('download-skin-button'),
     downloadSkinText: document.getElementById('download-skin-text'),
-
     youtubeVideosSection: document.getElementById('youtube-videos-section'),
     recentVideosTitle: document.getElementById('recent-videos-title'),
     videoCarousel: document.getElementById('video-carousel'),
-
     themeToggle: document.getElementById('theme-toggle'),
     themeIcon: document.getElementById('theme-icon'),
     languageToggle: document.getElementById('language-toggle'),
@@ -63,24 +54,22 @@ const DOM = {
     backToMainButton: document.getElementById('back-to-main-button'),
     devTitle: document.getElementById('dev-title'),
     devLastUpdatedLabel: document.getElementById('dev-last-updated-label'),
+    devLastUpdated: document.getElementById('dev-last-updated'), // Добавлен элемент для даты обновления
     devDataJsonContentLabel: document.getElementById('dev-data-json-content-label'),
     devDataJsonContent: document.getElementById('dev-data-json-content'),
     devDebugInfoContentLabel: document.getElementById('dev-debug-info-content-label'),
     devDebugInfoContent: document.getElementById('dev-debug-info-content'),
     backToMainText: document.getElementById('back-to-main-text'),
-
     firstVisitModal: document.getElementById('first-visit-modal'),
     modalTitle: document.getElementById('modal-title'),
     modalDescription: document.getElementById('modal-description'),
     modalCloseBtn: document.getElementById('modal-close'),
-
     linkPreviewModal: document.getElementById('link-preview-modal'),
     previewAvatar: document.getElementById('preview-avatar'),
     previewName: document.getElementById('preview-name'),
     previewDescription: document.getElementById('preview-description'),
     previewOpenLink: document.getElementById('preview-open-link'),
     previewCloseButton: document.getElementById('preview-close-button'),
-
     mediaBlockDesktop: document.querySelector('.media-block-desktop')
 };
 
@@ -162,24 +151,21 @@ const updateLanguage = () => {
     if (DOM.twitchLinkText) DOM.twitchLinkText.textContent = strings[currentLang].watchOnTwitch;
     if (DOM.previewOpenLink) DOM.previewOpenLink.textContent = strings[currentLang].openLinkButton;
     if (DOM.previewCloseButton) DOM.previewCloseButton.textContent = strings[currentLang].closeButton;
-
     if (DOM.modalTitle) DOM.modalTitle.textContent = strings[currentLang].modalTitle;
     if (DOM.modalDescription) DOM.modalDescription.textContent = strings[currentLang].modalDescription;
     if (DOM.modalCloseBtn) DOM.modalCloseBtn.textContent = strings[currentLang].gotItButton;
-
     if (DOM.devTitle) DOM.devTitle.textContent = strings[currentLang].devPageTitle;
     if (DOM.devLastUpdatedLabel) DOM.devLastUpdatedLabel.textContent = strings[currentLang].devLastUpdatedLabel;
     if (DOM.devDataJsonContentLabel) DOM.devDataJsonContentLabel.textContent = strings[currentLang].devDataJsonContentLabel;
     if (DOM.devDebugInfoContentLabel) DOM.devDebugInfoContentLabel.textContent = strings[currentLang].devDebugInfoContentLabel;
+    if (DOM.devDebugInfoContent) DOM.devDebugInfoContent.textContent = strings[currentLang].devDebugInfoContent;
     if (DOM.backToMainText) DOM.backToMainText.textContent = strings[currentLang].backToMainText;
-
     // Локализация профиля и alt-текстов для изображений
     if (DOM.profileName) DOM.profileName.textContent = strings[currentLang][profileConfig.name_key];
     if (DOM.profileDescription) DOM.profileDescription.textContent = strings[currentLang][profileConfig.description_key];
     if (DOM.avatar) DOM.avatar.alt = strings[currentLang].avatarAlt;
     if (DOM.previewAvatar) DOM.previewAvatar.alt = strings[currentLang].previewAvatarAlt;
     if (DOM.twitchMessage) DOM.twitchMessage.textContent = strings[currentLang].twitchStreamAlsoLive;
-
 
     // Перерендеринг элементов, которые динамически создаются и используют локализованные строки
     renderLinksSection(linksConfig);
@@ -212,7 +198,6 @@ const calculateAndDisplayTotalFollowers = () => {
     let total = 0;
     let allCountsAvailable = true;
     const sourceCounts = appData.followerCounts || {};
-
     // Проходим по всем ссылкам в конфигурации, чтобы суммировать подписчиков
     for (const link of linksConfig) {
         // Учитываем только социальные ссылки, которые активны и должны показывать счетчик
@@ -233,7 +218,6 @@ const calculateAndDisplayTotalFollowers = () => {
             }
         }
     }
-
     // Отображаем общее количество подписчиков, если секция профиля видима
     if (DOM.profileSection && appConfig.showProfileSection) {
         if (DOM.totalFollowers) {
@@ -252,7 +236,7 @@ const calculateAndDisplayTotalFollowers = () => {
 const fetchAppData = async () => {
     console.log("[Data Fetch] Попытка загрузки данных приложения из data.json...");
     try {
-        const response = await fetch('./data.json?t=' + Date.now()); // Добавляем timestamp для предотвращения кэширования
+        const response = await fetch('./data.json?t=' + Date.now()); // Путь к data.json в корне
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -318,7 +302,6 @@ const renderLinksSection = (links) => {
         DOM.linksSection.innerHTML = ''; // Полностью очищаем секцию перед рендерингом
         // Фильтруем только активные ссылки и сортируем по порядку
         const sortedLinks = links.filter(link => link.active).sort((a, b) => a.order - b.order);
-
         sortedLinks.forEach(link => {
             const card = document.createElement('a');
             card.href = link.url;
@@ -327,7 +310,6 @@ const renderLinksSection = (links) => {
             card.className = `card relative flex items-center justify-between p-4 rounded-2xl m3-shadow-md ${link.isSocial ? 'swipe-target' : ''} cursor-pointer`;
             card.setAttribute('data-link-id', link.label_key); // Используется для идентификации ссылки
             card.setAttribute('data-platform-id', link.platformId || ''); // ID платформы для данных API
-
             // Добавляем слушатели событий для предпросмотра ссылки и свайпов
             let previewTimeout;
             card.addEventListener('pointerenter', () => { // При наведении курсора
@@ -351,7 +333,6 @@ const renderLinksSection = (links) => {
                     showLinkPreview(link);
                 }
             });
-
             // Формируем HTML для иконки: приоритет customIconUrl > Material Symbols
             let iconHtml = '';
             if (link.customIconUrl) {
@@ -365,14 +346,12 @@ const renderLinksSection = (links) => {
                 iconHtml = `<span class="material-symbols-outlined icon-large">link</span>`;
                 console.warn(`[Links] Нет иконки для ${link.label_key}, используется иконка по умолчанию 'link'.`);
             }
-
             // Формируем HTML для счетчика подписчиков
             let followerCountHtml = '';
             if (link.isSocial && link.showSubscriberCount) {
                 const count = appData.followerCounts ? appData.followerCounts[link.platformId] : undefined;
                 followerCountHtml = `<span class="text-sm text-gray-400 mr-2 follower-count-display">${formatCount(count)}</span>`;
             }
-
             // Вставляем сгенерированный HTML в карточку
             card.innerHTML = `
                 <div class="flex items-center">
@@ -398,7 +377,6 @@ const renderLinksSection = (links) => {
 const renderYouTubeVideosSection = () => {
     const videos = appData.youtubeVideos || [];
     setVisibility(DOM.youtubeVideosSection, appConfig.showYouTubeVideosSection && videos.length > 0);
-
     if (appConfig.showYouTubeVideosSection && videos.length > 0) {
         if (DOM.videoCarousel) DOM.videoCarousel.innerHTML = ''; // Очищаем карусель
         videos.forEach(video => {
@@ -428,10 +406,8 @@ const renderYouTubeVideosSection = () => {
  */
 const handleLiveStreamLayout = () => {
     const isDesktopHorizontal = window.matchMedia("(min-width: 768px) and (orientation: landscape)").matches;
-
     // Определяем, должен ли блок стрима вообще быть показан
     const shouldShowLiveStream = appConfig.showLiveStreamSection && appData.liveStream && appData.liveStream.type !== 'none';
-
     if (shouldShowLiveStream) {
         if (isDesktopHorizontal) {
             // Перемещаем секцию стрима в media-block-desktop
@@ -458,7 +434,6 @@ const handleLiveStreamLayout = () => {
         setVisibility(DOM.liveStreamSection, false);
         DOM.liveStreamSection.classList.remove('md-visible');
     }
-
     // Управление видимостью media-block-desktop
     if (DOM.mediaBlockDesktop) {
         // Показываем media-block-desktop только если это ПК и должен быть скин или стрим
@@ -467,7 +442,6 @@ const handleLiveStreamLayout = () => {
         setVisibility(DOM.mediaBlockDesktop, showMediaBlock);
     }
 };
-
 
 /**
  * @function displayLiveStreamContent
@@ -478,7 +452,6 @@ const handleLiveStreamLayout = () => {
 const displayLiveStreamContent = (streamInfo) => {
     if (DOM.liveEmbed) DOM.liveEmbed.src = ''; // Очищаем src на случай, если стрим закончился
     setVisibility(DOM.twitchNotification, false); // Скрываем уведомление Twitch по умолчанию
-
     if (streamInfo.type === 'youtube' && streamInfo.id) {
         // Если активен YouTube стрим, встраиваем его
         if (DOM.liveEmbed) DOM.liveEmbed.src = `https://www.youtube.com/embed/${streamInfo.id}?autoplay=1&mute=0&controls=1`;
@@ -499,21 +472,33 @@ const displayLiveStreamContent = (streamInfo) => {
     }
 };
 
-
 /**
  * @function manageFirstVisitModal
  * Управляет отображением модального окна с инструкциями для первого посещения.
  * Модальное окно показывается только один раз, затем его состояние сохраняется в `localStorage`.
  */
 const manageFirstVisitModal = () => {
+    // Убедитесь, что модальное окно существует в DOM
+    if (!DOM.firstVisitModal) {
+        console.warn("[Modal] Модальное окно первого посещения не найдено в DOM.");
+        return;
+    }
+
     const hasVisited = localStorage.getItem('visited_modal');
     if (!hasVisited) {
-        setVisibility(DOM.firstVisitModal, true);
-        if (DOM.modalCloseBtn) DOM.modalCloseBtn.onclick = () => {
-            setVisibility(DOM.firstVisitModal, false);
-            localStorage.setItem('visited_modal', 'true');
-        };
-        console.log("[Modal] Показано модальное окно первого посещения.");
+        // Проверяем, что все DOM элементы внутри модального окна существуют
+        if (DOM.modalTitle && DOM.modalDescription && DOM.modalCloseBtn) {
+            setVisibility(DOM.firstVisitModal, true);
+            DOM.modalCloseBtn.onclick = () => {
+                setVisibility(DOM.firstVisitModal, false);
+                localStorage.setItem('visited_modal', 'true');
+                console.log("[Modal] Модальное окно первого посещения закрыто.");
+            };
+            console.log("[Modal] Показано модальное окно первого посещения.");
+        } else {
+            console.error("[Modal] Отсутствуют элементы внутри модального окна первого посещения. Модальное окно не будет показано.");
+            setVisibility(DOM.firstVisitModal, false); // Скрываем, если не все элементы найдены
+        }
     } else {
         setVisibility(DOM.firstVisitModal, false);
         console.log("[Modal] Модальное окно первого посещения не показано (уже посещено).");
@@ -529,12 +514,13 @@ const manageFirstVisitModal = () => {
 const initSwipeGestures = () => {
     const swipeTargets = document.querySelectorAll('.swipe-target');
     console.log(`[Gestures] Инициализация жестов свайпа для ${swipeTargets.length} элементов.`);
-
     swipeTargets.forEach(card => {
         let startX = 0;
+        let startY = 0; // Добавлено для отслеживания вертикального движения
         let currentX = 0;
+        let currentY = 0; // Добавлено для отслеживания вертикального движения
         let isSwiping = false;
-        let swipeStarted = false; // Флаг для отслеживания, был ли реальный свайп, а не просто клик
+        let swipeStarted = false; // Флаг, указывающий, начался ли горизонтальный свайп (преодолен порог)
 
         const linkData = linksConfig.find(link => link.label_key === card.getAttribute('data-link-id'));
         if (!linkData) {
@@ -545,42 +531,64 @@ const initSwipeGestures = () => {
         /**
          * @function handleStart
          * Обработчик начала касания/нажатия мыши.
-         * Устанавливает начальную позицию, флаги свайпа и отключает CSS-переходы.
-         * Также временно отключает стандартный обработчик клика для предотвращения ложных срабатываний после
-         * свайпа.
+         * Устанавливает начальную позицию и флаг свайпа.
          * @param {Event} e - Событие (TouchEvent или MouseEvent).
          */
         const handleStart = (e) => {
             isSwiping = true;
             swipeStarted = false; // Сбрасываем флаг начала свайпа
             startX = e.touches ? e.touches[0].clientX : e.clientX;
+            startY = e.touches ? e.touches[0].clientY : e.clientY; // Захватываем начальную Y-координату
             card.style.transition = 'none'; // Отключаем CSS-переход во время активного свайпа
-            // Важно: Отключаем обработку клика на время свайпа, чтобы избежать срабатывания ссылки при завершении свайпа
-            // Проверяем, что `_handleClickForPreview` существует, прежде чем пытаться удалить слушатель
-            if (card._handleClickForPreview) {
-                card.removeEventListener('click', card._handleClickForPreview);
-            }
         };
 
         /**
          * @function handleMove
          * Обработчик движения касания/мыши во время свайпа.
-         * Обновляет позицию карточки и применяет классы для визуальной обратной связи (swiping-left/right).
+         * Обновляет позицию карточки и применяет классы для визуальной обратной связи.
+         * Учитывает доминирующее направление движения для предотвращения конфликтов со скроллом.
          * @param {Event} e - Событие (TouchEvent или MouseEvent).
          */
         const handleMove = (e) => {
             if (!isSwiping) return;
+
             currentX = e.touches ? e.touches[0].clientX : e.clientX;
+            currentY = e.touches ? e.touches[0].clientY : e.clientY;
+
             const deltaX = currentX - startX;
+            const deltaY = currentY - startY;
 
-            if (Math.abs(deltaX) > 5) { // Минимальный порог для начала свайпа (5px)
-                swipeStarted = true;
+            const horizontalMoveThreshold = 30; // Порог в пикселях для начала горизонтального свайпа
+            const verticalMoveTolerance = 0.5; // Насколько горизонтальным должен быть свайп (например, 0.5 означает deltaX > 0.5 * deltaY)
+
+            // Если свайп еще не начат (не преодолен горизонтальный порог)
+            if (!swipeStarted) {
+                // Если вертикальное движение значительно больше горизонтального, считаем это скроллом
+                if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 10) { // Порог 10px для начала скролла
+                    isSwiping = false; // Прекращаем отслеживать как свайп
+                    card.style.transform = 'translateX(0)'; // Сбрасываем любое случайное горизонтальное смещение
+                    card.classList.remove('swiping-left', 'swiping-right');
+                    // НЕ вызываем e.preventDefault(), чтобы разрешить нативный скролл
+                    return;
+                }
+                // Если горизонтальное движение превышает порог И оно достаточно доминирует над вертикальным
+                else if (Math.abs(deltaX) > horizontalMoveThreshold && Math.abs(deltaX) > (Math.abs(deltaY) * verticalMoveTolerance)) {
+                    swipeStarted = true; // Свайп официально начат
+                    e.preventDefault(); // Предотвращаем дефолтное поведение (скролл)
+                }
+                // Если движение слишком маленькое, чтобы определить направление, ничего не делаем
+                else if (Math.abs(deltaX) <= horizontalMoveThreshold && Math.abs(deltaY) <= 10) { // Порог 10px для незначительных движений
+                    return;
+                }
+            }
+
+            if (swipeStarted) {
+                e.preventDefault(); // Продолжаем предотвращать дефолтное поведение (скролл), если свайп уже начался
                 card.style.transform = `translateX(${deltaX}px)`;
-
                 card.classList.remove('swiping-left', 'swiping-right');
-                if (deltaX > 20) { // Если свайп достаточно большой вправо
+                if (deltaX > 0) {
                     card.classList.add('swiping-right');
-                } else if (deltaX < -20) { // Если свайп достаточно большой влево
+                } else {
                     card.classList.add('swiping-left');
                 }
             }
@@ -590,18 +598,24 @@ const initSwipeGestures = () => {
          * @function handleEnd
          * Обработчик завершения касания/отпускания кнопки мыши.
          * Определяет, был ли выполнен достаточный свайп, и выполняет соответствующее действие (открытие URL).
-         * Сбрасывает состояние свайпа и включает обратно CSS-переходы и стандартный обработчик клика.
+         * Сбрасывает состояние свайпа и включает обратно CSS-переходы.
          */
         const handleEnd = () => {
-            if (!isSwiping) return;
+            if (!isSwiping && !swipeStarted) { // Если не было активного свайпа или он был отменен как скролл
+                card.style.transform = 'translateX(0)'; // Убеждаемся, что карточка возвращается на место
+                card.classList.remove('swiping-left', 'swiping-right');
+                card.style.transition = 'transform 0.2s ease, background-color 0.3s ease, box-shadow 0.2s ease';
+                return;
+            }
+
             isSwiping = false;
             card.style.transition = 'transform 0.2s ease, background-color 0.3s ease, box-shadow 0.2s ease'; // Включаем CSS-переходы обратно
             card.classList.remove('swiping-left', 'swiping-right');
 
-            const deltaX = currentX - startX;
+            const deltaX = currentX - startX; // Пересчитываем на основе конечных позиций
             const swipeThreshold = card.offsetWidth * 0.25; // Порог свайпа 25% ширины карточки
 
-            if (swipeStarted && Math.abs(deltaX) > swipeThreshold) { // Если был полноценный свайп
+            if (swipeStarted && Math.abs(deltaX) > swipeThreshold) { // Действуем только если свайп был инициирован и преодолел порог
                 if (deltaX > 0) { // Свайп вправо: подписка или основная ссылка
                     const targetUrl = linkData.subscribeUrl || linkData.url;
                     window.open(targetUrl, '_blank');
@@ -625,12 +639,8 @@ const initSwipeGestures = () => {
                     }
                 }
             }
-            card.style.transform = 'translateX(0)'; // Сброс позиции карточки
-            // Включаем обработку клика после завершения свайпа, с небольшой задержкой,
-            // чтобы избежать ложного срабатывания клика после `touchend`.
-            setTimeout(() => {
-                card.addEventListener('click', card._handleClickForPreview);
-            }, 50); // Небольшая задержка, чтобы избежать ложного клика после touchEnd
+            card.style.transform = 'translateX(0)'; // Сброс позиции карточки (возврат на место)
+            swipeStarted = false; // Сбрасываем для следующего взаимодействия
         };
 
         /**
@@ -640,18 +650,21 @@ const initSwipeGestures = () => {
          * Либо показывает предпросмотр, либо позволяет стандартному действию ссылки произойти (если предпросмотр уже открыт).
          */
         card._handleClickForPreview = (e) => {
-            if (!swipeStarted) { // Если свайп не начинался, то это обычный клик/тап
-                // Если предпросмотр уже показан для этой ссылки, то открыть ссылку
-                // Иначе, показать предпросмотр
-                if (DOM.linkPreviewModal.classList.contains('active') && DOM.linkPreviewModal.dataset.currentLinkKey === linkData.label_key) {
-                    // Разрешаем дефолтное поведение, так как это второй тап/клик на той же ссылке
-                    // (первый открыл предпросмотр, второй - саму ссылку)
-                } else {
-                    e.preventDefault(); // Предотвращаем дефолтное действие ссылки
-                    showLinkPreview(linkData);
-                }
+            if (swipeStarted) { // Если свайп-жест был инициирован (swipeStarted стало true), предотвращаем клик
+                e.preventDefault();
+                // swipeStarted = false; // Не сбрасываем здесь, это делает handleEnd
+                return;
             }
-            swipeStarted = false; // Сбрасываем для следующего взаимодействия
+            // Если свайп не начинался, то это обычный клик/тап
+            // Если предпросмотр уже показан для этой ссылки, то открыть ссылку
+            // Иначе, показать предпросмотр
+            if (DOM.linkPreviewModal.classList.contains('active') && DOM.linkPreviewModal.dataset.currentLinkKey === linkData.label_key) {
+                // Разрешаем дефолтное поведение, так как это второй тап/клик на той же ссылке
+                // (первый открыл предпросмотр, второй - саму ссылку)
+            } else {
+                e.preventDefault(); // Предотвращаем дефолтное действие ссылки
+                showLinkPreview(linkData);
+            }
         };
 
         // Привязываем слушатели событий для мыши и касаний
@@ -660,11 +673,12 @@ const initSwipeGestures = () => {
         card.addEventListener('mouseup', handleEnd);
         card.addEventListener('mouseleave', handleEnd);
 
-        card.addEventListener('touchstart', (e) => { handleStart(e); }, { passive: false }); // `passive: false` для `preventDefault`
-        card.addEventListener('touchmove', (e) => { e.preventDefault(); handleMove(e); }, { passive: false });
+        // Для touch-событий: passive: false позволяет вызывать preventDefault
+        card.addEventListener('touchstart', handleStart, { passive: false });
+        card.addEventListener('touchmove', handleMove, { passive: false });
         card.addEventListener('touchend', handleEnd);
 
-        // Клик слушатель добавляется после обработки свайпов
+        // Клик слушатель добавляется один раз
         card.addEventListener('click', card._handleClickForPreview);
     });
 };
@@ -687,14 +701,12 @@ const initMinecraftSkinViewer = () => {
         }
         return;
     }
-
     // Проверяем наличие необходимых DOM-элементов
     if (!DOM.skinCanvas || !DOM.skinViewerContainer) {
         console.error("[SkinViewer] Отсутствуют необходимые DOM-элементы (canvas или контейнер) для просмотрщика скина. Инициализация невозможна.");
         setVisibility(DOM.minecraftBlock, false);
         return;
     }
-
     // Проверяем, загружен ли модуль skinview3d.
     if (typeof skinview3d === 'undefined' || typeof skinview3d.SkinViewer === 'undefined') {
         console.error("[SkinViewer] Библиотека skinview3d не загружена или недоступна. 3D просмотр скина невозможен.");
@@ -702,24 +714,27 @@ const initMinecraftSkinViewer = () => {
         setVisibility(DOM.minecraftBlock, false);
         return;
     }
-
     // Если экземпляр уже существует, очищаем его, чтобы избежать дублирования.
     if (skinViewerInstance) {
         skinViewerInstance.dispose();
         skinViewerInstance = null;
         console.log("[SkinViewer] Предыдущий экземпляр SkinViewer3D очищен.");
     }
-
     try {
         // Создаем новый экземпляр SkinViewer.
         skinViewerInstance = new skinview3d.SkinViewer({
             canvas: DOM.skinCanvas,
             width: DOM.skinViewerContainer.offsetWidth,
-            height: DOM.skinViewerContainer.offsetHeight
+            height: DOM.skinViewerContainer.offsetHeight,
+            // Добавляем фоновый цвет, чтобы избежать прозрачности по умолчанию
+            // background: 0x000000, // Пример черного фона
+            // transparent: false,
         });
 
-        // Загружаем скин асинхронно
-        skinViewerInstance.loadSkin(profileConfig.minecraftSkinUrl)
+        // Загружаем скин
+        skinViewerInstance.loadSkin(profileConfig.minecraftSkinUrl, {
+            // Дополнительные параметры загрузки, если нужны
+        })
             .then(() => {
                 console.log("[SkinViewer] Скин успешно загружен.");
                 // Устанавливаем анимацию ходьбы
@@ -745,13 +760,11 @@ const initMinecraftSkinViewer = () => {
                 console.log("[SkinViewer] Canvas изменен в размере и SkinViewer3D адаптирован.");
             }
         }).observe(DOM.skinViewerContainer);
-
         // Делаем секцию видимой, если инициализация прошла успешно (даже если скин еще грузится).
         setVisibility(DOM.minecraftBlock, true);
         // Добавляем слушатель для кнопки скачивания скина.
         if (DOM.downloadSkinButton) DOM.downloadSkinButton.addEventListener('click', downloadMinecraftSkin);
         console.log("[SkinViewer] 3D-просмотрщик скина Minecraft инициализирован и настроен.");
-
     } catch (error) {
         // Логируем любые ошибки, возникающие во время инициализации Skinview3D.
         console.error("[SkinViewer] Ошибка при инициализации 3D-просмотрщика скина (SkinViewer3D):", error);
@@ -759,7 +772,6 @@ const initMinecraftSkinViewer = () => {
         setVisibility(DOM.minecraftBlock, false); // Скрываем секцию в случае критической ошибки инициализации
     }
 };
-
 
 /**
  * @function downloadMinecraftSkin
@@ -831,15 +843,12 @@ const showLinkPreview = (linkData) => {
         console.error("[Preview] Элемент модального окна предпросмотра ссылки не найден.");
         return;
     }
-
     // Останавливаем скрытие, если оно было запланировано предыдущим pointerleave
     clearTimeout(DOM.linkPreviewModal._hideTimeout);
-
     // Если предпросмотр уже открыт для этой же ссылки, не делаем ничего
     if (DOM.linkPreviewModal.classList.contains('active') && DOM.linkPreviewModal.dataset.currentLinkKey === linkData.label_key) {
         return;
     }
-
     // Заполняем содержимое модального окна данными профиля
     if (DOM.previewAvatar) DOM.previewAvatar.src = profileConfig.avatar;
     if (DOM.previewName) DOM.previewName.textContent = strings[currentLang][profileConfig.name_key]; // Локализация имени
@@ -847,23 +856,18 @@ const showLinkPreview = (linkData) => {
     if (DOM.previewOpenLink) DOM.previewOpenLink.textContent = strings[currentLang].openLinkButton; // Локализация текста кнопки
     if (DOM.previewOpenLink) DOM.previewOpenLink.href = linkData.url; // Кнопка "Открыть ссылку" ведет на URL ссылки
     if (DOM.previewAvatar) DOM.previewAvatar.alt = strings[currentLang].previewAvatarAlt; // Локализация alt текста
-
     // Сохраняем ключ текущей ссылки в dataset модального окна для последующих проверок
     DOM.linkPreviewModal.dataset.currentLinkKey = linkData.label_key;
-
     setVisibility(DOM.linkPreviewModal, true); // Делаем модальное окно видимым
     DOM.linkPreviewModal.classList.add('active'); // Добавляем класс 'active' для применения стилей/анимаций
-
     // Добавляем слушатели для закрытия модального окна
     if (DOM.previewCloseButton) DOM.previewCloseButton.onclick = hideLinkPreview;
     if (DOM.previewCloseButton) DOM.previewCloseButton.textContent = strings[currentLang].closeButton; // Локализация текста кнопки
-
     // Добавляем слушатели для кликов по элементам внутри предпросмотра, чтобы открыть ссылку
     // Используем e.preventDefault(), чтобы не было дублирования открытия, если элемент является ссылкой.
     if (DOM.previewAvatar) DOM.previewAvatar.onclick = (e) => { e.preventDefault(); window.open(linkData.url, '_blank'); hideLinkPreview(); };
     if (DOM.previewName) DOM.previewName.onclick = (e) => { e.preventDefault(); window.open(linkData.url, '_blank'); hideLinkPreview(); };
     if (DOM.previewDescription) DOM.previewDescription.onclick = (e) => { e.preventDefault(); window.open(linkData.url, '_blank'); hideLinkPreview(); };
-
     console.log(`[Preview] Показан предпросмотр ссылки для: ${strings[currentLang][linkData.label_key] || linkData.label_key}`);
 };
 
@@ -915,6 +919,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (appConfig.showThemeToggle && DOM.themeToggle) {
         DOM.themeToggle.addEventListener('click', () => {
             currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            localStorage.setItem('theme', currentTheme); // Сохраняем тему в localStorage
             applyTheme(currentTheme);
             console.log(`[Event] Тема переключена на: ${currentTheme}`);
         });
@@ -954,6 +959,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     } else {
         console.warn("[Init] Режим разработчика отключен или кнопка не найдена/скрыта согласно конфигурации.");
     }
+
     // Выполняем начальную проверку хэша URL для прямого доступа к виду разработчика.
     const initialHash = window.location.hash;
     if (initialHash === '#/dev' && appConfig.developmentMode) {
@@ -973,7 +979,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             console.error(strings[currentLang].skinViewerLoadError); // Добавляем сообщение об ошибке
             setVisibility(DOM.minecraftBlock, false); // Скрываем блок, если библиотека не загрузилась
         }
-    }, 500); // Даем 500мс на загрузку модуля
+    }, 100); // Уменьшена задержка, так как CDN стабилен
 
     // 8. Настройка кнопки поддержки.
     setupSupportButton();
@@ -996,7 +1002,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     // 12. Настройка аналитики (заглушка).
     setupAnalytics();
     console.log("[Init] Аналитика настроена.");
-
     console.log("Инициализация Personal Link Aggregator завершена.");
     console.log("------------------------------------------");
 });

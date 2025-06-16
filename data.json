@@ -11,6 +11,11 @@
   },
   "youtubeVideos": [
     {
+      "id": "DXlqxVkDnr4",
+      "title": "😱 Майнкрафт, но Я Продолжил ДЕТЕКТИВНУЮ ИСТОРИЮ [Детектив: Смайл] | Глава 2 | Minecraft",
+      "thumbnailUrl": "https://i.ytimg.com/vi/DXlqxVkDnr4/maxresdefault.jpg"
+    },
+    {
       "id": "sZoIbXqVrJk",
       "title": "😱 Майнкрафт, но Я Запустил ДЕТЕКТИВНУЮ ИСТОРИЮ [Детектив: Смайл] | Глава 1 | Minecraft",
       "thumbnailUrl": "https://i.ytimg.com/vi/sZoIbXqVrJk/maxresdefault.jpg"
@@ -104,17 +109,12 @@
       "id": "cgpzz4ePjhc",
       "title": "😱 Майнкрафт, но Мы Попали В СТРАШНЫЙ ЛАГЕРЬ • Человек-Мотылёк [Полное Прохождение] | Minecraft",
       "thumbnailUrl": "https://i.ytimg.com/vi/cgpzz4ePjhc/maxresdefault.jpg"
-    },
-    {
-      "id": "En6f5CUeeQg",
-      "title": "Беззубик, когда НЕ ВЫПУСКАЕТ Видео 15 ДНЕЙ 😂 #minecraft #майнкрафт #minecraftmemes 👉 #FREEDUROV",
-      "thumbnailUrl": "https://i.ytimg.com/vi/En6f5CUeeQg/maxresdefault.jpg"
     }
   ],
   "liveStream": {
     "type": "none"
   },
-  "lastUpdated": "2025-06-16T12:00:07.854440",
+  "lastUpdated": "2025-06-16T12:56:45.152281",
   "debugInfo": {
     "twitch_live_error": "No active Twitch stream found for bezzubickmcplay.",
     "vk_group_error": "Unexpected error fetching VK group members: 0",

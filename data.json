@@ -11,6 +11,11 @@
   },
   "youtubeVideos": [
     {
+      "id": "e7K5ijK2VOo",
+      "title": "Отправь тому самому другу 😂 #shorts #майнкрафт #bezzubickmcplay",
+      "thumbnailUrl": "https://i.ytimg.com/vi/e7K5ijK2VOo/maxresdefault.jpg"
+    },
+    {
       "id": "DXlqxVkDnr4",
       "title": "😱 Майнкрафт, но Я Продолжил ДЕТЕКТИВНУЮ ИСТОРИЮ [Детектив: Смайл] | Глава 2 | Minecraft",
       "thumbnailUrl": "https://i.ytimg.com/vi/DXlqxVkDnr4/maxresdefault.jpg"
@@ -104,17 +109,12 @@
       "id": "FAXuDSitKFU",
       "title": "💀 Бу! Испугался? Не бойся! Я друг! #Shorts #minecraft #майнкрафт #minecraftmemes",
       "thumbnailUrl": "https://i.ytimg.com/vi/FAXuDSitKFU/maxresdefault.jpg"
-    },
-    {
-      "id": "cgpzz4ePjhc",
-      "title": "😱 Майнкрафт, но Мы Попали В СТРАШНЫЙ ЛАГЕРЬ • Человек-Мотылёк [Полное Прохождение] | Minecraft",
-      "thumbnailUrl": "https://i.ytimg.com/vi/cgpzz4ePjhc/maxresdefault.jpg"
     }
   ],
   "liveStream": {
     "type": "none"
   },
-  "lastUpdated": "2025-06-18T11:53:03.831585",
+  "lastUpdated": "2025-06-18T12:20:12.183263",
   "debugInfo": {
     "twitch_live_error": "No active Twitch stream found for bezzubickmcplay.",
     "vk_group_error": "Unexpected error fetching VK group members: 0",

@@ -1,7 +1,7 @@
 {
   "followerCounts": {
     "youtube": 228000,
-    "telegram": 37,
+    "telegram": 38,
     "instagram": 0,
     "x": 2,
     "twitch": 3,
@@ -114,7 +114,7 @@
   "liveStream": {
     "type": "none"
   },
-  "lastUpdated": "2025-06-19T15:58:35.146689",
+  "lastUpdated": "2025-06-19T16:29:09.820698",
   "debugInfo": {
     "twitch_live_error": "No active Twitch stream found for bezzubickmcplay.",
     "vk_group_error": "Unexpected error fetching VK group members: 0",

@@ -11,11 +11,6 @@
   },
   "youtubeVideos": [
     {
-      "id": "4DsHM0SmvGk",
-      "title": "🔴 ПОСЛЕДНИЙ СТРИМ ПО РЕПО В ИЮНЕ И НОВОЕ ОБНОВЛЕНИЕ! | R.E.P.O",
-      "thumbnailUrl": "https://i.ytimg.com/vi/4DsHM0SmvGk/maxresdefault_live.jpg"
-    },
-    {
       "id": "e7K5ijK2VOo",
       "title": "Отправь тому самому другу 😂 #shorts #майнкрафт #bezzubickmcplay",
       "thumbnailUrl": "https://i.ytimg.com/vi/e7K5ijK2VOo/maxresdefault.jpg"
@@ -109,15 +104,17 @@
       "id": "QzXOnCefouU",
       "title": "🎬 Майнкрафт Фильм 2025 - Реакция и Разбор НОВОГО ТРЕЙЛЕРА | Bezzubick MCPlay | Minecraft",
       "thumbnailUrl": "https://i.ytimg.com/vi/QzXOnCefouU/maxresdefault.jpg"
+    },
+    {
+      "id": "FAXuDSitKFU",
+      "title": "💀 Бу! Испугался? Не бойся! Я друг! #Shorts #minecraft #майнкрафт #minecraftmemes",
+      "thumbnailUrl": "https://i.ytimg.com/vi/FAXuDSitKFU/maxresdefault.jpg"
     }
   ],
   "liveStream": {
-    "type": "youtube",
-    "id": "4DsHM0SmvGk",
-    "title": "🔴 ПОСЛЕДНИЙ СТРИМ ПО РЕПО В ИЮНЕ И НОВОЕ ОБНОВЛЕНИЕ! | R.E.P.O",
-    "youtubeChannelId": "UCm6mheCT60mZ5qlxG5r2GeA"
+    "type": "none"
   },
-  "lastUpdated": "2025-06-20T22:58:57.629465",
+  "lastUpdated": "2025-06-20T23:23:09.069413",
   "debugInfo": {
     "twitch_live_error": "No active Twitch stream found for bezzubickmcplay.",
     "vk_group_error": "Unexpected error fetching VK group members: 0",

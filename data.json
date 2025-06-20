@@ -112,12 +112,9 @@
     }
   ],
   "liveStream": {
-    "type": "youtube",
-    "id": "4DsHM0SmvGk",
-    "title": "🔴 ПОСЛЕДНИЙ СТРИМ ПО РЕПО В ИЮНЕ И НОВОЕ ОБНОВЛЕНИЕ! | R.E.P.O",
-    "youtubeChannelId": "UCm6mheCT60mZ5qlxG5r2GeA"
+    "type": "none"
   },
-  "lastUpdated": "2025-06-20T19:27:34.413784",
+  "lastUpdated": "2025-06-20T19:37:52.586846",
   "debugInfo": {
     "twitch_live_error": "No active Twitch stream found for bezzubickmcplay.",
     "vk_group_error": "Unexpected error fetching VK group members: 0",

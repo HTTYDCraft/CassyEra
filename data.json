@@ -114,7 +114,7 @@
   "liveStream": {
     "type": "none"
   },
-  "lastUpdated": "2025-07-03T11:49:26.947448",
+  "lastUpdated": "2025-07-03T11:57:51.395464",
   "debugInfo": {
     "twitch_live_error": "No active Twitch stream found for bezzubickmcplay.",
     "vk_group_error": "Error fetching VK group members (request exception): 502 Server Error: Bad Gateway for url: https://api.vk.com/method/groups.getById?group_id=211107420&fields=members_count&v=5.199&access_token=acd3d90aacd3d90aacd3d90a52afc2e14caacd3acd3d90acf8aae923b4f04684b637e89",

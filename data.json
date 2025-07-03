@@ -114,11 +114,10 @@
   "liveStream": {
     "type": "none"
   },
-  "lastUpdated": "2025-07-03T11:57:51.395464",
+  "lastUpdated": "2025-07-03T12:42:15.196516",
   "debugInfo": {
     "twitch_live_error": "No active Twitch stream found for bezzubickmcplay.",
-    "vk_group_error": "Error fetching VK group members (request exception): 502 Server Error: Bad Gateway for url: https://api.vk.com/method/groups.getById?group_id=211107420&fields=members_count&v=5.199&access_token=acd3d90aacd3d90aacd3d90a52afc2e14caacd3acd3d90acf8aae923b4f04684b637e89",
-    "vk_personal_error": "Error fetching VK user followers (request exception): 502 Server Error: Bad Gateway for url: https://api.vk.com/method/users.get?user_ids=598234340&fields=followers_count&v=5.199&access_token=acd3d90aacd3d90aacd3d90a52afc2e14caacd3acd3d90acf8aae923b4f04684b637e89",
+    "vk_group_error": "Unexpected error fetching VK group members: 0",
     "instagram_setup_warning": "Instagram API credentials (BUSINESS_ACCOUNT_ID, ACCESS_TOKEN) are missing. Instagram follower count will not be updated automatically.",
     "x_error": "Error fetching X (Twitter) followers (request): 429 Client Error: Too Many Requests for url: https://api.twitter.com/2/users/1646676312608710657?user.fields=public_metrics",
     "tiktok_setup_warning": "TikTok API credentials (username, API Key for TikAPI.io) are missing. TikTok follower count will not be updated automatically."

@@ -114,10 +114,11 @@
   "liveStream": {
     "type": "none"
   },
-  "lastUpdated": "2025-07-14T10:45:11.487332",
+  "lastUpdated": "2025-07-14T10:59:30.009035",
   "debugInfo": {
     "twitch_live_error": "No active Twitch stream found for bezzubickmcplay.",
     "vk_group_error": "Unexpected error fetching VK group members: 0",
+    "telegram_error": "Error fetching Telegram channel members (request): HTTPSConnectionPool(host='api.telegram.org', port=443): Max retries exceeded with url: /bot7688822731:AAHJmhctxR3MMOQ0xhQ21IdsdZt5CRmmeqY/getChatMembersCount?chat_id=-1001689196648 (Caused by NewConnectionError('<urllib3.connection.HTTPSConnection object at 0x7f0388f87d90>: Failed to establish a new connection: [Errno 101] Network is unreachable'))",
     "instagram_setup_warning": "Instagram API credentials (BUSINESS_ACCOUNT_ID, ACCESS_TOKEN) are missing. Instagram follower count will not be updated automatically.",
     "x_error": "Error fetching X (Twitter) followers (request): 429 Client Error: Too Many Requests for url: https://api.twitter.com/2/users/1646676312608710657?user.fields=public_metrics",
     "tiktok_setup_warning": "TikTok API credentials (username, API Key for TikAPI.io) are missing. TikTok follower count will not be updated automatically."

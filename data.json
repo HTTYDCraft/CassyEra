@@ -7,13 +7,13 @@
     "twitch": 3,
     "tiktok": 0,
     "vk_group": 0,
-    "vk_personal": 986
+    "vk_personal": 987
   },
   "youtubeVideos": [
     {
       "id": "2rO7uQJkKdE",
       "title": "🔴 Я СТАЛ СЛИЗНЕКОТОМ! СТРИМ! | Rain World",
-      "thumbnailUrl": "https://i.ytimg.com/vi/2rO7uQJkKdE/maxresdefault_live.jpg"
+      "thumbnailUrl": "https://i.ytimg.com/vi/2rO7uQJkKdE/maxresdefault.jpg"
     },
     {
       "id": "e7K5ijK2VOo",
@@ -112,12 +112,9 @@
     }
   ],
   "liveStream": {
-    "type": "youtube",
-    "id": "2rO7uQJkKdE",
-    "title": "🔴 Я СТАЛ СЛИЗНЕКОТОМ! СТРИМ! | Rain World",
-    "youtubeChannelId": "UCm6mheCT60mZ5qlxG5r2GeA"
+    "type": "none"
   },
-  "lastUpdated": "2025-07-18T23:58:11.602714",
+  "lastUpdated": "2025-07-19T01:53:44.726286",
   "debugInfo": {
     "twitch_live_error": "No active Twitch stream found for bezzubickmcplay.",
     "vk_group_error": "Unexpected error fetching VK group members: 0",

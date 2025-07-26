@@ -114,7 +114,7 @@
   "liveStream": {
     "type": "none"
   },
-  "lastUpdated": "2025-07-26T22:49:15.495144",
+  "lastUpdated": "2025-07-26T22:57:44.091202",
   "debugInfo": {
     "twitch_live_error": "No active Twitch stream found for bezzubickmcplay.",
     "vk_group_error": "Unexpected error fetching VK group members: 0",

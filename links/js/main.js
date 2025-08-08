@@ -236,7 +236,7 @@ const calculateAndDisplayTotalFollowers = () => {
 const fetchAppData = async () => {
     console.log("[Data Fetch] Попытка загрузки данных приложения из data.json...");
     try {
-        const response = await fetch('./data.json?t=' + Date.now()); // Путь к data.json в корне
+        const response = await fetch('../data.json?t=' + Date.now()); // ИСПРАВЛЕННЫЙ ПУТЬ к data.json
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -346,21 +346,23 @@ const renderLinksSection = (links) => {
                 iconHtml = `<span class="material-symbols-outlined icon-large">link</span>`;
                 console.warn(`[Links] Нет иконки для ${link.label_key}, используется иконка по умолчанию 'link'.`);
             }
-            // Формируем HTML для счетчика подписчиков
-            let followerCountHtml = '';
-            if (link.isSocial && link.showSubscriberCount) {
-                const count = appData.followerCounts ? appData.followerCounts[link.platformId] : undefined;
-                followerCountHtml = `<span class="text-sm text-gray-400 mr-2 follower-count-display">${formatCount(count)}</span>`;
-            }
+            
+            // --- ИСПРАВЛЕНИЕ: Генерация HTML для счетчика подписчиков ---
+            // 1. Изменен цвет с text-gray-400 на text-purple-400 для лучшей видимости в тёмной теме.
+            // 2. Логика получения и форматирования числа вынесена прямо в тернарный оператор для надежности.
+            const followerCountHtml = (link.isSocial && link.showSubscriberCount)
+                ? `<span class="text-sm font-medium text-purple-400 mr-2 follower-count-display">${formatCount(appData.followerCounts ? appData.followerCounts[link.platformId] : null)}</span>`
+                : '';
+
             // Вставляем сгенерированный HTML в карточку
             card.innerHTML = `
                 <div class="flex items-center">
                     ${iconHtml}
-                    <div>
+                    <div class="flex-grow">
                         <span class="block text-lg font-medium">${strings[currentLang][link.label_key] || link.label_key}</span>
-                        ${link.isSocial && link.showSubscriberCount ? followerCountHtml : ''}
                     </div>
                 </div>
+                ${followerCountHtml}
             `;
             DOM.linksSection.appendChild(card);
         });

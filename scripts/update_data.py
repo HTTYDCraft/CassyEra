@@ -27,6 +27,57 @@ TIKAPI_IO_API_KEY = os.environ.get('TIKAPI_IO_API_KEY')
 YOUR_TIKTOK_USERNAME = os.environ.get('YOUR_TIKTOK_USERNAME')
 
 DATA_FILE_PATH = 'data.json'
+STREAM_HISTORY_FILE = 'streams_history.json'
+
+def load_stream_history():
+    """Возвращает словарь { 'events': [...] }."""
+    if os.path.exists(STREAM_HISTORY_FILE):
+        try:
+            with open(STREAM_HISTORY_FILE, 'r', encoding='utf-8') as f:
+                h = json.load(f)
+                if isinstance(h, dict) and isinstance(h.get('events'), list):
+                    return h
+        except Exception as e:
+            print(f"[History] Failed to read {STREAM_HISTORY_FILE}: {e}")
+    return {'events': []}
+
+def save_stream_history(history):
+    try:
+        with open(STREAM_HISTORY_FILE, 'w', encoding='utf-8') as f:
+            json.dump(history, f, ensure_ascii=False, indent=2)
+    except Exception as e:
+        print(f"[History] Failed to write {STREAM_HISTORY_FILE}: {e}")
+
+def push_history_event(history, platform, id_value, title, url, extra=None):
+    """
+    Дедуп по ключу platform:id_value (для YouTube - videoId, Twitch - streamId).
+    Сохраняем дату в UTC ISO.
+    """
+    now = datetime.utcnow().replace(microsecond=0).isoformat() + 'Z'
+    key = f"{platform}:{id_value}"
+    if any(ev.get('key') == key for ev in history['events']):
+        return False
+    ev = {
+        'key': key,
+        'dt': now,
+        'date': now[:10],
+        'platform': platform,
+        'title': title or '',
+        'url': url
+    }
+    if platform == 'youtube':
+        ev['videoId'] = id_value
+    else:
+        ev['streamId'] = id_value
+    if isinstance(extra, dict):
+        ev.update(extra)
+    history['events'].append(ev)
+    # Обрезаем до последних 2000 событий
+    if len(history['events']) > 2000:
+        history['events'] = history['events'][-2000:]
+    return True
+
+
 VK_API = 'https://api.vk.com/method'
 VK_VER = '5.199'
 
@@ -374,6 +425,24 @@ if xf is not None: data['followerCounts']['x'] = xf
 print("\n--- TikTok ---")
 tt = get_tiktok_followers(YOUR_TIKTOK_USERNAME, TIKAPI_IO_API_KEY)
 if tt is not None: data['followerCounts']['tiktok'] = tt
+
+# загрузим историю до записи
+history = load_stream_history()
+
+# ... после определения yt_live и tw_live (там же, где выставляешь data['liveStream'])
+yt_added = False
+tw_added = False
+
+if yt_live:
+    yt_url = f"https://www.youtube.com/watch?v={yt_live.get('id')}"
+    yt_added = push_history_event(history, 'youtube', yt_live.get('id'), yt_live.get('title'), yt_url)
+
+if tw_live:
+    tw_url = f"https://www.twitch.tv/{YOUR_TWITCH_USERNAME}" if YOUR_TWITCH_USERNAME else "https://www.twitch.tv/"
+    tw_added = push_history_event(history, 'twitch', tw_live.get('id'), tw_live.get('title'), tw_url, extra={'channel': YOUR_TWITCH_USERNAME})
+
+# сохраняем историю в любом случае (даже если не добавилось)
+save_stream_history(history)
 
 # finalize
 data['lastUpdated'] = datetime.now().isoformat()

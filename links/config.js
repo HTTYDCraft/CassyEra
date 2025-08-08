@@ -1,4 +1,4 @@
-// config.js — конфигурация приложения
+// config_en.js — конфигурация приложения
 
 export const appConfig = {
     dataUrl: "../data.json", // из /links/ выходим в корень

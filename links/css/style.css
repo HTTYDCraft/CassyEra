@@ -49,10 +49,7 @@ body {
 .m3-shadow-md { box-shadow: 0 3px 5px rgba(0,0,0,.2), 0 1px 18px rgba(0,0,0,.12), 0 6px 10px rgba(0,0,0,.14); }
 .m3-shadow-lg { box-shadow: 0 6px 10px rgba(0,0,0,.2), 0 3px 18px rgba(0,0,0,.12), 0 9px 30px rgba(0,0,0,.14); }
 
-body.dark-theme {
-    background-color: var(--md-sys-color-background-dark);
-    color: var(--md-sys-color-on-background-dark);
-}
+body.dark-theme { background-color: var(--md-sys-color-background-dark); color: var(--md-sys-color-on-background-dark); }
 body.dark-theme .card { background-color: var(--md-sys-color-surface-container-low-dark); color: var(--md-sys-color-on-surface-dark); }
 body.dark-theme .modal-content, body.dark-theme .dev-page-content { background-color: var(--md-sys-color-surface-container-dark); color: var(--md-sys-color-on-surface-dark); }
 body.dark-theme .control-button { background-color: var(--md-sys-color-surface-container-low-dark); color: var(--md-sys-color-on-surface-dark); }
@@ -63,10 +60,7 @@ body.dark-theme .support-button { background-color: #4CAF50; color: var(--md-sys
 body.dark-theme .support-button:hover { background-color: #388E3C; }
 body.dark-theme .offline-warning { background-color: #FFB300; color: #212121; }
 
-body.light-theme {
-    background-color: var(--md-sys-color-background-light);
-    color: var(--md-sys-color-on-background-light);
-}
+body.light-theme { background-color: var(--md-sys-color-background-light); color: var(--md-sys-color-on-background-light); }
 body.light-theme .card { background-color: var(--md-sys-color-surface-container-low-light); color: var(--md-sys-color-on-surface-light); }
 body.light-theme .modal-content, body.light-theme .dev-page-content { background-color: var(--md-sys-color-surface-container-light); color: var(--md-sys-color-on-surface-light); }
 body.light-theme .control-button { background-color: var(--md-sys-color-surface-container-low-light); color: var(--md-sys-color-on-surface-light); }
@@ -129,7 +123,7 @@ body.light-theme .card.swiping-right {
     background: linear-gradient(to left, var(--live-indicator-red) 0%, transparent 100%);
 }
 
-/* Вёрстка правой колонки (стрим + скин) — по центру на ПК */
+/* Правая колонка (стрим + скин) — по центру на ПК */
 .media-block-desktop {
     width: 350px;
     flex-shrink: 0;
@@ -149,45 +143,59 @@ body.light-theme .card.swiping-right {
 body.light-theme .youtube-video-container { box-shadow: var(--md-sys-color-outline-light) 0 4px 8px; }
 .youtube-video-container iframe { position: absolute; inset: 0; width: 100%; height: 100%; }
 
-/* Скин — блок и контейнер */
+/* === SKIN: окончательная центровка и невидимый контейнер === */
+
+/* Весь блок скина и заголовок — по центру */
 #minecraft-block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;  /* контент по центру */
-    text-align: center;   /* заголовок по центру */
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
 }
+
+/* Контейнер viewer'а — всегда в центре, без тени/фона */
 #skin-viewer-container {
-    margin-left: auto;
-    margin-right: auto;
-    max-width: 100%;
+    display: grid !important;
+    place-items: center !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    width: 100% !important;
+    height: 20rem !important;       /* ~ h-80 по Tailwind */
+    box-shadow: none !important;    /* контейнер невидим */
+    background: transparent !important;
 }
-#skin-viewer-container canvas { display: block; }
+
+/* Canvas — блочный элемент */
+#skin-viewer-container > canvas {
+    display: block !important;
+    margin: 0 auto !important;
+}
 
 /* Мини-кнопки управления анимациями */
 .skin-controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 10px;             /* чуть больше зазор между кнопками */
-    flex-wrap: wrap;
-    max-width: 100%;
-    margin-top: 1rem;      /* нормальный отступ от модели (на мобиле не "упираются") */
-    margin-bottom: 0.75rem;/* небольшой отступ до кнопки "Скачать скин" */
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    gap: 10px !important;
+    flex-wrap: wrap !important;
+    max-width: 100% !important;
+    margin-top: 16px !important;
+    margin-bottom: 12px !important;
 }
 .mini-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    height: 34px;
-    min-width: 36px;       /* чтобы не сжимались */
-    padding: 0 10px;
-    border-radius: 9999px;
-    font-size: 12px;
-    line-height: 1;
-    cursor: pointer;
-    border: 1px solid transparent;
-    transition: background-color .2s, color .2s, box-shadow .2s, border-color .2s;
-    flex: 0 0 auto;        /* запрет сжатия */
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    height: 34px !important;
+    min-width: 36px !important;
+    padding: 0 10px !important;
+    border-radius: 9999px !important;
+    font-size: 12px !important;
+    line-height: 1 !important;
+    cursor: pointer !important;
+    border: 1px solid transparent !important;
+    transition: background-color .2s, color .2s, box-shadow .2s, border-color .2s !important;
+    flex: 0 0 auto !important; /* не сжимать */
 }
 .mini-button .mini-icon.material-symbols-outlined {
     font-size: 18px;
@@ -200,9 +208,7 @@ body.dark-theme .mini-button {
     color: var(--md-sys-color-on-surface-dark);
     border-color: rgba(255,255,255,0.10);
 }
-body.dark-theme .mini-button:hover {
-    background-color: var(--md-sys-color-surface-container-dark);
-}
+body.dark-theme .mini-button:hover { background-color: var(--md-sys-color-surface-container-dark); }
 body.dark-theme .mini-button.active {
     background-color: var(--md-sys-color-primary-dark);
     color: var(--md-sys-color-on-primary-dark);
@@ -213,9 +219,7 @@ body.light-theme .mini-button {
     color: var(--md-sys-color-on-surface-light);
     border-color: rgba(0,0,0,0.10);
 }
-body.light-theme .mini-button:hover {
-    background-color: var(--md-sys-color-surface-container-light);
-}
+body.light-theme .mini-button:hover { background-color: var(--md-sys-color-surface-container-light); }
 body.light-theme .mini-button.active {
     background-color: var(--md-sys-color-primary-light);
     color: var(--md-sys-color-on-primary-light);
@@ -245,93 +249,21 @@ body.light-theme .video-carousel::-webkit-scrollbar-thumb:hover { background: va
     .main-links-block { flex: 1; min-width: 320px; max-width: 450px; }
 }
 
-@media (max-width: 600px) {
-    body { padding: 10px; }
-    .modal-content, .dev-page-content { padding: 15px; border-radius: 16px; }
-    #profile-name { font-size: 2.25rem; }
-    #profile-description { font-size: 1rem; }
-    .card { padding: 12px; }
-    .card .material-symbols-outlined { font-size: 20px; }
-    .card .text-lg { font-size: 1rem; }
-    .card .text-sm { font-size: .875rem; }
-
-    /* Компактный и центрированный viewer на телефоне */
+/* Мобилка (<768px): отступ между стримом и скином, и квадратный viewer по центру */
+@media (max-width: 767px) {
+    #live-stream-section { margin-bottom: 24px !important; }
     #skin-viewer-container {
-        width: 250px;
-        height: 250px;
-        margin-left: auto;
-        margin-right: auto;
+        width: clamp(240px, 80vw, 320px) !important;
+        height: clamp(240px, 80vw, 320px) !important;
     }
     .skin-controls {
-        margin-top: 1rem; /* побольше отступа от модели на мобиле */
-        gap: 10px;
+        max-width: clamp(240px, 80vw, 320px) !important;
     }
 }
-/* Светлая тема: контейнер скина без тени и фона (контейнер «невидим») */
-body.light-theme #skin-viewer-container {
-    box-shadow: none;     /* перекрывает .m3-shadow-md */
-    background: transparent;
-}
 
-/* На случай PNG-фолбэка — тоже без фона/тени */
+/* Дополнительно: контейнер скина невидим в светлой теме (без теней и фона) */
+body.light-theme #skin-viewer-container,
 body.light-theme #skin-viewer-container img {
-    box-shadow: none;
-    background: transparent;
-}
-
-/* Мобильный отступ между стримом и блоком скина */
-@media (max-width: 767px) {
-    /* когда блоки выносятся из правой колонки и идут друг за другом */
-    #minecraft-block {
-        margin-top: 24px !important; /* нормальный отступ "как раньше" */
-    }
-}
-/* Гарантируем центрирование всего skin-блока и его содержимого */
-#minecraft-block {
-    display: flex;
-    flex-direction: column;
-    align-items: center;   /* центр по горизонтали */
-    text-align: center;    /* заголовок по центру */
-}
-
-/* Контейнер со скином: всегда центрируем */
-#skin-viewer-container {
-    margin-left: auto;
-    margin-right: auto;
-}
-
-/* Мобильная раскладка (совпадает с брейкпоинтом в JS: <768px) */
-@media (max-width: 767px) {
-    /* Делаем компактную «квадратную» область и строго центрируем её */
-    #skin-viewer-container {
-        width: clamp(240px, 80vw, 320px);
-        height: clamp(240px, 80vw, 320px);
-        margin-left: auto !important;
-        margin-right: auto !important;
-    }
-
-    /* Нормальный отступ между стримом и «My Minecraft Skin» */
-    #live-stream-section {
-        margin-bottom: 24px !important;
-    }
-
-    /* Отступ от модели до мини‑кнопок (чтобы не «липли») */
-    .skin-controls {
-        margin-top: 16px;
-    }
-}
-
-/* Canvas без лишних отступов */
-#skin-viewer-container canvas {
-    display: block;
-}
-
-/* Светлая тема: контейнер «невидим» (без тени/фона) */
-body.light-theme #skin-viewer-container {
-    box-shadow: none;
-    background: transparent;
-}
-body.light-theme #skin-viewer-container img {
-    box-shadow: none;
-    background: transparent;
+    box-shadow: none !important;
+    background: transparent !important;
 }

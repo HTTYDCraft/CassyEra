@@ -1,8 +1,8 @@
-// main.js - Ваш оригинальный код с минимальными точечными исправлениями.
+// main.js - Ваш оригинальный код + 1 исправление пути к data.json
 
 // Импорт конфигурационных файлов
-import { appConfig, profileConfig, linksConfig } from '../config.js';
-import { strings } from '../strings.js';
+import { appConfig, profileConfig, linksConfig } from '../config.js'; 
+import { strings } from '../strings.js'; 
 
 /**
  * Импорт библиотеки Skinview3D.
@@ -70,7 +70,6 @@ const DOM = {
 
 // --- Состояние приложения ---
 let currentTheme = localStorage.getItem('theme') || 'dark';
-// ИСПРАВЛЕНИЕ: Возвращена проверка языка браузера
 let currentLang = localStorage.getItem('lang') || (navigator.language.startsWith('ru') ? 'ru' : 'en');
 let appData = {};
 let isDevViewActive = false;
@@ -80,7 +79,11 @@ let skinViewerInstance = null;
 
 const setVisibility = (element, isVisible) => {
     if (element) {
-        element.classList.toggle('hidden', !isVisible);
+        if (isVisible) {
+            element.classList.remove('hidden');
+        } else {
+            element.classList.add('hidden');
+        }
     }
 };
 
@@ -127,15 +130,14 @@ const updateLanguage = () => {
     if (DOM.avatar) DOM.avatar.alt = strings[currentLang].avatarAlt;
     if (DOM.previewAvatar) DOM.previewAvatar.alt = strings[currentLang].previewAvatarAlt;
     if (DOM.twitchMessage) DOM.twitchMessage.textContent = strings[currentLang].twitchStreamAlsoLive;
-
     renderLinksSection(linksConfig);
     calculateAndDisplayTotalFollowers();
     applyTheme(currentTheme);
-    handleLayout();
+    handleLiveStreamLayout();
 };
 
 const formatCount = (num) => {
-    if (num === null || num === undefined || isNaN(num)) return strings[currentLang].loading;
+    if (num === null || isNaN(num)) return strings[currentLang].loading;
     if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
     if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
@@ -172,13 +174,8 @@ const calculateAndDisplayTotalFollowers = () => {
 const fetchAppData = async () => {
     console.log("[Data Fetch] Попытка загрузки данных приложения из data.json...");
     try {
-        // ИСПРАВЛЕНИЕ: Эта логика динамически строит правильный путь к data.json
-        const pageUrl = new URL(window.location.href);
-        const basePath = pageUrl.pathname.substring(0, pageUrl.pathname.toLowerCase().indexOf('/links/') + 1);
-        const dataUrl = `${pageUrl.origin}${basePath}data.json?t=${Date.now()}`;
-        console.log(`[Data Fetch] Запрос по URL: ${dataUrl}`);
-
-        const response = await fetch(dataUrl); // Используем исправленный URL
+        // ИСПРАВЛЕНИЕ: Заменена одна строка для правильного пути к data.json
+        const response = await fetch('../../data.json?t=' + Date.now()); 
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -188,11 +185,11 @@ const fetchAppData = async () => {
     } catch (error) {
         console.error("[Data Fetch] Ошибка загрузки data.json. Использование fallback данных.", error);
         return {
-            "followerCounts": {},
+            "followerCounts": { "youtube": null, "telegram": null, "instagram": null, "x": null, "twitch": null, "tiktok": null, "vk_group": null, "vk_personal": null },
             "youtubeVideos": [],
             "liveStream": { "type": "none" },
             "lastUpdated": new Date().toISOString(),
-            "debugInfo": { "message": "Data loaded from client-side fallback due to data.json fetch error.", "status": `ERROR - ${error.message}`, "version": "client-fallback" }
+            "debugInfo": { "message": "Data loaded from client-side fallback due to data.json fetch error.", "status": "ERROR - Data.json failed to load", "error": error.message, "version": "client-fallback" }
         };
     }
 };
@@ -204,6 +201,7 @@ const renderProfileSection = () => {
         if (DOM.profileName) DOM.profileName.textContent = strings[currentLang][profileConfig.name_key];
         if (DOM.profileDescription) DOM.profileDescription.textContent = strings[currentLang][profileConfig.description_key];
         if (DOM.avatar) DOM.avatar.alt = strings[currentLang].avatarAlt;
+        console.log("[Render] Секция профиля отрисована.");
     }
 };
 
@@ -220,7 +218,6 @@ const renderLinksSection = (links) => {
             card.className = `card relative flex items-center justify-between p-4 rounded-2xl m3-shadow-md ${link.isSocial ? 'swipe-target' : ''} cursor-pointer`;
             card.setAttribute('data-link-id', link.label_key);
             card.setAttribute('data-platform-id', link.platformId || '');
-            
             let previewTimeout;
             card.addEventListener('pointerenter', () => {
                 clearTimeout(previewTimeout);
@@ -240,7 +237,6 @@ const renderLinksSection = (links) => {
                     showLinkPreview(link);
                 }
             });
-            
             let iconHtml = '';
             if (link.customIconUrl) {
                 iconHtml = `<img src="${link.customIconUrl}" alt="${strings[currentLang][link.label_key] || link.label_key} icon" class="custom-icon-image">`;
@@ -249,42 +245,23 @@ const renderLinksSection = (links) => {
             } else {
                 iconHtml = `<span class="material-symbols-outlined icon-large">link</span>`;
             }
-            
             let followerCountHtml = '';
             if (link.isSocial && link.showSubscriberCount) {
                 const count = appData.followerCounts ? appData.followerCounts[link.platformId] : undefined;
                 followerCountHtml = `<span class="text-sm text-gray-400 mr-2 follower-count-display">${formatCount(count)}</span>`;
             }
-            
             card.innerHTML = `
                 <div class="flex items-center">
                     ${iconHtml}
                     <div>
                         <span class="block text-lg font-medium">${strings[currentLang][link.label_key] || link.label_key}</span>
-                        ${link.isSocial && link.showSubscriberCount ? '' : ''}
+                        ${link.isSocial && link.showSubscriberCount ? followerCountHtml : ''}
                     </div>
                 </div>
-                ${followerCountHtml}
             `;
-            // Важное исправление верстки: обертка для текста и счетчика должна быть другой
-            const contentWrapper = document.createElement('div');
-            contentWrapper.className = 'flex items-center';
-            contentWrapper.innerHTML = `
-                ${iconHtml}
-                <div>
-                    <span class="block text-lg font-medium">${strings[currentLang][link.label_key] || link.label_key}</span>
-                </div>
-            `;
-            card.appendChild(contentWrapper);
-            if (followerCountHtml) {
-                const countSpan = document.createElement('span');
-                countSpan.className = 'text-sm text-gray-400 mr-2 follower-count-display';
-                countSpan.innerHTML = formatCount(appData.followerCounts ? appData.followerCounts[link.platformId] : undefined);
-                card.appendChild(countSpan);
-            }
-
             DOM.linksSection.appendChild(card);
         });
+        console.log("[Render] Секция ссылок отрисована.");
         initSwipeGestures();
     }
 };
@@ -308,30 +285,35 @@ const renderYouTubeVideosSection = () => {
             `;
             if (DOM.videoCarousel) DOM.videoCarousel.appendChild(videoCard);
         });
+        console.log("[Render] Секция видео YouTube отрисована.");
     }
 };
 
 const handleLiveStreamLayout = () => {
     const isDesktopHorizontal = window.matchMedia("(min-width: 768px) and (orientation: landscape)").matches;
     const shouldShowLiveStream = appConfig.showLiveStreamSection && appData.liveStream && appData.liveStream.type !== 'none';
-    
     if (shouldShowLiveStream) {
         if (isDesktopHorizontal) {
             if (DOM.mediaBlockDesktop && !DOM.mediaBlockDesktop.contains(DOM.liveStreamSection)) {
                 DOM.mediaBlockDesktop.prepend(DOM.liveStreamSection);
             }
             setVisibility(DOM.liveStreamSection, true);
+            DOM.liveStreamSection.classList.add('md-visible');
         } else {
-            if (DOM.liveStreamSection && DOM.profileSection && !DOM.mainView.contains(DOM.liveStreamSection)) {
-                DOM.profileSection.after(DOM.liveStreamSection);
+            if (DOM.liveStreamSection && DOM.profileSection && DOM.profileSection.nextSibling) {
+                const currentParent = DOM.liveStreamSection.parentNode;
+                if (currentParent !== DOM.mainView) {
+                    DOM.mainView.insertBefore(DOM.liveStreamSection, DOM.profileSection.nextSibling);
+                }
             }
             setVisibility(DOM.liveStreamSection, true);
+            DOM.liveStreamSection.classList.remove('md-visible');
         }
         displayLiveStreamContent(appData.liveStream);
     } else {
         setVisibility(DOM.liveStreamSection, false);
+        DOM.liveStreamSection.classList.remove('md-visible');
     }
-    
     if (DOM.mediaBlockDesktop) {
         const showMediaBlock = isDesktopHorizontal &&
             (appConfig.showMinecraftSkinSection || shouldShowLiveStream);
@@ -355,19 +337,21 @@ const displayLiveStreamContent = (streamInfo) => {
 };
 
 const manageFirstVisitModal = () => {
-    if (!DOM.firstVisitModal) return;
+    if (!DOM.firstVisitModal) {
+        console.warn("[Modal] Модальное окно первого посещения не найдено в DOM.");
+        return;
+    }
     const hasVisited = localStorage.getItem('visited_modal');
     if (!hasVisited) {
-        setVisibility(DOM.firstVisitModal, true);
-        DOM.firstVisitModal.style.display = 'flex';
-        DOM.modalCloseBtn.onclick = () => {
-            setVisibility(DOM.firstVisitModal, false);
-            DOM.firstVisitModal.style.display = 'none';
-            localStorage.setItem('visited_modal', 'true');
-        };
+        if (DOM.modalTitle && DOM.modalDescription && DOM.modalCloseBtn) {
+            setVisibility(DOM.firstVisitModal, true);
+            DOM.modalCloseBtn.onclick = () => {
+                setVisibility(DOM.firstVisitModal, false);
+                localStorage.setItem('visited_modal', 'true');
+            };
+        }
     } else {
         setVisibility(DOM.firstVisitModal, false);
-        DOM.firstVisitModal.style.display = 'none';
     }
 };
 
@@ -377,10 +361,8 @@ const initSwipeGestures = () => {
     swipeTargets.forEach(card => {
         let startX = 0, startY = 0, currentX = 0, currentY = 0;
         let isSwiping = false, swipeStarted = false;
-
         const linkData = linksConfig.find(link => link.label_key === card.getAttribute('data-link-id'));
         if (!linkData) return;
-
         const handleStart = (e) => {
             isSwiping = true;
             swipeStarted = false;
@@ -388,43 +370,54 @@ const initSwipeGestures = () => {
             startY = e.touches ? e.touches[0].clientY : e.clientY;
             card.style.transition = 'none';
         };
-
         const handleMove = (e) => {
             if (!isSwiping) return;
             currentX = e.touches ? e.touches[0].clientX : e.clientX;
             currentY = e.touches ? e.touches[0].clientY : e.clientY;
             const deltaX = currentX - startX;
             const deltaY = currentY - startY;
-
+            const horizontalMoveThreshold = 30;
+            const verticalMoveTolerance = 0.5;
             if (!swipeStarted) {
-                if (Math.abs(deltaY) > Math.abs(deltaX) * 2) {
+                if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 10) {
                     isSwiping = false;
+                    card.style.transform = 'translateX(0)';
+                    card.classList.remove('swiping-left', 'swiping-right');
                     return;
-                }
-                if (Math.abs(deltaX) > 20) {
+                } else if (Math.abs(deltaX) > horizontalMoveThreshold && Math.abs(deltaX) > (Math.abs(deltaY) * verticalMoveTolerance)) {
                     swipeStarted = true;
                     e.preventDefault();
+                } else if (Math.abs(deltaX) <= horizontalMoveThreshold && Math.abs(deltaY) <= 10) {
+                    return;
                 }
             }
             if (swipeStarted) {
                 e.preventDefault();
                 card.style.transform = `translateX(${deltaX}px)`;
-                card.classList.toggle('swiping-right', deltaX > 0);
-                card.classList.toggle('swiping-left', deltaX < 0);
+                card.classList.remove('swiping-left', 'swiping-right');
+                if (deltaX > 0) {
+                    card.classList.add('swiping-right');
+                } else {
+                    card.classList.add('swiping-left');
+                }
             }
         };
-
         const handleEnd = () => {
-            if (!isSwiping) return;
+            if (!isSwiping && !swipeStarted) {
+                card.style.transform = 'translateX(0)';
+                card.classList.remove('swiping-left', 'swiping-right');
+                card.style.transition = 'transform 0.2s ease, background-color 0.3s ease, box-shadow 0.2s ease';
+                return;
+            }
             isSwiping = false;
             card.style.transition = 'transform 0.2s ease, background-color 0.3s ease, box-shadow 0.2s ease';
             card.classList.remove('swiping-left', 'swiping-right');
             const deltaX = currentX - startX;
             const swipeThreshold = card.offsetWidth * 0.25;
-
             if (swipeStarted && Math.abs(deltaX) > swipeThreshold) {
                 if (deltaX > 0) {
-                    window.open(linkData.subscribeUrl || linkData.url, '_blank');
+                    const targetUrl = linkData.subscribeUrl || linkData.url;
+                    window.open(targetUrl, '_blank');
                 } else {
                     if (linkData.platformId === 'youtube') {
                         const liveStream = appData.liveStream;
@@ -443,25 +436,18 @@ const initSwipeGestures = () => {
             card.style.transform = 'translateX(0)';
             swipeStarted = false;
         };
-        
-        // Удаляем старый обработчик, если он есть, чтобы избежать дублирования
-        if (card._handleClickForPreview) {
-            card.removeEventListener('click', card._handleClickForPreview);
-        }
-
         card._handleClickForPreview = (e) => {
             if (swipeStarted) {
                 e.preventDefault();
                 return;
             }
             if (DOM.linkPreviewModal.classList.contains('active') && DOM.linkPreviewModal.dataset.currentLinkKey === linkData.label_key) {
-                // allow default action
+                // allow click
             } else {
                 e.preventDefault();
                 showLinkPreview(linkData);
             }
         };
-
         card.addEventListener('mousedown', handleStart);
         card.addEventListener('mousemove', handleMove);
         card.addEventListener('mouseup', handleEnd);
@@ -490,7 +476,6 @@ const initMinecraftSkinViewer = () => {
                 skinview3d.createOrbitControls(skinViewerInstance);
             })
             .catch(e => console.error("Ошибка загрузки скина:", e));
-        
         new ResizeObserver(() => {
             if (skinViewerInstance) {
                 skinViewerInstance.setSize(DOM.skinViewerContainer.offsetWidth, DOM.skinViewerContainer.offsetHeight);
@@ -529,18 +514,15 @@ const showLinkPreview = (linkData) => {
     if (!DOM.linkPreviewModal) return;
     clearTimeout(DOM.linkPreviewModal._hideTimeout);
     if (DOM.linkPreviewModal.classList.contains('active') && DOM.linkPreviewModal.dataset.currentLinkKey === linkData.label_key) return;
-    
     if (DOM.previewAvatar) DOM.previewAvatar.src = profileConfig.avatar;
     if (DOM.previewName) DOM.previewName.textContent = strings[currentLang][profileConfig.name_key];
     if (DOM.previewDescription) DOM.previewDescription.textContent = strings[currentLang][profileConfig.description_key];
     if (DOM.previewOpenLink) DOM.previewOpenLink.textContent = strings[currentLang].openLinkButton;
     if (DOM.previewOpenLink) DOM.previewOpenLink.href = linkData.url;
     if (DOM.previewCloseButton) DOM.previewCloseButton.textContent = strings[currentLang].closeButton;
-
     DOM.linkPreviewModal.dataset.currentLinkKey = linkData.label_key;
     setVisibility(DOM.linkPreviewModal, true);
     DOM.linkPreviewModal.classList.add('active');
-    DOM.linkPreviewModal.style.display = 'flex';
     if (DOM.previewCloseButton) DOM.previewCloseButton.onclick = hideLinkPreview;
     if (DOM.previewAvatar) DOM.previewAvatar.onclick = (e) => { e.preventDefault(); window.open(linkData.url, '_blank'); hideLinkPreview(); };
     if (DOM.previewName) DOM.previewName.onclick = (e) => { e.preventDefault(); window.open(linkData.url, '_blank'); hideLinkPreview(); };
@@ -551,52 +533,59 @@ const hideLinkPreview = () => {
     DOM.linkPreviewModal._hideTimeout = setTimeout(() => {
         setVisibility(DOM.linkPreviewModal, false);
         DOM.linkPreviewModal.classList.remove('active');
-        DOM.linkPreviewModal.style.display = 'none';
         DOM.linkPreviewModal.dataset.currentLinkKey = '';
     }, 100);
 };
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("------------------------------------------");
-    console.log("DOMContentLoaded: Запуск инициализации.");
-
+    console.log("DOMContentLoaded: Запуск инициализации приложения Personal Link Aggregator.");
+    appData = await fetchAppData();
+    renderProfileSection();
     applyTheme(currentTheme);
     updateLanguage();
-
-    DOM.themeToggle.addEventListener('click', () => {
-        currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-        applyTheme(currentTheme);
-    });
-
-    DOM.languageToggle.addEventListener('click', () => {
-        currentLang = currentLang === 'ru' ? 'en' : 'ru';
-        localStorage.setItem('lang', currentLang);
-        updateLanguage();
-    });
-
+    setVisibility(DOM.themeToggle, appConfig.showThemeToggle);
+    if (appConfig.showThemeToggle && DOM.themeToggle) {
+        DOM.themeToggle.addEventListener('click', () => {
+            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+            applyTheme(currentTheme);
+        });
+    }
+    setVisibility(DOM.languageToggle, appConfig.showLanguageToggle);
+    if (appConfig.showLanguageToggle && DOM.languageToggle) {
+        DOM.languageToggle.addEventListener('click', () => {
+            currentLang = currentLang === 'en' ? 'ru' : 'en';
+            localStorage.setItem('lang', currentLang);
+            updateLanguage();
+        });
+    }
     setVisibility(DOM.devToggle, appConfig.developmentMode && appConfig.showDevToggle);
     if (appConfig.developmentMode && appConfig.showDevToggle && DOM.devToggle) {
         DOM.devToggle.addEventListener('click', () => renderView(isDevViewActive ? 'main' : 'dev'));
-        if (DOM.backToMainButton) DOM.backToMainButton.addEventListener('click', () => renderView('main'));
+        if (DOM.backToMainButton) {
+            DOM.backToMainButton.addEventListener('click', () => renderView('main'));
+        }
     }
-
-    if (window.location.hash === '#/dev' && appConfig.developmentMode) {
+    const initialHash = window.location.hash;
+    if (initialHash === '#/dev' && appConfig.developmentMode) {
         renderView('dev');
+    } else {
+        renderView('main');
     }
-
-    appData = await fetchAppData();
-
-    renderProfileSection();
-    renderLinksSection(linksConfig);
-    renderYouTubeVideosSection();
+    const checkSkinViewerReadyTimeout = setTimeout(() => {
+        if (typeof skinview3d !== 'undefined' && typeof skinview3d.SkinViewer !== 'undefined') {
+            initMinecraftSkinViewer();
+        } else {
+            console.error("[Init] Библиотека skinview3d не загрузилась вовремя.");
+            setVisibility(DOM.minecraftBlock, false);
+        }
+    }, 100);
     setupSupportButton();
-    initMinecraftSkinViewer();
-    manageFirstVisitModal();
-    setupAnalytics();
-    
+    renderYouTubeVideosSection();
     handleLayout();
     window.addEventListener('resize', handleLayout);
-
-    console.log("Инициализация завершена.");
+    manageFirstVisitModal();
+    setupAnalytics();
+    console.log("Инициализация Personal Link Aggregator завершена.");
     console.log("------------------------------------------");
 });

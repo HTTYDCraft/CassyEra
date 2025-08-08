@@ -1,9 +1,8 @@
-// main.js - Основной JavaScript-файл для Personal Link Aggregator
-// Версия v10 (разделенные файлы, имитация данных, Skinview3D как ES-модуль, полная локализация, Material Symbols, гибкая конфигурация)
+// main.js - Полный, не сокращенный, исправленный оригинальный файл.
 
 // Импорт конфигурационных файлов
-import { appConfig, profileConfig, linksConfig } from '../config.js'; // Исправлен путь
-import { strings } from '../strings.js'; // Исправлен путь
+import { appConfig, profileConfig, linksConfig } from '../config.js';
+import { strings } from '../strings.js';
 
 /**
  * Импорт библиотеки Skinview3D.
@@ -171,7 +170,7 @@ const updateLanguage = () => {
     renderLinksSection(linksConfig);
     calculateAndDisplayTotalFollowers(); // Пересчитываем и отображаем подписчиков (текст "Всего подписчиков")
     applyTheme(currentTheme); // Повторно применяем тему для обновления атрибута aria-label
-    handleLiveStreamLayout(); // Обновляем расположение стрима при смене языка/макета
+    handleLayout(); // Обновляем расположение стрима при смене языка/макета
 };
 
 /**
@@ -181,7 +180,7 @@ const updateLanguage = () => {
  * Если число равно `null` или `NaN`, возвращает локализованную строку "Загрузка...".
  */
 const formatCount = (num) => {
-    if (num === null || isNaN(num)) return strings[currentLang].loading;
+    if (num === null || num === undefined || isNaN(num)) return strings[currentLang].loading;
     if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
     if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
@@ -236,7 +235,8 @@ const calculateAndDisplayTotalFollowers = () => {
 const fetchAppData = async () => {
     console.log("[Data Fetch] Попытка загрузки данных приложения из data.json...");
     try {
-        const response = await fetch('../data.json?t=' + Date.now()); // ИСПРАВЛЕННЫЙ ПУТЬ к data.json
+        // ИСПРАВЛЕНИЕ: Правильный путь к файлу data.json из папки /links/js/
+        const response = await fetch('../../data.json?t=' + Date.now());
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -247,27 +247,11 @@ const fetchAppData = async () => {
         console.error("[Data Fetch] Ошибка загрузки data.json. Использование fallback данных.", error);
         // Fallback данные, если data.json недоступен или произошла ошибка
         return {
-            "followerCounts": {
-                "youtube": null, // Используем null для индикации, что данные не загружены
-                "telegram": null,
-                "instagram": null,
-                "x": null,
-                "twitch": null,
-                "tiktok": null,
-                "vk_group": null,
-                "vk_personal": null
-            },
+            "followerCounts": {}, // Пустой объект, чтобы не было ошибок
             "youtubeVideos": [],
-            "liveStream": {
-                "type": "none" // Нет активного стрима
-            },
+            "liveStream": { "type": "none" },
             "lastUpdated": new Date().toISOString(),
-            "debugInfo": {
-                "message": "Data loaded from client-side fallback due to data.json fetch error.",
-                "status": "ERROR - Data.json failed to load",
-                "error": error.message,
-                "version": "client-fallback"
-            }
+            "debugInfo": { "message": "Data loaded from client-side fallback due to data.json fetch error.", "status": "ERROR - Data.json failed to load", "error": error.message, "version": "client-fallback" }
         };
     }
 };
@@ -337,28 +321,23 @@ const renderLinksSection = (links) => {
             let iconHtml = '';
             if (link.customIconUrl) {
                 iconHtml = `<img src="${link.customIconUrl}" alt="${strings[currentLang][link.label_key] || link.label_key} icon" class="custom-icon-image">`;
-                console.log(`[Links] Используется локальная иконка для ${link.label_key}: ${link.customIconUrl}`);
             } else if (link.icon) {
                 iconHtml = `<span class="material-symbols-outlined icon-large">${link.icon}</span>`;
-                console.log(`[Links] Используется Material Symbol для ${link.label_key}: ${link.icon}`);
             } else {
-                // Fallback если нет ни Material Symbol, ни локальной иконки
                 iconHtml = `<span class="material-symbols-outlined icon-large">link</span>`;
-                console.warn(`[Links] Нет иконки для ${link.label_key}, используется иконка по умолчанию 'link'.`);
             }
-            
-            // --- ИСПРАВЛЕНИЕ: Генерация HTML для счетчика подписчиков ---
-            // 1. Изменен цвет с text-gray-400 на text-purple-400 для лучшей видимости в тёмной теме.
-            // 2. Логика получения и форматирования числа вынесена прямо в тернарный оператор для надежности.
-            const followerCountHtml = (link.isSocial && link.showSubscriberCount)
-                ? `<span class="text-sm font-medium text-purple-400 mr-2 follower-count-display">${formatCount(appData.followerCounts ? appData.followerCounts[link.platformId] : null)}</span>`
-                : '';
-
+            // Формируем HTML для счетчика подписчиков
+            let followerCountHtml = '';
+            if (link.isSocial && link.showSubscriberCount) {
+                // ИСПРАВЛЕНИЕ: Добавлена проверка на существование appData.followerCounts
+                const count = appData.followerCounts ? appData.followerCounts[link.platformId] : undefined;
+                followerCountHtml = `<span class="text-sm text-gray-400 mr-2 follower-count-display">${formatCount(count)}</span>`;
+            }
             // Вставляем сгенерированный HTML в карточку
             card.innerHTML = `
                 <div class="flex items-center">
                     ${iconHtml}
-                    <div class="flex-grow">
+                    <div>
                         <span class="block text-lg font-medium">${strings[currentLang][link.label_key] || link.label_key}</span>
                     </div>
                 </div>
@@ -400,50 +379,42 @@ const renderYouTubeVideosSection = () => {
 };
 
 /**
- * @function handleLiveStreamLayout
- * Управляет расположением секции прямой трансляции в зависимости от ширины экрана и ориентации.
- * На широких экранах (ПК в альбомной ориентации) секция стрима и скина группируются справа.
- * На узких экранах (мобильные или ПК в портретной ориентации) секция стрима размещается выше, после профиля.
- * Также контролирует общую видимость блока медиа на ПК.
+ * @function handleLayout
+ * Управляет расположением секции прямой трансляции и скина в зависимости от ширины экрана.
  */
-const handleLiveStreamLayout = () => {
-    const isDesktopHorizontal = window.matchMedia("(min-width: 768px) and (orientation: landscape)").matches;
-    // Определяем, должен ли блок стрима вообще быть показан
-    const shouldShowLiveStream = appConfig.showLiveStreamSection && appData.liveStream && appData.liveStream.type !== 'none';
-    if (shouldShowLiveStream) {
-        if (isDesktopHorizontal) {
-            // Перемещаем секцию стрима в media-block-desktop
-            if (DOM.mediaBlockDesktop && !DOM.mediaBlockDesktop.contains(DOM.liveStreamSection)) {
-                DOM.mediaBlockDesktop.prepend(DOM.liveStreamSection); // Добавляем стрим в начало media-block-desktop
-            }
-            setVisibility(DOM.liveStreamSection, true); // Показываем стрим на ПК
-            DOM.liveStreamSection.classList.add('md-visible'); // Добавляем класс для видимости на ПК
-        } else {
-            // Перемещаем секцию стрима обратно в основное место для мобильных/вертикального ПК
-            if (DOM.liveStreamSection && DOM.profileSection && DOM.profileSection.nextSibling) {
-                const currentParent = DOM.liveStreamSection.parentNode;
-                if (currentParent !== DOM.mainView) { // Если не на месте, перемещаем
-                    // Вставляем секцию стрима после секции профиля (для мобильных)
-                    DOM.mainView.insertBefore(DOM.liveStreamSection, DOM.profileSection.nextSibling);
-                }
-            }
-            setVisibility(DOM.liveStreamSection, true); // Показываем стрим на мобильных
-            DOM.liveStreamSection.classList.remove('md-visible'); // Удаляем класс ПК-видимости
+const handleLayout = () => {
+    const isDesktop = window.matchMedia("(min-width: 768px)").matches;
+    const streamInfo = appData.liveStream;
+    const shouldShowStream = appConfig.showLiveStreamSection && streamInfo && streamInfo.type !== 'none';
+    const shouldShowSkin = appConfig.showMinecraftSkinSection;
+
+    // Сначала управляем видимостью блоков
+    setVisibility(DOM.liveStreamSection, shouldShowStream);
+    setVisibility(DOM.minecraftBlock, shouldShowSkin);
+
+    if (isDesktop) {
+        // На десктопе, перемещаем стрим и скин в правый блок
+        if (shouldShowStream && !DOM.mediaBlockDesktop.contains(DOM.liveStreamSection)) {
+            DOM.mediaBlockDesktop.prepend(DOM.liveStreamSection);
         }
-        displayLiveStreamContent(appData.liveStream); // Отображаем контент стрима
+        if (shouldShowSkin && !DOM.mediaBlockDesktop.contains(DOM.minecraftBlock)) {
+            DOM.mediaBlockDesktop.appendChild(DOM.minecraftBlock);
+        }
     } else {
-        // Если стрим не активен или не должен отображаться, скрываем его везде
-        setVisibility(DOM.liveStreamSection, false);
-        DOM.liveStreamSection.classList.remove('md-visible');
+        // На мобильных, возвращаем их в основной поток
+        if (shouldShowStream && !DOM.mainView.contains(DOM.liveStreamSection)) {
+            DOM.profileSection.after(DOM.liveStreamSection);
+        }
+        if (shouldShowSkin && !DOM.mainLinksBlock.parentNode.contains(DOM.minecraftBlock)) {
+            DOM.mainLinksBlock.parentNode.after(DOM.minecraftBlock);
+        }
     }
-    // Управление видимостью media-block-desktop
-    if (DOM.mediaBlockDesktop) {
-        // Показываем media-block-desktop только если это ПК и должен быть скин или стрим
-        const showMediaBlock = isDesktopHorizontal &&
-            (appConfig.showMinecraftSkinSection || shouldShowLiveStream);
-        setVisibility(DOM.mediaBlockDesktop, showMediaBlock);
+
+    if (shouldShowStream) {
+        displayLiveStreamContent(streamInfo);
     }
 };
+
 
 /**
  * @function displayLiveStreamContent
@@ -463,14 +434,9 @@ const displayLiveStreamContent = (streamInfo) => {
             if (DOM.twitchLink) DOM.twitchLink.href = `https://www.twitch.tv/${streamInfo.twitchLive.twitchChannelName}`;
             setVisibility(DOM.twitchNotification, true);
         }
-        console.log("[Render] Активен YouTube Live Stream.");
     } else if (streamInfo.type === 'twitch' && streamInfo.twitchChannelName) {
         // Если активен Twitch стрим, встраиваем его
         if (DOM.liveEmbed) DOM.liveEmbed.src = `https://player.twitch.tv/?channel=${streamInfo.twitchChannelName}&parent=${window.location.hostname}&autoplay=true&mute=false`;
-        console.log("[Render] Активен Twitch Live Stream.");
-    } else {
-        // Нет активных стримов
-        console.log("[Render] Нет активных прямых трансляций для отображения.");
     }
 };
 
@@ -480,530 +446,255 @@ const displayLiveStreamContent = (streamInfo) => {
  * Модальное окно показывается только один раз, затем его состояние сохраняется в `localStorage`.
  */
 const manageFirstVisitModal = () => {
-    // Убедитесь, что модальное окно существует в DOM
-    if (!DOM.firstVisitModal) {
-        console.warn("[Modal] Модальное окно первого посещения не найдено в DOM.");
-        return;
-    }
-
+    if (!DOM.firstVisitModal) return;
     const hasVisited = localStorage.getItem('visited_modal');
     if (!hasVisited) {
-        // Проверяем, что все DOM элементы внутри модального окна существуют
-        if (DOM.modalTitle && DOM.modalDescription && DOM.modalCloseBtn) {
-            setVisibility(DOM.firstVisitModal, true);
-            DOM.modalCloseBtn.onclick = () => {
-                setVisibility(DOM.firstVisitModal, false);
-                localStorage.setItem('visited_modal', 'true');
-                console.log("[Modal] Модальное окно первого посещения закрыто.");
-            };
-            console.log("[Modal] Показано модальное окно первого посещения.");
-        } else {
-            console.error("[Modal] Отсутствуют элементы внутри модального окна первого посещения. Модальное окно не будет показано.");
-            setVisibility(DOM.firstVisitModal, false); // Скрываем, если не все элементы найдены
-        }
+        setVisibility(DOM.firstVisitModal, true);
+        DOM.firstVisitModal.style.display = 'flex'; // Используем flex для центрирования
+        DOM.modalCloseBtn.onclick = () => {
+            setVisibility(DOM.firstVisitModal, false);
+            DOM.firstVisitModal.style.display = 'none';
+            localStorage.setItem('visited_modal', 'true');
+        };
     } else {
         setVisibility(DOM.firstVisitModal, false);
-        console.log("[Modal] Модальное окно первого посещения не показано (уже посещено).");
+        DOM.firstVisitModal.style.display = 'none';
     }
 };
 
 /**
  * @function initSwipeGestures
  * Инициализирует жесты свайпа (как для мыши, так и для касания) для карточек ссылок с классом `swipe-target`.
- * Позволяет пользователям выполнять действия (подписка/открытие видео) с помощью свайпов.
- * Обрабатывает `mousedown`, `mousemove`, `mouseup`, `mouseleave`, `touchstart`, `touchmove`, `touchend`.
  */
 const initSwipeGestures = () => {
     const swipeTargets = document.querySelectorAll('.swipe-target');
     console.log(`[Gestures] Инициализация жестов свайпа для ${swipeTargets.length} элементов.`);
     swipeTargets.forEach(card => {
-        let startX = 0;
-        let startY = 0; // Добавлено для отслеживания вертикального движения
-        let currentX = 0;
-        let currentY = 0; // Добавлено для отслеживания вертикального движения
-        let isSwiping = false;
-        let swipeStarted = false; // Флаг, указывающий, начался ли горизонтальный свайп (преодолен порог)
+        let startX = 0, startY = 0, currentX = 0, currentY = 0;
+        let isSwiping = false, swipeStarted = false;
 
         const linkData = linksConfig.find(link => link.label_key === card.getAttribute('data-link-id'));
-        if (!linkData) {
-            console.warn(`[Gestures] Данные ссылки не найдены для карточки с label_key: ${card.getAttribute('data-link-id')}. Свайп-жесты не будут работать для этой карточки.`);
-            return;
-        }
+        if (!linkData) return;
 
-        /**
-         * @function handleStart
-         * Обработчик начала касания/нажатия мыши.
-         * Устанавливает начальную позицию и флаг свайпа.
-         * @param {Event} e - Событие (TouchEvent или MouseEvent).
-         */
         const handleStart = (e) => {
             isSwiping = true;
-            swipeStarted = false; // Сбрасываем флаг начала свайпа
+            swipeStarted = false;
             startX = e.touches ? e.touches[0].clientX : e.clientX;
-            startY = e.touches ? e.touches[0].clientY : e.clientY; // Захватываем начальную Y-координату
-            card.style.transition = 'none'; // Отключаем CSS-переход во время активного свайпа
+            startY = e.touches ? e.touches[0].clientY : e.clientY;
+            card.style.transition = 'none';
         };
 
-        /**
-         * @function handleMove
-         * Обработчик движения касания/мыши во время свайпа.
-         * Обновляет позицию карточки и применяет классы для визуальной обратной связи.
-         * Учитывает доминирующее направление движения для предотвращения конфликтов со скроллом.
-         * @param {Event} e - Событие (TouchEvent или MouseEvent).
-         */
         const handleMove = (e) => {
             if (!isSwiping) return;
-
             currentX = e.touches ? e.touches[0].clientX : e.clientX;
             currentY = e.touches ? e.touches[0].clientY : e.clientY;
-
             const deltaX = currentX - startX;
             const deltaY = currentY - startY;
 
-            const horizontalMoveThreshold = 30; // Порог в пикселях для начала горизонтального свайпа
-            const verticalMoveTolerance = 0.5; // Насколько горизонтальным должен быть свайп (например, 0.5 означает deltaX > 0.5 * deltaY)
-
-            // Если свайп еще не начат (не преодолен горизонтальный порог)
             if (!swipeStarted) {
-                // Если вертикальное движение значительно больше горизонтального, считаем это скроллом
-                if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 10) { // Порог 10px для начала скролла
-                    isSwiping = false; // Прекращаем отслеживать как свайп
-                    card.style.transform = 'translateX(0)'; // Сбрасываем любое случайное горизонтальное смещение
-                    card.classList.remove('swiping-left', 'swiping-right');
-                    // НЕ вызываем e.preventDefault(), чтобы разрешить нативный скролл
+                if (Math.abs(deltaY) > Math.abs(deltaX) && Math.abs(deltaY) > 10) {
+                    isSwiping = false;
                     return;
                 }
-                // Если горизонтальное движение превышает порог И оно достаточно доминирует над вертикальным
-                else if (Math.abs(deltaX) > horizontalMoveThreshold && Math.abs(deltaX) > (Math.abs(deltaY) * verticalMoveTolerance)) {
-                    swipeStarted = true; // Свайп официально начат
-                    e.preventDefault(); // Предотвращаем дефолтное поведение (скролл)
-                }
-                // Если движение слишком маленькое, чтобы определить направление, ничего не делаем
-                else if (Math.abs(deltaX) <= horizontalMoveThreshold && Math.abs(deltaY) <= 10) { // Порог 10px для незначительных движений
-                    return;
+                if (Math.abs(deltaX) > 30) {
+                    swipeStarted = true;
+                    e.preventDefault();
                 }
             }
 
             if (swipeStarted) {
-                e.preventDefault(); // Продолжаем предотвращать дефолтное поведение (скролл), если свайп уже начался
+                e.preventDefault();
                 card.style.transform = `translateX(${deltaX}px)`;
-                card.classList.remove('swiping-left', 'swiping-right');
-                if (deltaX > 0) {
-                    card.classList.add('swiping-right');
-                } else {
-                    card.classList.add('swiping-left');
-                }
+                card.classList.toggle('swiping-right', deltaX > 0);
+                card.classList.toggle('swiping-left', deltaX < 0);
             }
         };
 
-        /**
-         * @function handleEnd
-         * Обработчик завершения касания/отпускания кнопки мыши.
-         * Определяет, был ли выполнен достаточный свайп, и выполняет соответствующее действие (открытие URL).
-         * Сбрасывает состояние свайпа и включает обратно CSS-переходы.
-         */
         const handleEnd = () => {
-            if (!isSwiping && !swipeStarted) { // Если не было активного свайпа или он был отменен как скролл
-                card.style.transform = 'translateX(0)'; // Убеждаемся, что карточка возвращается на место
-                card.classList.remove('swiping-left', 'swiping-right');
-                card.style.transition = 'transform 0.2s ease, background-color 0.3s ease, box-shadow 0.2s ease';
-                return;
-            }
-
+            if (!isSwiping) return;
             isSwiping = false;
-            card.style.transition = 'transform 0.2s ease, background-color 0.3s ease, box-shadow 0.2s ease'; // Включаем CSS-переходы обратно
+            card.style.transition = 'transform 0.2s ease, background-color 0.3s ease, box-shadow 0.2s ease';
             card.classList.remove('swiping-left', 'swiping-right');
+            const deltaX = currentX - startX;
+            const swipeThreshold = card.offsetWidth * 0.25;
 
-            const deltaX = currentX - startX; // Пересчитываем на основе конечных позиций
-            const swipeThreshold = card.offsetWidth * 0.25; // Порог свайпа 25% ширины карточки
-
-            if (swipeStarted && Math.abs(deltaX) > swipeThreshold) { // Действуем только если свайп был инициирован и преодолел порог
-                if (deltaX > 0) { // Свайп вправо: подписка или основная ссылка
-                    const targetUrl = linkData.subscribeUrl || linkData.url;
-                    window.open(targetUrl, '_blank');
-                    console.log(`[Gestures] Свайп вправо на ${strings[currentLang][linkData.label_key] || linkData.label_key}, открытие: ${targetUrl}`);
-                } else { // Свайп влево: последнее видео/стрим YouTube или основная ссылка
-                    if (linkData.platformId === 'youtube') {
+            if (swipeStarted && Math.abs(deltaX) > swipeThreshold) {
+                if (deltaX > 0) {
+                    window.open(linkData.subscribeUrl || linkData.url, '_blank');
+                } else {
+                     if (linkData.platformId === 'youtube') {
                         const liveStream = appData.liveStream;
                         if (liveStream && liveStream.type === 'youtube' && liveStream.id) {
                             window.open(`https://www.youtube.com/watch?v=${liveStream.id}`, '_blank');
-                            console.log(`[Gestures] Свайп влево на YouTube, открытие прямого эфира: ${liveStream.id}`);
                         } else if (appData.youtubeVideos && appData.youtubeVideos.length > 0) {
                             window.open(`https://www.youtube.com/watch?v=${appData.youtubeVideos[0].id}`, '_blank');
-                            console.log(`[Gestures] Свайп влево на YouTube, открытие последнего видео: ${appData.youtubeVideos[0].id}`);
                         } else {
                             window.open(linkData.url, '_blank');
-                            console.log(`[Gestures] Свайп влево на YouTube, нет видео/стримов, открытие канала: ${linkData.url}`);
                         }
                     } else {
                         window.open(linkData.url, '_blank');
-                        console.log(`[Gestures] Свайп влево на ${strings[currentLang][linkData.label_key] || linkData.label_key}, открытие: ${linkData.url}`);
                     }
                 }
             }
-            card.style.transform = 'translateX(0)'; // Сброс позиции карточки (возврат на место)
-            swipeStarted = false; // Сбрасываем для следующего взаимодействия
+            card.style.transform = 'translateX(0)';
+            swipeStarted = false;
         };
 
-        /**
-         * @private _handleClickForPreview
-         * Переопределенный обработчик клика, который учитывает флаг `swipeStarted`.
-         * Это предотвращает ложные срабатывания клика, если пользователь выполнял свайп, а не чистый тап/клик.
-         * Либо показывает предпросмотр, либо позволяет стандартному действию ссылки произойти (если предпросмотр уже открыт).
-         */
-        card._handleClickForPreview = (e) => {
-            if (swipeStarted) { // Если свайп-жест был инициирован (swipeStarted стало true), предотвращаем клик
+        const handleClickForPreview = (e) => {
+            if (swipeStarted) {
                 e.preventDefault();
-                // swipeStarted = false; // Не сбрасываем здесь, это делает handleEnd
                 return;
             }
-            // Если свайп не начинался, то это обычный клик/тап
-            // Если предпросмотр уже показан для этой ссылки, то открыть ссылку
-            // Иначе, показать предпросмотр
             if (DOM.linkPreviewModal.classList.contains('active') && DOM.linkPreviewModal.dataset.currentLinkKey === linkData.label_key) {
-                // Разрешаем дефолтное поведение, так как это второй тап/клик на той же ссылке
-                // (первый открыл предпросмотр, второй - саму ссылку)
+                // allow click
             } else {
-                e.preventDefault(); // Предотвращаем дефолтное действие ссылки
+                e.preventDefault();
                 showLinkPreview(linkData);
             }
         };
 
-        // Привязываем слушатели событий для мыши и касаний
         card.addEventListener('mousedown', handleStart);
         card.addEventListener('mousemove', handleMove);
         card.addEventListener('mouseup', handleEnd);
         card.addEventListener('mouseleave', handleEnd);
-
-        // Для touch-событий: passive: false позволяет вызывать preventDefault
         card.addEventListener('touchstart', handleStart, { passive: false });
         card.addEventListener('touchmove', handleMove, { passive: false });
         card.addEventListener('touchend', handleEnd);
-
-        // Клик слушатель добавляется один раз
-        card.addEventListener('click', card._handleClickForPreview);
+        card.addEventListener('click', handleClickForPreview);
     });
 };
 
 /**
  * @function initMinecraftSkinViewer
- * Инициализирует 3D-просмотрщик скина Minecraft с помощью библиотеки Skinview3D.
- * Проверяет доступность импортированного модуля `skinview3d` перед инициализацией.
- * Устанавливает скин, анимацию ходьбы и орбитальные элементы управления для интерактивного вращения и масштабирования.
- * Добавляет `ResizeObserver` для адаптации размера канваса при изменении размера контейнера.
+ * Инициализирует 3D-просмотрщик скина Minecraft.
  */
 const initMinecraftSkinViewer = () => {
-    // Скрываем секцию, если она не должна быть показана согласно конфигу.
     if (!appConfig.showMinecraftSkinSection) {
         setVisibility(DOM.minecraftBlock, false);
-        if (skinViewerInstance) {
-            skinViewerInstance.dispose();
-            skinViewerInstance = null;
-            console.log("[SkinViewer] 3D-просмотрщик скина Minecraft отключен и очищен.");
-        }
         return;
     }
-    // Проверяем наличие необходимых DOM-элементов
-    if (!DOM.skinCanvas || !DOM.skinViewerContainer) {
-        console.error("[SkinViewer] Отсутствуют необходимые DOM-элементы (canvas или контейнер) для просмотрщика скина. Инициализация невозможна.");
-        setVisibility(DOM.minecraftBlock, false);
-        return;
-    }
-    // Проверяем, загружен ли модуль skinview3d.
-    if (typeof skinview3d === 'undefined' || typeof skinview3d.SkinViewer === 'undefined') {
-        console.error("[SkinViewer] Библиотека skinview3d не загружена или недоступна. 3D просмотр скина невозможен.");
-        console.error(strings[currentLang].skinViewerLoadError);
-        setVisibility(DOM.minecraftBlock, false);
-        return;
-    }
-    // Если экземпляр уже существует, очищаем его, чтобы избежать дублирования.
-    if (skinViewerInstance) {
-        skinViewerInstance.dispose();
-        skinViewerInstance = null;
-        console.log("[SkinViewer] Предыдущий экземпляр SkinViewer3D очищен.");
-    }
+    if (!DOM.skinCanvas || !DOM.skinViewerContainer) return;
+    if (skinViewerInstance) skinViewerInstance.dispose();
     try {
-        // Создаем новый экземпляр SkinViewer.
         skinViewerInstance = new skinview3d.SkinViewer({
             canvas: DOM.skinCanvas,
-            width: DOM.skinViewerContainer.offsetWidth,
-            height: DOM.skinViewerContainer.offsetHeight,
-            // Добавляем фоновый цвет, чтобы избежать прозрачности по умолчанию
-            // background: 0x000000, // Пример черного фона
-            // transparent: false,
+            width: DOM.skinViewerContainer.clientWidth,
+            height: DOM.skinViewerContainer.clientHeight,
         });
-
-        // Загружаем скин
-        skinViewerInstance.loadSkin(profileConfig.minecraftSkinUrl, {
-            // Дополнительные параметры загрузки, если нужны
-        })
+        skinViewerInstance.loadSkin(profileConfig.minecraftSkinUrl)
             .then(() => {
-                console.log("[SkinViewer] Скин успешно загружен.");
-                // Устанавливаем анимацию ходьбы
                 skinViewerInstance.animation = new skinview3d.WalkingAnimation();
-                skinViewerInstance.zoom = 1; // Начальное масштабирование
-                // Применяем орбитальные элементы управления для интерактивного вращения и масштабирования.
                 skinview3d.createOrbitControls(skinViewerInstance);
             })
-            .catch(error => {
-                console.error("[SkinViewer] Ошибка загрузки скина:", error);
-                console.error(strings[currentLang].skinViewerLoadError);
-                setVisibility(DOM.minecraftBlock, false); // Скрываем блок при ошибке загрузки скина
-            });
-
-        // Добавляем ResizeObserver для автоматического изменения размера канваса при изменении размера его контейнера.
-        // Это обеспечивает адаптивность 3D-просмотрщика.
+            .catch(e => console.error("Ошибка загрузки скина:", e));
+        
         new ResizeObserver(() => {
-            if (DOM.skinViewerContainer && skinViewerInstance) {
-                skinViewerInstance.setSize(
-                    DOM.skinViewerContainer.offsetWidth,
-                    DOM.skinViewerContainer.offsetHeight
-                );
-                console.log("[SkinViewer] Canvas изменен в размере и SkinViewer3D адаптирован.");
+            if (skinViewerInstance) {
+                skinViewerInstance.setSize(DOM.skinViewerContainer.clientWidth, DOM.skinViewerContainer.clientHeight);
             }
         }).observe(DOM.skinViewerContainer);
-        // Делаем секцию видимой, если инициализация прошла успешно (даже если скин еще грузится).
         setVisibility(DOM.minecraftBlock, true);
-        // Добавляем слушатель для кнопки скачивания скина.
-        if (DOM.downloadSkinButton) DOM.downloadSkinButton.addEventListener('click', downloadMinecraftSkin);
-        console.log("[SkinViewer] 3D-просмотрщик скина Minecraft инициализирован и настроен.");
+        if (DOM.downloadSkinButton) DOM.downloadSkinButton.addEventListener('click', () => {
+            const a = document.createElement('a');
+            a.href = profileConfig.minecraftSkinUrl;
+            a.download = 'minecraft_skin.png';
+            a.click();
+        });
     } catch (error) {
-        // Логируем любые ошибки, возникающие во время инициализации Skinview3D.
-        console.error("[SkinViewer] Ошибка при инициализации 3D-просмотрщика скина (SkinViewer3D):", error);
-        console.error(strings[currentLang].skinViewerLoadError);
-        setVisibility(DOM.minecraftBlock, false); // Скрываем секцию в случае критической ошибки инициализации
+        console.error("Ошибка инициализации 3D-просмотрщика скина:", error);
+        setVisibility(DOM.minecraftBlock, false);
     }
 };
 
-/**
- * @function downloadMinecraftSkin
- * Запускает процесс скачивания PNG-файла скина Minecraft.
- * Создает временную ссылку (`<a>`), устанавливает её `href` и `download` атрибуты,
- * имитирует клик и удаляет ссылку.
- */
-const downloadMinecraftSkin = () => {
-    if (profileConfig.minecraftSkinUrl) {
-        const a = document.createElement('a');
-        a.href = profileConfig.minecraftSkinUrl;
-        a.download = 'minecraft_skin.png'; // Имя файла для скачивания
-        document.body.appendChild(a); // Необходимо добавить в DOM для вызова click()
-        a.click(); // Имитируем клик
-        document.body.removeChild(a); // Удаляем элемент
-        console.log("[Download] Попытка скачать скин Minecraft.");
-    } else {
-        console.warn("[Download] URL скина Minecraft не задан в profileConfig. Скачивание невозможно.");
-    }
-};
-
-/**
- * @function setupSupportButton
- * Настраивает видимость кнопки поддержки/доната и устанавливает её URL (если применимо).
- * Видимость контролируется `appConfig.showSupportButton`.
- */
 const setupSupportButton = () => {
     setVisibility(DOM.supportSection, appConfig.showSupportButton);
-    if (appConfig.showSupportButton) {
-        // Если у вас есть URL для поддержки, добавьте его в appConfig.
-        // Пример: appConfig.supportUrl = "https://boosty.to/your_channel";
-        if (DOM.supportButton) DOM.supportButton.href = appConfig.supportUrl || "#"; // Fallback к #
-        if (DOM.supportButtonText) DOM.supportButtonText.textContent = strings[currentLang].supportButton;
-        console.log("[Render] Кнопка поддержки настроена.");
+    if (appConfig.showSupportButton && DOM.supportButton) {
+        DOM.supportButton.href = appConfig.supportUrl || "#";
     }
 };
 
-/**
- * @function renderDevPage
- * Рендерит содержимое страницы разработчика.
- * Отображает информацию о последнем обновлении данных, содержимое `data.json` (имитация)
- * и отладочную информацию API.
- */
 const renderDevPage = () => {
     if (DOM.devLastUpdated) DOM.devLastUpdated.textContent = appData.lastUpdated ? new Date(appData.lastUpdated).toLocaleString(currentLang) : 'N/A';
     if (DOM.devDataJsonContent) DOM.devDataJsonContent.textContent = JSON.stringify(appData, null, 2);
     if (DOM.devDebugInfoContent) DOM.devDebugInfoContent.textContent = JSON.stringify(appData.debugInfo || {}, null, 2);
-    console.log("[Render] Страница разработчика отрисована.");
 };
 
-/**
- * @function setupAnalytics
- * Настраивает аналитику (в данной версии является заглушкой).
- * Здесь можно добавить код для интеграции Google Analytics или другой системы аналитики.
- */
 const setupAnalytics = () => {
     console.log("[Analytics] Настройка заглушки Google Analytics...");
-    // Здесь можно интегрировать реальный код Google Analytics
 };
 
-/**
- * @function showLinkPreview
- * @param {object} linkData - Объект данных ссылки, для которой показывается предпросмотр.
- * Отображает модальное окно предпросмотра ссылки с информацией из `profileConfig`
- * (имя, описание, аватар профиля, а также кнопка для открытия самой ссылки).
- */
 const showLinkPreview = (linkData) => {
-    if (!DOM.linkPreviewModal) {
-        console.error("[Preview] Элемент модального окна предпросмотра ссылки не найден.");
-        return;
-    }
-    // Останавливаем скрытие, если оно было запланировано предыдущим pointerleave
+    if (!DOM.linkPreviewModal) return;
     clearTimeout(DOM.linkPreviewModal._hideTimeout);
-    // Если предпросмотр уже открыт для этой же ссылки, не делаем ничего
-    if (DOM.linkPreviewModal.classList.contains('active') && DOM.linkPreviewModal.dataset.currentLinkKey === linkData.label_key) {
-        return;
-    }
-    // Заполняем содержимое модального окна данными профиля
+    if (DOM.linkPreviewModal.classList.contains('active') && DOM.linkPreviewModal.dataset.currentLinkKey === linkData.label_key) return;
+    
     if (DOM.previewAvatar) DOM.previewAvatar.src = profileConfig.avatar;
-    if (DOM.previewName) DOM.previewName.textContent = strings[currentLang][profileConfig.name_key]; // Локализация имени
-    if (DOM.previewDescription) DOM.previewDescription.textContent = strings[currentLang][profileConfig.description_key]; // Локализация описания
-    if (DOM.previewOpenLink) DOM.previewOpenLink.textContent = strings[currentLang].openLinkButton; // Локализация текста кнопки
-    if (DOM.previewOpenLink) DOM.previewOpenLink.href = linkData.url; // Кнопка "Открыть ссылку" ведет на URL ссылки
-    if (DOM.previewAvatar) DOM.previewAvatar.alt = strings[currentLang].previewAvatarAlt; // Локализация alt текста
-    // Сохраняем ключ текущей ссылки в dataset модального окна для последующих проверок
+    if (DOM.previewName) DOM.previewName.textContent = strings[currentLang][profileConfig.name_key];
+    if (DOM.previewDescription) DOM.previewDescription.textContent = strings[currentLang][profileConfig.description_key];
+    if (DOM.previewOpenLink) DOM.previewOpenLink.textContent = strings[currentLang].openLinkButton;
+    if (DOM.previewOpenLink) DOM.previewOpenLink.href = linkData.url;
+    if (DOM.previewCloseButton) DOM.previewCloseButton.textContent = strings[currentLang].closeButton;
+
     DOM.linkPreviewModal.dataset.currentLinkKey = linkData.label_key;
-    setVisibility(DOM.linkPreviewModal, true); // Делаем модальное окно видимым
-    DOM.linkPreviewModal.classList.add('active'); // Добавляем класс 'active' для применения стилей/анимаций
-    // Добавляем слушатели для закрытия модального окна
+    setVisibility(DOM.linkPreviewModal, true);
+    DOM.linkPreviewModal.classList.add('active');
+    DOM.linkPreviewModal.style.display = 'flex';
     if (DOM.previewCloseButton) DOM.previewCloseButton.onclick = hideLinkPreview;
-    if (DOM.previewCloseButton) DOM.previewCloseButton.textContent = strings[currentLang].closeButton; // Локализация текста кнопки
-    // Добавляем слушатели для кликов по элементам внутри предпросмотра, чтобы открыть ссылку
-    // Используем e.preventDefault(), чтобы не было дублирования открытия, если элемент является ссылкой.
     if (DOM.previewAvatar) DOM.previewAvatar.onclick = (e) => { e.preventDefault(); window.open(linkData.url, '_blank'); hideLinkPreview(); };
     if (DOM.previewName) DOM.previewName.onclick = (e) => { e.preventDefault(); window.open(linkData.url, '_blank'); hideLinkPreview(); };
     if (DOM.previewDescription) DOM.previewDescription.onclick = (e) => { e.preventDefault(); window.open(linkData.url, '_blank'); hideLinkPreview(); };
-    console.log(`[Preview] Показан предпросмотр ссылки для: ${strings[currentLang][linkData.label_key] || linkData.label_key}`);
 };
 
-/**
- * @function hideLinkPreview
- * Скрывает модальное окно предпросмотра ссылки с небольшой задержкой.
- * Очищает временные слушатели событий и данные.
- */
 const hideLinkPreview = () => {
-    // Небольшая задержка, чтобы предотвратить моргание при быстром движении курсора над ссылками
     DOM.linkPreviewModal._hideTimeout = setTimeout(() => {
         setVisibility(DOM.linkPreviewModal, false);
-        DOM.linkPreviewModal.classList.remove('active'); // Удаляем класс 'active'
-        DOM.linkPreviewModal.dataset.currentLinkKey = ''; // Очищаем ключ текущей ссылки
-        // Удаляем обработчики событий, чтобы избежать утечек памяти
-        if (DOM.previewCloseButton) DOM.previewCloseButton.onclick = null;
-        if (DOM.previewAvatar) DOM.previewAvatar.onclick = null;
-        if (DOM.previewName) DOM.previewName.onclick = null;
-        if (DOM.previewDescription) DOM.previewDescription.onclick = null;
-        console.log("[Preview] Предпросмотр ссылки скрыт.");
+        DOM.linkPreviewModal.classList.remove('active');
+        DOM.linkPreviewModal.style.display = 'none';
+        DOM.linkPreviewModal.dataset.currentLinkKey = '';
     }, 100);
 };
 
-// --- Инициализация приложения после полной загрузки DOM ---
-/**
- * @event DOMContentLoaded
- * Главная точка входа для инициализации всего приложения.
- * Выполняется после того, как весь HTML-документ будет загружен и разобран.
- * Последовательно вызывает все функции для настройки UI, загрузки данных и инициализации интерактивных элементов.
- */
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("------------------------------------------");
     console.log("DOMContentLoaded: Запуск инициализации приложения Personal Link Aggregator.");
 
-    // 1. Загрузка данных приложения
-    appData = await fetchAppData();
-    console.log("[Init] Данные приложения загружены:", appData);
-
-    // 2. Рендеринг секции профиля.
-    renderProfileSection();
-
-    // 3. Применение начальной темы и языка.
-    // `updateLanguage` также вызовет `renderLinksSection` и `calculateAndDisplayTotalFollowers`.
     applyTheme(currentTheme);
     updateLanguage();
 
-    // 4. Настройка и видимость переключателя темы.
-    setVisibility(DOM.themeToggle, appConfig.showThemeToggle);
-    if (appConfig.showThemeToggle && DOM.themeToggle) {
-        DOM.themeToggle.addEventListener('click', () => {
-            currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
-            localStorage.setItem('theme', currentTheme); // Сохраняем тему в localStorage
-            applyTheme(currentTheme);
-            console.log(`[Event] Тема переключена на: ${currentTheme}`);
-        });
-        console.log("[Init] Переключатель темы настроен.");
-    } else {
-        console.warn("[Init] Элемент переключателя темы не найден или скрыт согласно конфигурации.");
-    }
+    DOM.themeToggle.addEventListener('click', () => {
+        currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
+        applyTheme(currentTheme);
+    });
 
-    // 5. Настройка и видимость переключателя языка.
-    setVisibility(DOM.languageToggle, appConfig.showLanguageToggle);
-    if (appConfig.showLanguageToggle && DOM.languageToggle) {
-        DOM.languageToggle.addEventListener('click', () => {
-            currentLang = currentLang === 'en' ? 'ru' : 'en';
-            localStorage.setItem('lang', currentLang);
-            updateLanguage(); // Обновить весь текст UI после смены языка
-            console.log(`[Event] Язык переключен на: ${currentLang}`);
-        });
-        console.log("[Init] Переключатель языка настроен.");
-    } else {
-        console.warn("[Init] Элемент переключателя языка не найден или скрыт согласно конфигурации.");
-    }
+    DOM.languageToggle.addEventListener('click', () => {
+        currentLang = currentLang === 'ru' ? 'en' : 'ru';
+        localStorage.setItem('lang', currentLang);
+        updateLanguage();
+    });
 
-    // 6. Настройка и видимость режима разработчика.
     setVisibility(DOM.devToggle, appConfig.developmentMode && appConfig.showDevToggle);
     if (appConfig.developmentMode && appConfig.showDevToggle && DOM.devToggle) {
-        DOM.devToggle.addEventListener('click', () => {
-            renderView(isDevViewActive ? 'main' : 'dev'); // Переключаем на противоположный вид.
-            console.log("[Event] Кнопка Dev нажата. Переключение вида.");
-        });
-        if (DOM.backToMainButton) {
-            DOM.backToMainButton.addEventListener('click', () => {
-                renderView('main');
-                console.log("[Event] Кнопка 'Назад к сайту' нажата. Переключение на основной вид.");
-            });
-        }
-        console.log("[Init] Режим разработчика настроен.");
-    } else {
-        console.warn("[Init] Режим разработчика отключен или кнопка не найдена/скрыта согласно конфигурации.");
+        DOM.devToggle.addEventListener('click', () => renderView(isDevViewActive ? 'main' : 'dev'));
+        if (DOM.backToMainButton) DOM.backToMainButton.addEventListener('click', () => renderView('main'));
     }
 
-    // Выполняем начальную проверку хэша URL для прямого доступа к виду разработчика.
-    const initialHash = window.location.hash;
-    if (initialHash === '#/dev' && appConfig.developmentMode) {
+    if (window.location.hash === '#/dev' && appConfig.developmentMode) {
         renderView('dev');
-    } else {
-        renderView('main');
     }
 
-    // 7. Инициализация Minecraft Skin Viewer.
-    // Используем `setTimeout` с проверкой доступности `skinview3d`,
-    // так как импорт модуля может занять некоторое время.
-    const checkSkinViewerReadyTimeout = setTimeout(() => {
-        if (typeof skinview3d !== 'undefined' && typeof skinview3d.SkinViewer !== 'undefined') {
-            initMinecraftSkinViewer();
-        } else {
-            console.error("[Init] Библиотека skinview3d не загрузилась вовремя. Просмотрщик скина не будет инициализирован.");
-            console.error(strings[currentLang].skinViewerLoadError); // Добавляем сообщение об ошибке
-            setVisibility(DOM.minecraftBlock, false); // Скрываем блок, если библиотека не загрузилась
-        }
-    }, 100); // Уменьшена задержка, так как CDN стабилен
+    appData = await fetchAppData();
 
-    // 8. Настройка кнопки поддержки.
-    setupSupportButton();
-    console.log("[Init] Кнопка поддержки настроена.");
-
-    // 9. Рендеринг видео YouTube.
+    renderProfileSection();
+    renderLinksSection(linksConfig);
     renderYouTubeVideosSection();
-    console.log("[Init] Секция видео YouTube настроена.");
-
-    // 10. Управление расположением секции стрима.
-    handleLiveStreamLayout();
-    // Добавляем слушатель события `resize` для адаптации макета при изменении размера окна.
-    window.addEventListener('resize', handleLiveStreamLayout);
-    console.log("[Init] Управление расположением Live Stream настроено.");
-
-    // 11. Управление модальным окном первого посещения.
+    setupSupportButton();
+    initMinecraftSkinViewer();
     manageFirstVisitModal();
-    console.log("[Init] Модальное окно первого посещения настроено.");
-
-    // 12. Настройка аналитики (заглушка).
     setupAnalytics();
-    console.log("[Init] Аналитика настроена.");
+    
+    handleLayout();
+    window.addEventListener('resize', handleLayout);
+
     console.log("Инициализация Personal Link Aggregator завершена.");
     console.log("------------------------------------------");
 });

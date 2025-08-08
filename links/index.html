@@ -53,32 +53,15 @@
             <div id="total-followers" class="text-xl font-medium text-purple-400"></div>
         </section>
 
-        <!-- Секция прямой трансляции (LIVE): видна если активна, позиция управляется JS -->
-        <section id="live-stream-section" class="relative w-full rounded-2xl overflow-hidden m3-shadow-md mb-8 hidden">
-            <div class="youtube-video-container">
-                <!-- iframe для встраивания YouTube/Twitch стрима -->
-                <iframe id="live-embed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-            </div>
-            <!-- Индикатор "LIVE" -->
-            <div class="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-xs font-bold live-indicator m3-shadow-md">
-                LIVE
-            </div>
-            <!-- Уведомление о Twitch, если YouTube LIVE: скрыто по умолчанию -->
-            <div id="twitch-notification" class="hidden mt-4 p-4 rounded-2xl text-sm text-center card m3-shadow-md">
-                <p id="twitch-message" class="mb-2"></p>
-                <a id="twitch-link" href="#" target="_blank" class="primary-button inline-flex items-center px-4 py-2 rounded-full font-medium" rel="noopener noreferrer">
-                    <span class="material-symbols-outlined mr-2 text-base">videocam</span>
-                    <span id="twitch-link-text"></span>
-                </a>
-            </div>
-        </section>
-
-        <!-- Контейнер для адаптивного расположения секций ссылок и медиа -->
-        <div class="content-container mb-8">
+        <!-- Контейнер для адаптивного расположения секций ссылок и медиа (стрим + скин) -->
+        <div class="content-container mb-8 flex flex-col md:flex-row md:justify-center md:items-start md:gap-6">
             <!-- Блок основных ссылок -->
-            <div class="main-links-block w-full">
+            <div class="main-links-block w-full md:flex-1 md:max-w-md">
                 <!-- Секция ссылок: скрыта по умолчанию -->
-                <section id="links-section" class="space-y-4 mb-8 hidden"></section>
+                <section id="links-section" class="space-y-4 mb-8 hidden">
+                    <!-- Карточки ссылок будут динамически вставляться JavaScript'ом -->
+                </section>
+
                 <!-- Кнопка поддержки: скрыта по умолчанию -->
                 <section id="support-section" class="flex justify-center mb-8 hidden">
                     <a id="support-button" href="#" target="_blank" class="support-button flex items-center px-6 py-3 rounded-full font-medium m3-shadow-md">
@@ -88,25 +71,47 @@
                 </section>
             </div>
 
-            <!-- Блок для медиа на ПК-версии, изначально пуст, наполняется JS -->
-            <div class="media-block-desktop hidden md:flex md:flex-col md:gap-6">
-            </div>
+            <!-- Блок для Live Stream и Minecraft Skin на ПК-версии -->
+            <!-- На мобильных эти секции будут отображаться ВЫШЕ (вне этого блока, как и раньше) -->
+            <!-- На ПК они будут сгруппированы справа от основных ссылок -->
+            <div class="media-block-desktop hidden md:flex">
+                <!-- Секция прямой трансляции (LIVE): видна только на ПК, если активна -->
+                <section id="live-stream-section" class="relative w-full rounded-2xl overflow-hidden m3-shadow-md">
+                    <div class="youtube-video-container">
+                        <!-- iframe для встраивания YouTube/Twitch стрима -->
+                        <iframe id="live-embed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <!-- Индикатор "LIVE" -->
+                    <div class="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-xs font-bold live-indicator m3-shadow-md">
+                        LIVE
+                    </div>
+                    <!-- Уведомление о Twitch, если YouTube LIVE: скрыто по умолчанию -->
+                    <div id="twitch-notification" class="hidden mt-4 p-4 rounded-2xl text-sm text-center card m3-shadow-md">
+                        <p id="twitch-message" class="mb-2"></p>
+                        <a id="twitch-link" href="#" target="_blank" class="primary-button inline-flex items-center px-4 py-2 rounded-full font-medium" rel="noopener noreferrer">
+                            <span class="material-symbols-outlined mr-2 text-base">videocam</span>
+                            <span id="twitch-link-text"></span>
+                        </a>
+                    </div>
+                </section>
+
+                <!-- Секция 3D просмотра скина Minecraft: скрыта по умолчанию -->
+                <section id="minecraft-block" class="w-full hidden md:flex-shrink-0">
+                    <h2 id="minecraft-title" class="text-xl font-bold text-center mb-4"></h2>
+                    <div id="skin-viewer-container" class="m3-shadow-md w-full h-80">
+                        <!-- Canvas для кастомного рендеринга скина -->
+                        <canvas id="skin-canvas"></canvas>
+                    </div>
+                    <div class="flex justify-center mt-4">
+                        <button id="download-skin-button" class="primary-button flex items-center px-6 py-3 rounded-full font-medium m3-shadow-md">
+                            <span class="material-symbols-outlined mr-2">download</span>
+                            <span id="download-skin-text"></span>
+                        </button>
+                    </div>
+                </section>
+            </div> <!-- Конец media-block-desktop -->
         </div>
 
-        <!-- Секция 3D просмотра скина Minecraft: изначально здесь для мобильных -->
-        <section id="minecraft-block" class="w-full hidden md:flex-shrink-0 mb-8">
-            <h2 id="minecraft-title" class="text-xl font-bold text-center mb-4"></h2>
-            <div id="skin-viewer-container" class="m3-shadow-md w-full h-80 mx-auto" style="max-width: 300px;">
-                <canvas id="skin-canvas"></canvas>
-            </div>
-            <div class="flex justify-center mt-4">
-                <button id="download-skin-button" class="primary-button flex items-center px-6 py-3 rounded-full font-medium m3-shadow-md">
-                    <span class="material-symbols-outlined mr-2">download</span>
-                    <span id="download-skin-text"></span>
-                </button>
-            </div>
-        </section>
-        
         <!-- Секция последних видео YouTube: скрыта по умолчанию -->
         <section id="youtube-videos-section" class="mb-8 hidden">
             <h2 id="recent-videos-title" class="text-xl font-bold mb-4"></h2>
@@ -116,7 +121,7 @@
         </section>
     </div> <!-- Конец основного вида сайта -->
 
-    <!-- Вид для разработчиков: изначально скрыт -->
+    <!-- Вид для разработчиков: изначально скрыт, отображается по хэшу URL -->
     <div id="dev-view" class="hidden w-full max-w-4xl mx-auto py-8">
         <h2 id="dev-title" class="text-3xl font-bold text-center mb-6"></h2>
         <div class="dev-page-content p-6 rounded-2xl m3-shadow-md">
@@ -157,7 +162,7 @@
     </div>
 
     <!-- Модальное окно предпросмотра ссылки: скрыто по умолчанию -->
-    <div id="link-preview-modal" class="modal">
+    <div id="link-preview-modal" class="modal hidden">
         <div class="modal-content text-center">
             <img id="preview-avatar" class="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-purple-500 object-cover" src="./assets/avatar.png" alt="Аватар предпросмотра">
             <h3 id="preview-name" class="text-3xl font-bold mb-2"></h3>
@@ -170,6 +175,9 @@
     </div>
 
 </div>
+
+<!-- ИСПРАВЛЕНИЕ: Конфликтующая строка удалена для корректной работы 3D-скина -->
+<!-- <script src="https://cdn.jsdelivr.net/npm/skinview3d@2.0.0/+esm" type="module"></script> -->
 
 <!-- Основной JavaScript файл, загружается как модуль -->
 <script type="module" src="./js/main.js"></script>

@@ -1,16 +1,21 @@
-// main.js - Ваш оригинальный код + 1 исправление пути к data.json
+// main.js - Основной JavaScript-файл для Personal Link Aggregator
+// Версия v10 (разделенные файлы, имитация данных, Skinview3D как ES-модуль, полная локализация, Material Symbols, гибкая конфигурация)
 
 // Импорт конфигурационных файлов
-import { appConfig, profileConfig, linksConfig } from '../config.js'; 
-import { strings } from '../strings.js'; 
+import { appConfig, profileConfig, linksConfig } from '../config.js'; // Исправлен путь
+import { strings } from '../strings.js'; // Исправлен путь
 
 /**
  * Импорт библиотеки Skinview3D.
+ * Обновлено до версии 3.4.1.
+ * Используется синтаксис `import * as` для импорта всех экспортов модуля.
+ * Это делает классы и функции Skinview3D доступными через объект `skinview3d` (например, `skinview3d.SkinViewer`).
  */
 import * as skinview3d from "https://cdn.jsdelivr.net/npm/skinview3d@3.4.1/+esm";
 
 /**
  * @constant {object} DOM - Объект, содержащий ссылки на все используемые DOM-элементы.
+ * Это централизованное хранилище для быстрого доступа к элементам, уменьшающее количество вызовов `document.getElementById` и улучшающее производительность.
  */
 const DOM = {
     appContainer: document.getElementById('app'),
@@ -49,7 +54,7 @@ const DOM = {
     backToMainButton: document.getElementById('back-to-main-button'),
     devTitle: document.getElementById('dev-title'),
     devLastUpdatedLabel: document.getElementById('dev-last-updated-label'),
-    devLastUpdated: document.getElementById('dev-last-updated'),
+    devLastUpdated: document.getElementById('dev-last-updated'), // Добавлен элемент для даты обновления
     devDataJsonContentLabel: document.getElementById('dev-data-json-content-label'),
     devDataJsonContent: document.getElementById('dev-data-json-content'),
     devDebugInfoContentLabel: document.getElementById('dev-debug-info-content-label'),
@@ -69,11 +74,13 @@ const DOM = {
 };
 
 // --- Состояние приложения ---
-let currentTheme = localStorage.getItem('theme') || 'dark';
-let currentLang = localStorage.getItem('lang') || (navigator.language.startsWith('ru') ? 'ru' : 'en');
-let appData = {};
-let isDevViewActive = false;
-let skinViewerInstance = null;
+let currentTheme = localStorage.getItem('theme') || 'dark'; // Текущая тема: 'dark' (темная) по умолчанию
+let currentLang = localStorage.getItem('lang') || (navigator.language.startsWith('ru') ? 'ru' : 'en'); // Текущий язык: 'ru' (русский), если язык браузера русский, иначе 'en' (английский)
+let appData = {}; // Данные приложения (будут загружены из data.json)
+let isDevViewActive = false; // Флаг, указывающий, активен ли вид разработчика
+
+// --- Переменные для SkinViewer3D ---
+let skinViewerInstance = null; // Экземпляр просмотрщика скина SkinViewer3D
 
 // --- Вспомогательные функции ---
 
@@ -92,22 +99,23 @@ const renderView = (view) => {
     setVisibility(DOM.mainView, view === 'main');
     setVisibility(DOM.devView, view === 'dev');
     if (view === 'dev') {
-        renderDevPage();
+        renderDevPage(); // Рендерим страницу разработчика, если она активирована
     }
     console.log(`[View] Переключен вид на: ${view}`);
 };
 
 const applyTheme = (theme) => {
-    document.body.classList.remove('dark-theme', 'light-theme');
-    document.body.classList.add(`${theme}-theme`);
-    localStorage.setItem('theme', theme);
-    if (DOM.themeIcon) DOM.themeIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
-    if (DOM.themeToggle) DOM.themeToggle.setAttribute('aria-label', strings[currentLang][`theme${theme === 'dark' ? 'Light' : 'Dark'}`]);
+    document.body.classList.remove('dark-theme', 'light-theme'); // Удаляем обе темы
+    document.body.classList.add(`${theme}-theme`); // Применяем выбранную тему
+    localStorage.setItem('theme', theme); // Сохраняем выбор темы в локальном хранилище
+    if (DOM.themeIcon) DOM.themeIcon.textContent = theme === 'dark' ? 'light_mode' : 'dark_mode'; // Обновляем иконку
+    if (DOM.themeToggle) DOM.themeToggle.setAttribute('aria-label', strings[currentLang][`theme${theme === 'dark' ? 'Light' : 'Dark'}`]); // Обновляем aria-label для доступности
     console.log(`[Theme] Применена тема: ${theme}`);
 };
 
 const updateLanguage = () => {
     console.log(`[Language] Обновление UI для языка: ${currentLang}`);
+    // Обновление текста для различных элементов DOM
     if (DOM.recentVideosTitle) DOM.recentVideosTitle.textContent = strings[currentLang].recentVideosTitle;
     if (DOM.minecraftTitle) DOM.minecraftTitle.textContent = strings[currentLang].minecraftTitle;
     if (DOM.downloadSkinText) DOM.downloadSkinText.textContent = strings[currentLang].downloadSkin;
@@ -125,15 +133,17 @@ const updateLanguage = () => {
     if (DOM.devDebugInfoContentLabel) DOM.devDebugInfoContentLabel.textContent = strings[currentLang].devDebugInfoContentLabel;
     if (DOM.devDebugInfoContent) DOM.devDebugInfoContent.textContent = strings[currentLang].devDebugInfoContent;
     if (DOM.backToMainText) DOM.backToMainText.textContent = strings[currentLang].backToMainText;
+    // Локализация профиля и alt-текстов для изображений
     if (DOM.profileName) DOM.profileName.textContent = strings[currentLang][profileConfig.name_key];
     if (DOM.profileDescription) DOM.profileDescription.textContent = strings[currentLang][profileConfig.description_key];
     if (DOM.avatar) DOM.avatar.alt = strings[currentLang].avatarAlt;
     if (DOM.previewAvatar) DOM.previewAvatar.alt = strings[currentLang].previewAvatarAlt;
     if (DOM.twitchMessage) DOM.twitchMessage.textContent = strings[currentLang].twitchStreamAlsoLive;
+
     renderLinksSection(linksConfig);
     calculateAndDisplayTotalFollowers();
     applyTheme(currentTheme);
-    handleLiveStreamLayout();
+    handleLayout();
 };
 
 const formatCount = (num) => {
@@ -174,8 +184,8 @@ const calculateAndDisplayTotalFollowers = () => {
 const fetchAppData = async () => {
     console.log("[Data Fetch] Попытка загрузки данных приложения из data.json...");
     try {
-        // ИСПРАВЛЕНИЕ: Заменена одна строка для правильного пути к data.json
-        const response = await fetch('../../data.json?t=' + Date.now()); 
+        // ИСПРАВЛЕНИЕ №1: Заменен относительный путь на более надежный, поднимающийся на 2 уровня вверх
+        const response = await fetch('../../data.json?t=' + Date.now());
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -189,7 +199,7 @@ const fetchAppData = async () => {
             "youtubeVideos": [],
             "liveStream": { "type": "none" },
             "lastUpdated": new Date().toISOString(),
-            "debugInfo": { "message": "Data loaded from client-side fallback due to data.json fetch error.", "status": "ERROR - Data.json failed to load", "error": error.message, "version": "client-fallback" }
+            "debugInfo": { "message": "Data loaded from client-side fallback due to data.json fetch error.", "status": `ERROR - ${error.message}`, "version": "client-fallback" }
         };
     }
 };
@@ -289,7 +299,7 @@ const renderYouTubeVideosSection = () => {
     }
 };
 
-const handleLiveStreamLayout = () => {
+const handleLayout = () => {
     const isDesktopHorizontal = window.matchMedia("(min-width: 768px) and (orientation: landscape)").matches;
     const shouldShowLiveStream = appConfig.showLiveStreamSection && appData.liveStream && appData.liveStream.type !== 'none';
     if (shouldShowLiveStream) {
@@ -337,10 +347,7 @@ const displayLiveStreamContent = (streamInfo) => {
 };
 
 const manageFirstVisitModal = () => {
-    if (!DOM.firstVisitModal) {
-        console.warn("[Modal] Модальное окно первого посещения не найдено в DOM.");
-        return;
-    }
+    if (!DOM.firstVisitModal) return;
     const hasVisited = localStorage.getItem('visited_modal');
     if (!hasVisited) {
         if (DOM.modalTitle && DOM.modalDescription && DOM.modalCloseBtn) {
@@ -461,42 +468,76 @@ const initSwipeGestures = () => {
 
 const initMinecraftSkinViewer = () => {
     setVisibility(DOM.minecraftBlock, appConfig.showMinecraftSkinSection);
-    if (!appConfig.showMinecraftSkinSection) return;
-    if (!DOM.skinCanvas || !DOM.skinViewerContainer) return;
+    if (!appConfig.showMinecraftSkinSection) {
+        if (skinViewerInstance) skinViewerInstance.dispose();
+        return;
+    }
+
+    if (!DOM.skinCanvas || !DOM.skinViewerContainer) {
+        console.error("[SkinViewer] Отсутствуют DOM-элементы для скина.");
+        setVisibility(DOM.minecraftBlock, false);
+        return;
+    }
+    
+    if (typeof skinview3d === 'undefined' || typeof skinview3d.SkinViewer === 'undefined') {
+        console.error("[SkinViewer] Библиотека skinview3d не загружена.");
+        setVisibility(DOM.minecraftBlock, false);
+        return;
+    }
+
     if (skinViewerInstance) skinViewerInstance.dispose();
+
     try {
+        // ИСПРАВЛЕНИЕ №2: Более надежная инициализация
         skinViewerInstance = new skinview3d.SkinViewer({
             canvas: DOM.skinCanvas,
             width: DOM.skinViewerContainer.offsetWidth,
             height: DOM.skinViewerContainer.offsetHeight,
         });
+
         skinViewerInstance.loadSkin(profileConfig.minecraftSkinUrl)
             .then(() => {
+                console.log("[SkinViewer] Скин успешно загружен.");
                 skinViewerInstance.animation = new skinview3d.WalkingAnimation();
                 skinview3d.createOrbitControls(skinViewerInstance);
             })
-            .catch(e => console.error("Ошибка загрузки скина:", e));
+            .catch(error => {
+                console.error("[SkinViewer] Ошибка загрузки скина:", error);
+                setVisibility(DOM.minecraftBlock, false);
+            });
+
         new ResizeObserver(() => {
-            if (skinViewerInstance) {
-                skinViewerInstance.setSize(DOM.skinViewerContainer.offsetWidth, DOM.skinViewerContainer.offsetHeight);
+            if (DOM.skinViewerContainer && skinViewerInstance) {
+                skinViewerInstance.setSize(
+                    DOM.skinViewerContainer.offsetWidth,
+                    DOM.skinViewerContainer.offsetHeight
+                );
             }
         }).observe(DOM.skinViewerContainer);
+
+        if (DOM.downloadSkinButton) DOM.downloadSkinButton.addEventListener('click', downloadMinecraftSkin);
+        console.log("[SkinViewer] 3D-просмотрщик скина инициализирован.");
     } catch (error) {
-        console.error("Ошибка инициализации 3D-просмотрщика скина:", error);
+        console.error("[SkinViewer] Ошибка при инициализации 3D-просмотрщика:", error);
         setVisibility(DOM.minecraftBlock, false);
     }
-    if (DOM.downloadSkinButton) DOM.downloadSkinButton.addEventListener('click', () => {
+};
+
+const downloadMinecraftSkin = () => {
+    if (profileConfig.minecraftSkinUrl) {
         const a = document.createElement('a');
         a.href = profileConfig.minecraftSkinUrl;
         a.download = 'minecraft_skin.png';
+        document.body.appendChild(a);
         a.click();
-    });
+        document.body.removeChild(a);
+    }
 };
 
 const setupSupportButton = () => {
     setVisibility(DOM.supportSection, appConfig.showSupportButton);
-    if (appConfig.showSupportButton && DOM.supportButton) {
-        DOM.supportButton.href = appConfig.supportUrl || "#";
+    if (appConfig.showSupportButton) {
+        if (DOM.supportButton) DOM.supportButton.href = appConfig.supportUrl || "#";
     }
 };
 
@@ -514,6 +555,7 @@ const showLinkPreview = (linkData) => {
     if (!DOM.linkPreviewModal) return;
     clearTimeout(DOM.linkPreviewModal._hideTimeout);
     if (DOM.linkPreviewModal.classList.contains('active') && DOM.linkPreviewModal.dataset.currentLinkKey === linkData.label_key) return;
+    
     if (DOM.previewAvatar) DOM.previewAvatar.src = profileConfig.avatar;
     if (DOM.previewName) DOM.previewName.textContent = strings[currentLang][profileConfig.name_key];
     if (DOM.previewDescription) DOM.previewDescription.textContent = strings[currentLang][profileConfig.description_key];
@@ -539,53 +581,51 @@ const hideLinkPreview = () => {
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("------------------------------------------");
-    console.log("DOMContentLoaded: Запуск инициализации приложения Personal Link Aggregator.");
+    console.log("DOMContentLoaded: Запуск инициализации.");
+
     appData = await fetchAppData();
+    
     renderProfileSection();
     applyTheme(currentTheme);
     updateLanguage();
+
     setVisibility(DOM.themeToggle, appConfig.showThemeToggle);
-    if (appConfig.showThemeToggle && DOM.themeToggle) {
+    if (DOM.themeToggle) {
         DOM.themeToggle.addEventListener('click', () => {
             currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
             applyTheme(currentTheme);
         });
     }
+
     setVisibility(DOM.languageToggle, appConfig.showLanguageToggle);
-    if (appConfig.showLanguageToggle && DOM.languageToggle) {
+    if (DOM.languageToggle) {
         DOM.languageToggle.addEventListener('click', () => {
             currentLang = currentLang === 'en' ? 'ru' : 'en';
             localStorage.setItem('lang', currentLang);
             updateLanguage();
         });
     }
+
     setVisibility(DOM.devToggle, appConfig.developmentMode && appConfig.showDevToggle);
-    if (appConfig.developmentMode && appConfig.showDevToggle && DOM.devToggle) {
+    if (DOM.devToggle) {
         DOM.devToggle.addEventListener('click', () => renderView(isDevViewActive ? 'main' : 'dev'));
         if (DOM.backToMainButton) {
             DOM.backToMainButton.addEventListener('click', () => renderView('main'));
         }
     }
-    const initialHash = window.location.hash;
-    if (initialHash === '#/dev' && appConfig.developmentMode) {
+
+    if (window.location.hash === '#/dev' && appConfig.developmentMode) {
         renderView('dev');
-    } else {
-        renderView('main');
     }
-    const checkSkinViewerReadyTimeout = setTimeout(() => {
-        if (typeof skinview3d !== 'undefined' && typeof skinview3d.SkinViewer !== 'undefined') {
-            initMinecraftSkinViewer();
-        } else {
-            console.error("[Init] Библиотека skinview3d не загрузилась вовремя.");
-            setVisibility(DOM.minecraftBlock, false);
-        }
-    }, 100);
+
+    initMinecraftSkinViewer();
     setupSupportButton();
     renderYouTubeVideosSection();
     handleLayout();
     window.addEventListener('resize', handleLayout);
     manageFirstVisitModal();
     setupAnalytics();
-    console.log("Инициализация Personal Link Aggregator завершена.");
+
+    console.log("Инициализация завершена.");
     console.log("------------------------------------------");
 });

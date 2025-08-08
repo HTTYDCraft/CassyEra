@@ -1,11 +1,18 @@
-// main.js - Финальная рабочая версия с минимальными исправлениями.
+// main.js - Ваш оригинальный код с минимальными исправлениями для data.json и языка.
 
+// Импорт конфигурационных файлов
 import { appConfig, profileConfig, linksConfig } from '../config.js';
 import { strings } from '../strings.js';
+
+/**
+ * Импорт библиотеки Skinview3D.
+ */
 import * as skinview3d from "https://cdn.jsdelivr.net/npm/skinview3d@3.4.1/+esm";
 
+/**
+ * @constant {object} DOM - Объект, содержащий ссылки на все используемые DOM-элементы.
+ */
 const DOM = {
-    // ... (весь ваш оригинальный объект DOM без изменений)
     appContainer: document.getElementById('app'),
     mainView: document.getElementById('main-view'),
     devView: document.getElementById('dev-view'),
@@ -63,14 +70,15 @@ const DOM = {
 
 // --- Состояние приложения ---
 let currentTheme = localStorage.getItem('theme') || 'dark';
-// ИСПРАВЛЕНИЕ: Возвращена проверка языка браузера
+// ИСПРАВЛЕНИЕ: Возвращена ваша оригинальная строка для определения языка
 let currentLang = localStorage.getItem('lang') || (navigator.language.startsWith('ru') ? 'ru' : 'en');
 let appData = {};
 let isDevViewActive = false;
 let skinViewerInstance = null;
 
-// --- Все ваши оригинальные функции без изменений ---
-const setVisibility = (element, isVisible) => { /* ... ваш код ... */ 
+// --- Вспомогательные функции ---
+
+const setVisibility = (element, isVisible) => {
     if (element) {
         if (isVisible) {
             element.classList.remove('hidden');
@@ -79,7 +87,8 @@ const setVisibility = (element, isVisible) => { /* ... ваш код ... */
         }
     }
 };
-const renderView = (view) => { /* ... ваш код ... */ 
+
+const renderView = (view) => {
     isDevViewActive = (view === 'dev');
     setVisibility(DOM.mainView, view === 'main');
     setVisibility(DOM.devView, view === 'dev');
@@ -88,7 +97,8 @@ const renderView = (view) => { /* ... ваш код ... */
     }
     console.log(`[View] Переключен вид на: ${view}`);
 };
-const applyTheme = (theme) => { /* ... ваш код ... */ 
+
+const applyTheme = (theme) => {
     document.body.classList.remove('dark-theme', 'light-theme');
     document.body.classList.add(`${theme}-theme`);
     localStorage.setItem('theme', theme);
@@ -96,7 +106,8 @@ const applyTheme = (theme) => { /* ... ваш код ... */
     if (DOM.themeToggle) DOM.themeToggle.setAttribute('aria-label', strings[currentLang][`theme${theme === 'dark' ? 'Light' : 'Dark'}`]);
     console.log(`[Theme] Применена тема: ${theme}`);
 };
-const updateLanguage = () => { /* ... ваш код ... */ 
+
+const updateLanguage = () => {
     console.log(`[Language] Обновление UI для языка: ${currentLang}`);
     if (DOM.recentVideosTitle) DOM.recentVideosTitle.textContent = strings[currentLang].recentVideosTitle;
     if (DOM.minecraftTitle) DOM.minecraftTitle.textContent = strings[currentLang].minecraftTitle;
@@ -125,14 +136,16 @@ const updateLanguage = () => { /* ... ваш код ... */
     applyTheme(currentTheme);
     handleLiveStreamLayout();
 };
-const formatCount = (num) => { /* ... ваш код ... */ 
+
+const formatCount = (num) => {
     if (num === null || isNaN(num)) return strings[currentLang].loading;
     if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
     if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
     return num.toString();
 };
-const calculateAndDisplayTotalFollowers = () => { /* ... ваш код ... */ 
+
+const calculateAndDisplayTotalFollowers = () => {
     let total = 0;
     let allCountsAvailable = true;
     const sourceCounts = appData.followerCounts || {};
@@ -159,18 +172,11 @@ const calculateAndDisplayTotalFollowers = () => { /* ... ваш код ... */
     }
 };
 
-// ИСПРАВЛЕНИЕ №1: Полностью заменяем эту функцию
 const fetchAppData = async () => {
-    console.log("[Data Fetch] Попытка загрузки данных приложения...");
+    console.log("[Data Fetch] Попытка загрузки данных приложения из data.json...");
     try {
-        // Эта логика динамически строит правильный URL для data.json на GitHub Pages
-        const pageUrl = new URL(window.location.href);
-        const basePath = pageUrl.pathname.substring(0, pageUrl.pathname.toLowerCase().lastIndexOf('/links/') + 1);
-        const dataUrl = `${pageUrl.origin}${basePath}data.json?t=${Date.now()}`;
-        
-        console.log(`[Data Fetch] Запрос по вычисленному URL: ${dataUrl}`);
-
-        const response = await fetch(dataUrl);
+        // ИСПРАВЛЕНИЕ: Заменен путь './data.json' на '../data.json'
+        const response = await fetch('../data.json?t=' + Date.now());
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -180,16 +186,16 @@ const fetchAppData = async () => {
     } catch (error) {
         console.error("[Data Fetch] Ошибка загрузки data.json. Использование fallback данных.", error);
         return {
-            "followerCounts": {},
+            "followerCounts": { "youtube": null, "telegram": null, "instagram": null, "x": null, "twitch": null, "tiktok": null, "vk_group": null, "vk_personal": null },
             "youtubeVideos": [],
             "liveStream": { "type": "none" },
             "lastUpdated": new Date().toISOString(),
-            "debugInfo": { "message": "Data loaded from client-side fallback due to data.json fetch error.", "status": `ERROR - ${error.message}`, "version": "client-fallback" }
+            "debugInfo": { "message": "Data loaded from client-side fallback due to data.json fetch error.", "status": "ERROR - Data.json failed to load", "error": error.message, "version": "client-fallback" }
         };
     }
 };
 
-const renderProfileSection = () => { /* ... ваш код ... */ 
+const renderProfileSection = () => {
     setVisibility(DOM.profileSection, appConfig.showProfileSection);
     if (appConfig.showProfileSection) {
         if (DOM.avatar) DOM.avatar.src = profileConfig.avatar;
@@ -199,7 +205,8 @@ const renderProfileSection = () => { /* ... ваш код ... */
         console.log("[Render] Секция профиля отрисована.");
     }
 };
-const renderLinksSection = (links) => { /* ... ваш код ... */ 
+
+const renderLinksSection = (links) => {
     setVisibility(DOM.linksSection, appConfig.showLinksSection);
     if (appConfig.showLinksSection) {
         DOM.linksSection.innerHTML = '';
@@ -259,7 +266,8 @@ const renderLinksSection = (links) => { /* ... ваш код ... */
         initSwipeGestures();
     }
 };
-const renderYouTubeVideosSection = () => { /* ... ваш код ... */
+
+const renderYouTubeVideosSection = () => {
     const videos = appData.youtubeVideos || [];
     setVisibility(DOM.youtubeVideosSection, appConfig.showYouTubeVideosSection && videos.length > 0);
     if (appConfig.showYouTubeVideosSection && videos.length > 0) {
@@ -281,7 +289,8 @@ const renderYouTubeVideosSection = () => { /* ... ваш код ... */
         console.log("[Render] Секция видео YouTube отрисована.");
     }
 };
-const handleLiveStreamLayout = () => { /* ... ваш код ... */ 
+
+const handleLiveStreamLayout = () => {
     const isDesktopHorizontal = window.matchMedia("(min-width: 768px) and (orientation: landscape)").matches;
     const shouldShowLiveStream = appConfig.showLiveStreamSection && appData.liveStream && appData.liveStream.type !== 'none';
     if (shouldShowLiveStream) {
@@ -312,7 +321,8 @@ const handleLiveStreamLayout = () => { /* ... ваш код ... */
         setVisibility(DOM.mediaBlockDesktop, showMediaBlock);
     }
 };
-const displayLiveStreamContent = (streamInfo) => { /* ... ваш код ... */ 
+
+const displayLiveStreamContent = (streamInfo) => {
     if (DOM.liveEmbed) DOM.liveEmbed.src = '';
     setVisibility(DOM.twitchNotification, false);
     if (streamInfo.type === 'youtube' && streamInfo.id) {
@@ -326,7 +336,8 @@ const displayLiveStreamContent = (streamInfo) => { /* ... ваш код ... */
         if (DOM.liveEmbed) DOM.liveEmbed.src = `https://player.twitch.tv/?channel=${streamInfo.twitchChannelName}&parent=${window.location.hostname}&autoplay=true&mute=false`;
     }
 };
-const manageFirstVisitModal = () => { /* ... ваш код ... */
+
+const manageFirstVisitModal = () => {
     if (!DOM.firstVisitModal) return;
     const hasVisited = localStorage.getItem('visited_modal');
     if (!hasVisited) {
@@ -341,7 +352,8 @@ const manageFirstVisitModal = () => { /* ... ваш код ... */
         setVisibility(DOM.firstVisitModal, false);
     }
 };
-const initSwipeGestures = () => { /* ... ваш код ... */ 
+
+const initSwipeGestures = () => {
     const swipeTargets = document.querySelectorAll('.swipe-target');
     console.log(`[Gestures] Инициализация жестов свайпа для ${swipeTargets.length} элементов.`);
     swipeTargets.forEach(card => {
@@ -445,7 +457,6 @@ const initSwipeGestures = () => { /* ... ваш код ... */
     });
 };
 
-// ИСПРАВЛЕНИЕ №2: Полностью заменяем эту функцию на более надежную версию
 const initMinecraftSkinViewer = () => {
     setVisibility(DOM.minecraftBlock, appConfig.showMinecraftSkinSection);
     if (!appConfig.showMinecraftSkinSection) {
@@ -510,7 +521,7 @@ const initMinecraftSkinViewer = () => {
     }
 };
 
-const downloadMinecraftSkin = () => { /* ... ваш код ... */ 
+const downloadMinecraftSkin = () => {
     if (profileConfig.minecraftSkinUrl) {
         const a = document.createElement('a');
         a.href = profileConfig.minecraftSkinUrl;
@@ -520,21 +531,25 @@ const downloadMinecraftSkin = () => { /* ... ваш код ... */
         document.body.removeChild(a);
     }
 };
-const setupSupportButton = () => { /* ... ваш код ... */ 
+
+const setupSupportButton = () => {
     setVisibility(DOM.supportSection, appConfig.showSupportButton);
     if (appConfig.showSupportButton) {
         if (DOM.supportButton) DOM.supportButton.href = appConfig.supportUrl || "#";
     }
 };
-const renderDevPage = () => { /* ... ваш код ... */ 
+
+const renderDevPage = () => {
     if (DOM.devLastUpdated) DOM.devLastUpdated.textContent = appData.lastUpdated ? new Date(appData.lastUpdated).toLocaleString(currentLang) : 'N/A';
     if (DOM.devDataJsonContent) DOM.devDataJsonContent.textContent = JSON.stringify(appData, null, 2);
     if (DOM.devDebugInfoContent) DOM.devDebugInfoContent.textContent = JSON.stringify(appData.debugInfo || {}, null, 2);
 };
-const setupAnalytics = () => { /* ... ваш код ... */ 
+
+const setupAnalytics = () => {
     console.log("[Analytics] Настройка заглушки Google Analytics...");
 };
-const showLinkPreview = (linkData) => { /* ... ваш код ... */ 
+
+const showLinkPreview = (linkData) => {
     if (!DOM.linkPreviewModal) return;
     clearTimeout(DOM.linkPreviewModal._hideTimeout);
     if (DOM.linkPreviewModal.classList.contains('active') && DOM.linkPreviewModal.dataset.currentLinkKey === linkData.label_key) return;
@@ -552,7 +567,8 @@ const showLinkPreview = (linkData) => { /* ... ваш код ... */
     if (DOM.previewName) DOM.previewName.onclick = (e) => { e.preventDefault(); window.open(linkData.url, '_blank'); hideLinkPreview(); };
     if (DOM.previewDescription) DOM.previewDescription.onclick = (e) => { e.preventDefault(); window.open(linkData.url, '_blank'); hideLinkPreview(); };
 };
-const hideLinkPreview = () => { /* ... ваш код ... */ 
+
+const hideLinkPreview = () => {
     DOM.linkPreviewModal._hideTimeout = setTimeout(() => {
         setVisibility(DOM.linkPreviewModal, false);
         DOM.linkPreviewModal.classList.remove('active');
@@ -560,26 +576,22 @@ const hideLinkPreview = () => { /* ... ваш код ... */
     }, 100);
 };
 
-// --- Инициализация приложения ---
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("------------------------------------------");
-    console.log("DOMContentLoaded: Запуск инициализации.");
-
+    console.log("DOMContentLoaded: Запуск инициализации приложения Personal Link Aggregator.");
     appData = await fetchAppData();
-    
     renderProfileSection();
     applyTheme(currentTheme);
     updateLanguage();
-
     setVisibility(DOM.themeToggle, appConfig.showThemeToggle);
-    if (DOM.themeToggle) {
+    if (appConfig.showThemeToggle && DOM.themeToggle) {
         DOM.themeToggle.addEventListener('click', () => {
             currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
             applyTheme(currentTheme);
         });
     }
     setVisibility(DOM.languageToggle, appConfig.showLanguageToggle);
-    if (DOM.languageToggle) {
+    if (appConfig.showLanguageToggle && DOM.languageToggle) {
         DOM.languageToggle.addEventListener('click', () => {
             currentLang = currentLang === 'en' ? 'ru' : 'en';
             localStorage.setItem('lang', currentLang);
@@ -587,14 +599,17 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
     setVisibility(DOM.devToggle, appConfig.developmentMode && appConfig.showDevToggle);
-    if (DOM.devToggle) {
+    if (appConfig.developmentMode && appConfig.showDevToggle && DOM.devToggle) {
         DOM.devToggle.addEventListener('click', () => renderView(isDevViewActive ? 'main' : 'dev'));
         if (DOM.backToMainButton) {
             DOM.backToMainButton.addEventListener('click', () => renderView('main'));
         }
     }
-    if (window.location.hash === '#/dev' && appConfig.developmentMode) {
+    const initialHash = window.location.hash;
+    if (initialHash === '#/dev' && appConfig.developmentMode) {
         renderView('dev');
+    } else {
+        renderView('main');
     }
     initMinecraftSkinViewer();
     setupSupportButton();
@@ -603,7 +618,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     window.addEventListener('resize', handleLayout);
     manageFirstVisitModal();
     setupAnalytics();
-
-    console.log("Инициализация завершена.");
+    console.log("Инициализация Personal Link Aggregator завершена.");
     console.log("------------------------------------------");
 });

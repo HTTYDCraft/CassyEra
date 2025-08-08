@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" href="./assets/avatar.png" type="image/png" />
 
     <title>BezzubickMCPlay | Мои Ссылки и Проекты Minecraft</title>
@@ -28,11 +28,13 @@
 <body class="dark-theme">
 <div id="app" class="w-full max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
 
+    <!-- оффлайн-баннер -->
     <div id="offline-warning" class="hidden fixed top-0 left-0 w-full p-3 text-center font-medium z-50 offline-warning rounded-b-lg shadow-lg">
         <span id="offline-message"></span>
     </div>
 
     <div id="main-view">
+        <!-- 1) Профиль — всегда сверху -->
         <section id="profile-section" class="text-center mb-8 hidden">
             <img id="avatar" class="w-28 h-28 rounded-full mx-auto mb-4 border-4 border-purple-500 object-cover m3-shadow-md" src="./assets/avatar.png" alt="Аватар" />
             <h1 id="profile-name" class="text-4xl font-bold mb-2"></h1>
@@ -40,57 +42,58 @@
             <div id="total-followers" class="text-xl font-medium text-purple-400"></div>
         </section>
 
-        <div class="content-container mb-8 flex flex-col md:flex-row md:justify-center md:items-start md:gap-6">
-            <!-- Правая колонка (стрим + скин), центрирована на ПК -->
-            <div class="media-block-desktop">
-                <section id="live-stream-section" class="relative w-full rounded-2xl overflow-hidden m3-shadow-md hidden">
-                    <div class="youtube-video-container">
-                        <iframe id="live-embed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                    </div>
-                    <div class="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-xs font-bold live-indicator m3-shadow-md">LIVE</div>
-                    <div id="twitch-notification" class="hidden mt-4 p-4 rounded-2xl text-sm text-center card m3-shadow-md">
-                        <p id="twitch-message" class="mb-2"></p>
-                        <a id="twitch-link" href="#" target="_blank" class="primary-button inline-flex items-center px-4 py-2 rounded-full font-medium" rel="noopener noreferrer">
-                            <span class="material-symbols-outlined mr-2 text-base">videocam</span>
-                            <span id="twitch-link-text"></span>
-                        </a>
-                    </div>
-                </section>
+        <!-- 2) Контентная сетка: мобильный — live → links → skin; десктоп — links | live/skin -->
+        <div id="content-grid" class="content-container grid-layout grid-no-live">
+            <!-- Стрим -->
+            <section id="live-stream-section" class="relative rounded-2xl overflow-hidden m3-shadow-md hidden">
+                <div class="youtube-video-container">
+                    <iframe id="live-embed" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                </div>
+                <div class="absolute top-3 left-3 px-3 py-1 rounded-full text-white text-xs font-bold live-indicator m3-shadow-md">LIVE</div>
+                <div id="twitch-notification" class="hidden mt-4 p-4 rounded-2xl text-sm text-center card m3-shadow-md">
+                    <p id="twitch-message" class="mb-2"></p>
+                    <a id="twitch-link" href="#" target="_blank" class="primary-button px-4 py-2 rounded-full font-medium" rel="noopener noreferrer">
+                        <span class="material-symbols-outlined text-base">videocam</span>
+                        <span id="twitch-link-text"></span>
+                    </a>
+                </div>
+            </section>
 
-                <!-- Блок скина: контейнер без теней/фонового цвета, всегда центрируется CSS-ом -->
-                <section id="minecraft-block" class="w-full hidden">
-                    <h2 id="minecraft-title" class="text-xl font-bold text-center mb-4"></h2>
-                    <div id="skin-viewer-container">
-                        <canvas id="skin-canvas"></canvas>
-                    </div>
-                    <!-- Мини-кнопки анимаций генерируются JS и вставляются сюда над кнопкой -->
-                    <div class="flex justify-center mt-3 mb-1">
-                        <button id="download-skin-button" class="primary-button flex items-center px-6 py-3 rounded-full font-medium m3-shadow-md">
-                            <span class="material-symbols-outlined mr-2">download</span>
-                            <span id="download-skin-text"></span>
-                        </button>
-                    </div>
-                </section>
-            </div>
-
-            <!-- Левая колонка (ссылки) -->
-            <div class="main-links-block w-full md:flex-1 md:max-w-md">
-                <section id="links-section" class="space-y-4 mb-8 hidden"></section>
-                <section id="support-section" class="flex justify-center mb-8 hidden">
-                    <a id="support-button" href="#" target="_blank" class="support-button flex items-center px-6 py-3 rounded-full font-medium m3-shadow-md">
-                        <span class="material-symbols-outlined mr-2">favorite</span>
+            <!-- Ссылки -->
+            <div class="main-links-block">
+                <section id="links-section" class="space-y-4 hidden"></section>
+                <section id="support-section" class="flex justify-center hidden mt-6">
+                    <a id="support-button" href="#" target="_blank" class="support-button px-6 py-3 rounded-full font-medium m3-shadow-md">
+                        <span class="material-symbols-outlined">favorite</span>
                         <span id="support-button-text"></span>
                     </a>
                 </section>
             </div>
+
+            <!-- Скин -->
+            <section id="minecraft-block" class="hidden">
+                <h2 id="minecraft-title" class="text-xl font-bold text-center mb-4"></h2>
+                <div id="skin-viewer-container">
+                    <canvas id="skin-canvas"></canvas>
+                </div>
+                <!-- мини-кнопки анимаций вставит JS над этой кнопкой -->
+                <div class="flex justify-center mt-3 mb-1">
+                    <button id="download-skin-button" class="primary-button px-6 py-3 rounded-full font-medium m3-shadow-md">
+                        <span class="material-symbols-outlined">download</span>
+                        <span id="download-skin-text"></span>
+                    </button>
+                </div>
+            </section>
         </div>
 
+        <!-- 3) Карусель видео — всегда снизу -->
         <section id="youtube-videos-section" class="mb-8 hidden">
             <h2 id="recent-videos-title" class="text-xl font-bold mb-4"></h2>
             <div id="video-carousel" class="flex overflow-x-auto space-x-4 pb-4 video-carousel scroll-smooth"></div>
         </section>
     </div>
 
+    <!-- dev-view -->
     <div id="dev-view" class="hidden w-full max-w-4xl mx-auto py-8">
         <h2 id="dev-title" class="text-3xl font-bold text-center mb-6"></h2>
         <div class="dev-page-content p-6 rounded-2xl m3-shadow-md">
@@ -101,13 +104,14 @@
             <pre class="text-left bg-gray-900 p-4 rounded-lg overflow-x-auto text-sm" style="max-height: 300px; white-space: pre-wrap; word-wrap: break-word;"><code id="dev-debug-info-content"></code></pre>
         </div>
         <div class="flex justify-center mt-8">
-            <button id="back-to-main-button" class="primary-button flex items-center px-6 py-3 rounded-full font-medium m3-shadow-md">
-                <span class="material-symbols-outlined mr-2">arrow_back</span>
+            <button id="back-to-main-button" class="primary-button px-6 py-3 rounded-full font-medium m3-shadow-md">
+                <span class="material-symbols-outlined">arrow_back</span>
                 <span id="back-to-main-text"></span>
             </button>
         </div>
     </div>
 
+    <!-- нижние кнопки -->
     <div class="flex justify-center items-center space-x-4 mt-8 mb-8">
         <button id="theme-toggle" class="control-button p-3 rounded-full m3-shadow-md flex items-center justify-center" aria-label="Toggle theme">
             <span class="material-symbols-outlined" id="theme-icon">light_mode</span>
@@ -120,6 +124,7 @@
         </button>
     </div>
 
+    <!-- модалка 1-го визита -->
     <div id="first-visit-modal" class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
         <div class="modal-content">
             <h3 id="modal-title" class="text-2xl font-bold mb-4"></h3>

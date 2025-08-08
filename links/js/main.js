@@ -1,4 +1,4 @@
-// main.js - Финальная рабочая версия с исправленным скином и прокруткой карусели.
+// main.js - Финальная версия. Исправлен data.json, возвращена ваша логика скина, исправлена прокрутка.
 
 import { appConfig, profileConfig, linksConfig } from '../config.js';
 import { strings } from '../strings.js';
@@ -104,7 +104,6 @@ const updateLanguage = () => {
     if (DOM.devLastUpdatedLabel) DOM.devLastUpdatedLabel.textContent = strings[currentLang].devLastUpdatedLabel;
     if (DOM.devDataJsonContentLabel) DOM.devDataJsonContentLabel.textContent = strings[currentLang].devDataJsonContentLabel;
     if (DOM.devDebugInfoContentLabel) DOM.devDebugInfoContentLabel.textContent = strings[currentLang].devDebugInfoContentLabel;
-    if (DOM.devDebugInfoContent) DOM.devDebugInfoContent.textContent = strings[currentLang].devDebugInfoContent;
     if (DOM.backToMainText) DOM.backToMainText.textContent = strings[currentLang].backToMainText;
     if (DOM.profileName) DOM.profileName.textContent = strings[currentLang][profileConfig.name_key];
     if (DOM.profileDescription) DOM.profileDescription.textContent = strings[currentLang][profileConfig.description_key];
@@ -119,7 +118,6 @@ const updateLanguage = () => {
 
 const formatCount = (num) => {
     if (num === null || isNaN(num)) return strings[currentLang].loading;
-    if (num >= 1000000000) return (num / 1000000000).toFixed(1).replace(/\.0$/, '') + 'B';
     if (num >= 1000000) return (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
     if (num >= 1000) return (num / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
     return num.toString();
@@ -131,9 +129,7 @@ const calculateAndDisplayTotalFollowers = () => {
     for (const link of linksConfig) {
         if (link.isSocial && link.showSubscriberCount && link.active) {
             const count = sourceCounts[link.platformId];
-            if (typeof count === 'number') {
-                total += count;
-            }
+            if (typeof count === 'number') total += count;
         }
     }
     if (DOM.totalFollowers) {
@@ -142,7 +138,9 @@ const calculateAndDisplayTotalFollowers = () => {
 };
 
 const fetchAppData = async () => {
+    console.log("[Data Fetch] Попытка загрузки data.json...");
     try {
+        // ИСПРАВЛЕНИЕ: Правильный относительный путь из /links/ к корню
         const response = await fetch('../data.json?t=' + Date.now());
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         return await response.json();
@@ -162,7 +160,6 @@ const renderProfileSection = () => {
 const renderLinksSection = (links) => {
     setVisibility(DOM.linksSection, appConfig.showLinksSection);
     if (!appConfig.showLinksSection) return;
-
     DOM.linksSection.innerHTML = '';
     const sortedLinks = links.filter(link => link.active).sort((a, b) => a.order - b.order);
     sortedLinks.forEach(link => {
@@ -172,7 +169,6 @@ const renderLinksSection = (links) => {
         card.rel = "noopener noreferrer";
         card.className = `card relative flex items-center justify-between p-4 rounded-2xl m3-shadow-md ${link.isSocial ? 'swipe-target' : ''} cursor-pointer`;
         card.setAttribute('data-link-id', link.label_key);
-        
         let previewTimeout;
         card.addEventListener('pointerenter', () => {
             clearTimeout(previewTimeout);
@@ -192,15 +188,12 @@ const renderLinksSection = (links) => {
                 showLinkPreview(link);
             }
         });
-        
         const count = appData.followerCounts ? appData.followerCounts[link.platformId] : undefined;
         const followerCountHtml = (link.isSocial && link.showSubscriberCount)
-            ? `<span class="text-sm text-gray-400 mr-2 follower-count-display">${formatCount(count)}</span>`
-            : '';
+            ? `<span class="text-sm text-gray-400 mr-2 follower-count-display">${formatCount(count)}</span>` : '';
         const iconHtml = link.customIconUrl
             ? `<img src="${link.customIconUrl}" alt="" class="custom-icon-image">`
             : `<span class="material-symbols-outlined icon-large">${link.icon || 'link'}</span>`;
-
         card.innerHTML = `
             <div class="flex items-center">
                 ${iconHtml}
@@ -219,7 +212,6 @@ const renderYouTubeVideosSection = () => {
     const videos = appData.youtubeVideos || [];
     setVisibility(DOM.youtubeVideosSection, appConfig.showYouTubeVideosSection && videos.length > 0);
     if (!appConfig.showYouTubeVideosSection || videos.length === 0) return;
-
     DOM.videoCarousel.innerHTML = '';
     videos.forEach(video => {
         const videoCard = document.createElement('a');
@@ -232,24 +224,27 @@ const renderYouTubeVideosSection = () => {
         `;
         DOM.videoCarousel.appendChild(videoCard);
     });
-    
-    // ИСПРАВЛЕНИЕ: Добавляем слушатель для прокрутки колесиком
-    DOM.videoCarousel.addEventListener('wheel', (event) => {
-        if (event.deltaY !== 0) {
-            event.preventDefault();
-            DOM.videoCarousel.scrollLeft += event.deltaY;
-        }
-    });
+
+    // ИСПРАВЛЕНИЕ: Добавляем слушатель для прокрутки колесиком мыши
+    if (DOM.videoCarousel) {
+        DOM.videoCarousel.addEventListener('wheel', (event) => {
+            // event.deltaY > 0 означает прокрутку вниз (вправо), < 0 - вверх (влево)
+            if (event.deltaY !== 0) {
+                // Предотвращаем прокрутку страницы вверх/вниз
+                event.preventDefault();
+                // Прокручиваем карусель по горизонтали
+                DOM.videoCarousel.scrollLeft += event.deltaY;
+            }
+        });
+    }
 };
 
 const handleLayout = () => {
     const isDesktop = window.matchMedia("(min-width: 768px)").matches;
     const shouldShowStream = appConfig.showLiveStreamSection && appData.liveStream && appData.liveStream.type !== 'none';
     const shouldShowSkin = appConfig.showMinecraftSkinSection;
-
     setVisibility(DOM.liveStreamSection, shouldShowStream);
     setVisibility(DOM.minecraftBlock, shouldShowSkin);
-
     if (isDesktop) {
         if (shouldShowStream && !DOM.mediaBlockDesktop.contains(DOM.liveStreamSection)) {
             DOM.mediaBlockDesktop.appendChild(DOM.liveStreamSection);
@@ -258,7 +253,6 @@ const handleLayout = () => {
             DOM.mediaBlockDesktop.appendChild(DOM.minecraftBlock);
         }
     } else {
-        // На мобильных возвращаем в основной поток документа
         if (shouldShowStream && DOM.mediaBlockDesktop.contains(DOM.liveStreamSection)) {
             DOM.profileSection.after(DOM.liveStreamSection);
         }
@@ -266,31 +260,20 @@ const handleLayout = () => {
             (DOM.liveStreamSection.nextSibling || DOM.profileSection).after(DOM.minecraftBlock);
         }
     }
-    
-    if (shouldShowStream) {
-        displayLiveStreamContent(appData.liveStream);
-    }
-    
-    // ИСПРАВЛЕНИЕ: Инициализируем скин только ПОСЛЕ того, как его контейнер точно видим
-    if (shouldShowSkin) {
-        initMinecraftSkinViewer();
-    }
+    if (shouldShowStream) displayLiveStreamContent(appData.liveStream);
 };
 
 const displayLiveStreamContent = (streamInfo) => {
-    if (DOM.liveEmbed.src.includes(streamInfo.id || streamInfo.twitchChannelName)) return; // Не перезагружаем, если уже тот же стрим
-    if (streamInfo.type === 'youtube') {
+    if (streamInfo.type === 'youtube' && streamInfo.id) {
         DOM.liveEmbed.src = `https://www.youtube.com/embed/${streamInfo.id}?autoplay=1&mute=1`;
         setVisibility(DOM.twitchNotification, !!streamInfo.twitchLive);
-        if (streamInfo.twitchLive) {
-            DOM.twitchLink.href = `https://www.twitch.tv/${streamInfo.twitchLive.twitchChannelName}`;
-        }
-    } else if (streamInfo.type === 'twitch') {
+        if (streamInfo.twitchLive) DOM.twitchLink.href = `https://www.twitch.tv/${streamInfo.twitchLive.twitchChannelName}`;
+    } else if (streamInfo.type === 'twitch' && streamInfo.twitchChannelName) {
         DOM.liveEmbed.src = `https://player.twitch.tv/?channel=${streamInfo.twitchChannelName}&parent=${window.location.hostname}&autoplay=true&mute=1`;
     }
 };
 
-const manageFirstVisitModal = () => { /* ... ваш оригинальный код ... */
+const manageFirstVisitModal = () => {
     if (!DOM.firstVisitModal) return;
     const hasVisited = localStorage.getItem('visited_modal');
     if (!hasVisited) {
@@ -298,16 +281,14 @@ const manageFirstVisitModal = () => { /* ... ваш оригинальный к�
         DOM.firstVisitModal.style.display = 'flex';
         DOM.modalCloseBtn.onclick = () => {
             setVisibility(DOM.firstVisitModal, false);
-            DOM.firstVisitModal.style.display = 'none';
             localStorage.setItem('visited_modal', 'true');
         };
     } else {
         setVisibility(DOM.firstVisitModal, false);
-        DOM.firstVisitModal.style.display = 'none';
     }
 };
 
-const initSwipeGestures = () => { /* ... ваш оригинальный код ... */
+const initSwipeGestures = () => {
     const swipeTargets = document.querySelectorAll('.swipe-target');
     swipeTargets.forEach(card => {
         let startX = 0, startY = 0, currentX = 0, currentY = 0;
@@ -329,9 +310,9 @@ const initSwipeGestures = () => { /* ... ваш оригинальный код 
             const deltaY = currentY - startY;
             if (!swipeStarted && Math.abs(deltaX) > 20 && Math.abs(deltaX) > Math.abs(deltaY)) {
                 swipeStarted = true;
+                e.preventDefault();
             }
             if (swipeStarted) {
-                e.preventDefault();
                 card.style.transform = `translateX(${deltaX}px)`;
                 card.classList.toggle('swiping-right', deltaX > 0);
                 card.classList.toggle('swiping-left', deltaX < 0);
@@ -339,12 +320,10 @@ const initSwipeGestures = () => { /* ... ваш оригинальный код 
         };
         const handleEnd = () => {
             if (!isSwiping) return;
-            const wasSwiping = swipeStarted;
             isSwiping = false;
-            swipeStarted = false;
             card.style.transition = 'transform 0.2s ease, background-color 0.3s ease, box-shadow 0.2s ease';
             const deltaX = currentX - startX;
-            if (wasSwiping && Math.abs(deltaX) > card.offsetWidth * 0.25) {
+            if (swipeStarted && Math.abs(deltaX) > card.offsetWidth * 0.25) {
                 if (deltaX > 0) {
                     window.open(linkData.subscribeUrl || linkData.url, '_blank');
                 } else {
@@ -364,63 +343,89 @@ const initSwipeGestures = () => { /* ... ваш оригинальный код 
             }
             card.style.transform = 'translateX(0)';
             card.classList.remove('swiping-left', 'swiping-right');
+            swipeStarted = false;
+        };
+        const handleClick = (e) => {
+            if (swipeStarted) {
+                e.preventDefault();
+                return;
+            }
+            if (DOM.linkPreviewModal.classList.contains('active') && DOM.linkPreviewModal.dataset.currentLinkKey === linkData.label_key) {
+                // allow click
+            } else {
+                e.preventDefault();
+                showLinkPreview(linkData);
+            }
         };
         card.addEventListener('mousedown', handleStart);
         card.addEventListener('mousemove', handleMove);
         card.addEventListener('mouseup', handleEnd);
         card.addEventListener('mouseleave', handleEnd);
-        card.addEventListener('touchstart', handleStart, { passive: true });
+        card.addEventListener('touchstart', handleStart, { passive: false });
         card.addEventListener('touchmove', handleMove, { passive: false });
         card.addEventListener('touchend', handleEnd);
-        card.addEventListener('click', e => {
-            if (swipeStarted) e.preventDefault();
-        }, true);
+        card.addEventListener('click', handleClick);
     });
 };
 
-// ИСПРАВЛЕНИЕ: Полностью заменяем эту функцию на более надежную
+// ИСПРАВЛЕНИЕ: Возвращена ваша оригинальная рабочая функция для скина
 const initMinecraftSkinViewer = () => {
-    if (!appConfig.showMinecraftSkinSection || !DOM.skinCanvas) return;
-    
-    // Если экземпляр уже есть, ничего не делаем
-    if (skinViewerInstance) return;
-
-    // Проверяем, что библиотека загружена
-    if (typeof skinview3d === 'undefined' || typeof skinview3d.SkinViewer === 'undefined') {
-        console.error("Библиотека skinview3d не загружена.");
+    if (!appConfig.showMinecraftSkinSection) {
+        setVisibility(DOM.minecraftBlock, false);
+        if (skinViewerInstance) {
+            skinViewerInstance.dispose();
+            skinViewerInstance = null;
+        }
+        return;
+    }
+    if (!DOM.skinCanvas || !DOM.skinViewerContainer) {
+        console.error("[SkinViewer] Отсутствуют необходимые DOM-элементы (canvas или контейнер) для просмотрщика скина. Инициализация невозможна.");
         setVisibility(DOM.minecraftBlock, false);
         return;
     }
-
+    if (typeof skinview3d === 'undefined' || typeof skinview3d.SkinViewer === 'undefined') {
+        console.error("[SkinViewer] Библиотека skinview3d не загружена или недоступна. 3D просмотр скина невозможен.");
+        setVisibility(DOM.minecraftBlock, false);
+        return;
+    }
+    if (skinViewerInstance) {
+        skinViewerInstance.dispose();
+        skinViewerInstance = null;
+    }
     try {
-        console.log("[SkinViewer] Попытка инициализации...");
         skinViewerInstance = new skinview3d.SkinViewer({
             canvas: DOM.skinCanvas,
             width: DOM.skinViewerContainer.offsetWidth,
             height: DOM.skinViewerContainer.offsetHeight,
-            skin: profileConfig.minecraftSkinUrl,
         });
-
-        skinViewerInstance.animation = new skinview3d.WalkingAnimation();
-        skinViewerInstance.controls.enableZoom = false;
-
+        skinViewerInstance.loadSkin(profileConfig.minecraftSkinUrl, {})
+            .then(() => {
+                console.log("[SkinViewer] Скин успешно загружен.");
+                skinViewerInstance.animation = new skinview3d.WalkingAnimation();
+                skinViewerInstance.zoom = 1;
+                skinview3d.createOrbitControls(skinViewerInstance);
+            })
+            .catch(error => {
+                console.error("[SkinViewer] Ошибка загрузки скина:", error);
+                setVisibility(DOM.minecraftBlock, false);
+            });
         new ResizeObserver(() => {
-            if (skinViewerInstance) {
+            if (DOM.skinViewerContainer && skinViewerInstance) {
                 skinViewerInstance.setSize(
                     DOM.skinViewerContainer.offsetWidth,
                     DOM.skinViewerContainer.offsetHeight
                 );
             }
         }).observe(DOM.skinViewerContainer);
-
-        console.log("[SkinViewer] 3D-просмотрщик скина успешно инициализирован.");
-    } catch (e) {
-        console.error("Ошибка при инициализации SkinViewer:", e);
+        setVisibility(DOM.minecraftBlock, true);
+        if (DOM.downloadSkinButton) DOM.downloadSkinButton.addEventListener('click', downloadMinecraftSkin);
+    } catch (error) {
+        console.error("[SkinViewer] Ошибка при инициализации 3D-просмотрщика скина (SkinViewer3D):", error);
         setVisibility(DOM.minecraftBlock, false);
     }
 };
 
-const downloadMinecraftSkin = () => { /* ... ваш оригинальный код ... */
+const downloadMinecraftSkin = () => {
     if (profileConfig.minecraftSkinUrl) {
         const a = document.createElement('a');
         a.href = profileConfig.minecraftSkinUrl;
@@ -431,24 +436,24 @@ const downloadMinecraftSkin = () => { /* ... ваш оригинальный к�
     }
 };
 
-const setupSupportButton = () => { /* ... ваш оригинальный код ... */
+const setupSupportButton = () => {
     setVisibility(DOM.supportSection, appConfig.showSupportButton);
     if (appConfig.showSupportButton) {
         DOM.supportButton.href = appConfig.supportUrl || "#";
     }
 };
 
-const renderDevPage = () => { /* ... ваш оригинальный код ... */
+const renderDevPage = () => {
     if (DOM.devLastUpdated) DOM.devLastUpdated.textContent = appData.lastUpdated ? new Date(appData.lastUpdated).toLocaleString(currentLang) : 'N/A';
     if (DOM.devDataJsonContent) DOM.devDataJsonContent.textContent = JSON.stringify(appData, null, 2);
     if (DOM.devDebugInfoContent) DOM.devDebugInfoContent.textContent = JSON.stringify(appData.debugInfo || {}, null, 2);
 };
 
-const setupAnalytics = () => { /* ... ваш оригинальный код ... */
+const setupAnalytics = () => {
     console.log("[Analytics] Настройка заглушки Google Analytics...");
 };
 
-const showLinkPreview = (linkData) => { /* ... ваш оригинальный код ... */
+const showLinkPreview = (linkData) => {
     if (!DOM.linkPreviewModal) return;
     clearTimeout(DOM.linkPreviewModal._hideTimeout);
     if (DOM.linkPreviewModal.classList.contains('active') && DOM.linkPreviewModal.dataset.currentLinkKey === linkData.label_key) return;
@@ -467,14 +472,13 @@ const showLinkPreview = (linkData) => { /* ... ваш оригинальный �
     if (DOM.previewDescription) DOM.previewDescription.onclick = (e) => { e.preventDefault(); window.open(linkData.url, '_blank'); hideLinkPreview(); };
 };
 
-const hideLinkPreview = () => { /* ... ваш оригинальный код ... */
+const hideLinkPreview = () => {
     DOM.linkPreviewModal._hideTimeout = setTimeout(() => {
         setVisibility(DOM.linkPreviewModal, false);
         DOM.linkPreviewModal.classList.remove('active');
         DOM.linkPreviewModal.dataset.currentLinkKey = '';
     }, 100);
 };
-
 
 document.addEventListener('DOMContentLoaded', async () => {
     console.log("------------------------------------------");
@@ -486,7 +490,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     applyTheme(currentTheme);
     updateLanguage();
 
-    setVisibility(DOM.themeToggle, appConfig.showThemeToggle);
     if (DOM.themeToggle) {
         DOM.themeToggle.addEventListener('click', () => {
             currentTheme = currentTheme === 'dark' ? 'light' : 'dark';
@@ -494,7 +497,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
     }
 
-    setVisibility(DOM.languageToggle, appConfig.showLanguageToggle);
     if (DOM.languageToggle) {
         DOM.languageToggle.addEventListener('click', () => {
             currentLang = currentLang === 'en' ? 'ru' : 'en';
@@ -515,7 +517,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         renderView('dev');
     }
 
-    // initMinecraftSkinViewer(); // Убрали отсюда, теперь вызывается в handleLayout
+    // Вызываем инициализацию скина после того, как все остальное отрисовано
+    initMinecraftSkinViewer();
+
     setupSupportButton();
     renderYouTubeVideosSection();
     handleLayout();

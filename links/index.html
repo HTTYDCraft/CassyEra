@@ -72,8 +72,6 @@
             </div>
 
             <!-- Блок для Live Stream и Minecraft Skin на ПК-версии -->
-            <!-- На мобильных эти секции будут отображаться ВЫШЕ (вне этого блока, как и раньше) -->
-            <!-- На ПК они будут сгруппированы справа от основных ссылок -->
             <div class="media-block-desktop hidden md:flex">
                 <!-- Секция прямой трансляции (LIVE): видна только на ПК, если активна -->
                 <section id="live-stream-section" class="relative w-full rounded-2xl overflow-hidden m3-shadow-md">
@@ -176,17 +174,10 @@
 
 </div>
 
-<!--
-    ВАЖНО: Загрузка внешней библиотеки Skinview3D.
-    Используется CDN `cdn.jsdelivr.net` с указанием версии 2.0.0 и `+esm` для модульной версии.
-    Это позволяет напрямую импортировать её в JavaScript-код.
-    Если возникают проблемы с загрузкой этой библиотеки, проверьте:
-    1. Наличие стабильного интернет-соединения.
-    2. Блокировку CDN расширениями браузера (например, блокировщиками рекламы).
-    3. Работоспособность CDN (попробуйте открыть URL https://cdn.jsdelivr.net/npm/skinview3d@2.0.0/+esm напрямую в браузере).
-    Если CDN недоступен или вызывает проблемы, 3D-просмотрщик скина не будет работать.
+<!-- 
+    ИСПРАВЛЕНИЕ: Удалена следующая строка, так как она конфликтует с импортом в main.js
+    <script src="https://cdn.jsdelivr.net/npm/skinview3d@2.0.0/+esm" type="module"></script> 
 -->
-<script src="https://cdn.jsdelivr.net/npm/skinview3d@2.0.0/+esm" type="module"></script>
 
 <!-- Основной JavaScript файл, загружается как модуль -->
 <script type="module" src="./js/main.js"></script>

@@ -74,12 +74,10 @@ const DOM = {
     videosTitle: document.getElementById('videos-title'),
     carousel: document.getElementById('carousel'),
 
-    // controls top (ignored, мы используем нижние)
+    // controls
     themeToggleTop: document.getElementById('theme-toggle'),
     langToggleTop: document.getElementById('lang-toggle'),
     themeIconTop: document.getElementById('theme-icon'),
-
-    // controls bottom — основные
     themeToggleBottom: document.getElementById('theme-toggle-bottom'),
     langToggleBottom: document.getElementById('lang-toggle-bottom'),
     themeIconBottom: document.getElementById('theme-icon-bottom'),
@@ -108,7 +106,12 @@ const state = {
 
 /* helpers */
 function setVisibility(el, v){ if(!el) return; el.classList.toggle('hidden', !v); }
-function formatCount(n){ if(n==null||isNaN(n))return '—'; if(n>=1e6)return (n/1e6).toFixed(1).replace(/\.0$/,'')+'M'; if(n>=1e3)return (n/1e3).toFixed(1).replace(/\.0$/,'')+'K'; return String(n); }
+function formatCount(n){
+    if(n==null||isNaN(n))return '—';
+    if(n>=1e6)return (n/1e6).toFixed(1).replace(/\.0$/,'')+'M';
+    if(n>=1e3)return (n/1e3).toFixed(1).replace(/\.0$/,'')+'K';
+    return String(n);
+}
 function md(text){ return DOMPurify.sanitize(marked.parse(text || '')); }
 function ymd(d){ return d.toISOString().slice(0,10); }
 async function fetchJson(url){ const r=await fetch(url,{cache:'no-store'}); if(!r.ok) throw 0; return await r.json(); }
@@ -127,10 +130,10 @@ function toggleTheme(){ setTheme(state.theme = state.theme==='dark'?'light':'dar
 function setLang(lang){
     state.lang = lang; localStorage.setItem('home_lang', lang);
     state.cfg = (lang==='en') ? homeConfigEn : homeConfigRu;
-    renderAllStatic(); // локализуем
-    renderHero();      // и верхний блок
-    renderLiveTexts(); // подписи офлайна
-    renderCalendar();  // перерисуем, чтобы подписи месяца/дней обновились
+    renderAllStatic();
+    renderHero();
+    renderLiveTexts();
+    renderCalendar();
 }
 function toggleLang(){ setLang(state.lang==='ru'?'en':'ru'); }
 
@@ -168,24 +171,43 @@ function renderAllStatic(){
     if (DOM.timelineTitle) DOM.timelineTitle.textContent = ui.timelineTitle || 'Timeline';
     if (DOM.tlExpandText)   DOM.tlExpandText.textContent   = state.lang==='ru' ? 'Развернуть' : 'Expand';
     if (DOM.tlCollapseText) DOM.tlCollapseText.textContent = state.lang==='ru' ? 'Свернуть'  : 'Collapse';
+
     const tl = T.timeline || [];
     const html = tl.map((it, idx)=>`
-    <details class="timeline card m3-shadow-md" ${idx===0?'open':''}>
-      <summary><span class="text-lg font-medium">${it.year} — ${it.title || ''}</span><span class="material-symbols-outlined">expand_more</span></summary>
-      <div class="md">${md(it.bodyMd || '')}</div>
-    </details>
-  `).join('');
+      <details class="timeline card m3-shadow-md" ${idx===0?'open':''}>
+        <summary><span class="text-lg font-medium">${it.year} — ${it.title || ''}</span><span class="material-symbols-outlined">expand_more</span></summary>
+        <div class="md">${md(it.bodyMd || '')}</div>
+      </details>
+    `).join('');
     if (DOM.timelineWrap) DOM.timelineWrap.innerHTML = html;
+
+    // синхронизируем иконки-стрелки
     DOM.timelineWrap?.querySelectorAll('details').forEach(d=>{
         const icon = d.querySelector('.material-symbols-outlined');
         const sync = ()=>{ if(icon) icon.style.transform = d.open ? 'rotate(180deg)' : 'rotate(0deg)'; };
         d.addEventListener('toggle', sync); sync();
     });
 
-    // skin block texts
+    // биндим кнопки Expand/Collapse
+    wireTimelineControls();
+
+    // skin/video тексты
     if (DOM.skinTitle)        DOM.skinTitle.textContent = ui.skinTitle || '';
     if (DOM.skinDownloadText) DOM.skinDownloadText.textContent = ui.skinDownload || '';
     if (DOM.videosTitle)      DOM.videosTitle.textContent = ui.videosTitle || '';
+}
+
+function wireTimelineControls(){
+    if (DOM.tlExpand) {
+        DOM.tlExpand.onclick = () => {
+            DOM.timelineWrap?.querySelectorAll('details').forEach(d => d.open = true);
+        };
+    }
+    if (DOM.tlCollapse) {
+        DOM.tlCollapse.onclick = () => {
+            DOM.timelineWrap?.querySelectorAll('details').forEach(d => d.open = false);
+        };
+    }
 }
 
 function renderHero(){
@@ -239,7 +261,7 @@ function renderLive(){
             setVisibility(DOM.twitchNotice, false);
         }
     } else {
-        DOM.mediaCol?.classList.add('offline'); // десктоп: календарь слева, скин справа
+        DOM.mediaCol?.classList.add('offline'); // на десктопе это display: contents, без «трёх в ряд»
         DOM.liveEmbed.src = 'about:blank';
         setVisibility(DOM.twitchNotice, false);
         setVisibility(DOM.liveEmbedWrap, false);
@@ -308,8 +330,8 @@ function renderCalendar(){
             if (tw) chips += (chips?' · ':'') + `<a href="${tw.url}" target="_blank" rel="noopener">TW</a>`;
         } else {
             if (isFriday){
-                if (c.isPast) classes.push('passed','no-stream'); // прошедшая пятница без стрима
-                else dot = `<span class="dot planned"></span>`;   // будущая пятница — потенциально
+                if (c.isPast) classes.push('passed','no-stream');
+                else dot = `<span class="dot planned"></span>`;
             }
         }
         return `<div class="${classes.join(' ')}"><div>${c.day}</div>${dot}${chips?`<div>${chips}</div>`:''}</div>`;
@@ -325,6 +347,7 @@ function renderCalendar(){
 /* videos */
 function renderVideos(){
     const vids = state.data.youtubeVideos || [];
+    if (!DOM.carousel) return;
     DOM.carousel.innerHTML = '';
     vids.forEach(v=>{
         const a=document.createElement('a');
@@ -344,6 +367,7 @@ function setActiveMini(key){
     });
 }
 function buildSkinControls(){
+    if (!DOM.skinControls) return;
     DOM.skinControls.innerHTML='';
     const opts=[
         {k:'idle',icon:'accessibility',ok:!!skinview3d.IdleAnimation},
@@ -385,7 +409,7 @@ async function initSkin(){
     state.skin.viewer?.dispose();
     try{
         const viewer=new skinview3d.SkinViewer({ canvas: DOM.skinCanvas, width:w, height:h });
-        await viewer.loadSkin('./links/assets/skin.png'); // путь строго фиксирован
+        await viewer.loadSkin('./links/assets/skin.png'); // путь фиксированный
         if(skinview3d.IdleAnimation){ viewer.animation=new skinview3d.IdleAnimation(); state.skin.active='idle'; }
         try{ const c=skinview3d.createOrbitControls(viewer); if(c){ c.enablePan=false; c.enableZoom=true; c.target?.set?.(0,17,0); c.update?.(); } }catch{}
         state.skin.viewer=viewer; buildSkinControls();
@@ -427,11 +451,11 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     DOM.themeToggleBottom && (DOM.themeToggleBottom.onclick = toggleTheme);
     DOM.langToggleBottom  && (DOM.langToggleBottom.onclick  = toggleLang);
 
-    // если верхние остались — тоже работаем
+    // если верхние останутся — тоже работаем
     DOM.themeToggleTop && (DOM.themeToggleTop.onclick = toggleTheme);
     DOM.langToggleTop  && (DOM.langToggleTop.onclick  = toggleLang);
 
-    // календарь навигация
+    // календарь навигация (дублирующая страховка)
     if (DOM.calPrev) DOM.calPrev.onclick = ()=>{ state.cal.month--; if(state.cal.month<0){state.cal.month=11; state.cal.year--; } renderCalendar(); };
     if (DOM.calNext) DOM.calNext.onclick = ()=>{ state.cal.month++; if(state.cal.month>11){state.cal.month=0; state.cal.year++; } renderCalendar(); };
 });

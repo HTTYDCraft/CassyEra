@@ -1,11 +1,14 @@
-/* Верхняя панель и HERO */
+/* HERO */
 .hero { text-align:center; }
-.hero .avatar { width:112px; height:112px; border-radius:9999px; object-fit:cover; border:4px solid var(--md-sys-color-primary-dark); display:block; margin:0 auto 16px; }
+.hero .avatar {
+    width:112px; height:112px; border-radius:9999px; object-fit:cover;
+    border:4px solid var(--md-sys-color-primary-dark); display:block; margin:0 auto 16px;
+}
 .hero h1 { font-size:2.25rem; margin:0 0 6px; }
 .hero p { margin:0 0 8px; opacity:.9; }
 .hero .followers { color: rgba(255,255,255,.72) !important; }
 body.light-theme .hero .followers { color: rgba(0,0,0,.64) !important; }
-.hero-cta { margin-top: 12px; } /* отступ между totals и кнопками */
+.hero-cta { margin-top: 12px; }
 
 /* Markdown */
 .md h2 { font-size:1.6rem; font-weight:700; margin:1rem 0 .5rem; }
@@ -18,33 +21,74 @@ body.light-theme .hero .followers { color: rgba(0,0,0,.64) !important; }
 .md blockquote { margin:.75rem 0; padding:.5rem .75rem; border-left:4px solid var(--md-sys-color-primary-dark); opacity:.95; }
 .md code { background:rgba(255,255,255,.08); padding:.1rem .3rem; border-radius:6px; }
 
-/* Лента и кнопки */
-.timeline-controls { display:flex; gap:10px; align-items:center; justify-content:space-between; margin: 14px 0 8px; }
+/* Таймлайн и кнопки */
+.timeline-controls {
+    display:flex; gap:10px; align-items:center; justify-content:space-between; margin: 14px 0 8px;
+}
 .tl-buttons .tl-btn { display:inline-flex; align-items:center; gap:.5rem; }
 .tl-buttons .tl-btn .material-symbols-outlined { line-height:1; }
 
+/* Плитки таймлайна — толще и шире */
+#timeline details.card { padding: 14px 18px; border-radius: 16px; }
+#timeline details.card + details.card { margin-top: 12px; }
+#timeline details.card summary {
+    display:flex; align-items:center; justify-content:space-between; gap:12px; cursor:pointer; list-style:none;
+}
+#timeline details.card summary::-webkit-details-marker { display:none; }
+#timeline details.card summary .material-symbols-outlined {
+    transition: transform .2s ease;
+}
+#timeline details[open] summary .material-symbols-outlined {
+    transform: rotate(180deg);
+}
+#timeline .md { padding-top: 8px; }
+
+/* На десктопе — даём таймлайну дышать шире и центрируем */
+@media (min-width: 992px) {
+    #timeline { max-width: 980px; margin: 8px auto 0; }
+}
+
 /* Сетка главной */
-.home-grid { display:grid; gap:24px; grid-template-columns:1fr; grid-template-areas: "links" "media"; }
+.home-grid {
+    display:grid; gap:24px; grid-template-columns:1fr; grid-template-areas: "links" "media";
+}
 #links-cta { grid-area: links; }
 #media-col { grid-area: media; }
 
-/* Медиа‑колонка: офлайн — календарь и скин рядом, онлайн — стопкой */
-#media-col { display:block; }
-#media-col.offline { display:grid; grid-template-columns: 1fr 1fr; gap:24px; align-items:start; }
-#media-col.offline #live { grid-column: 1; }
-#media-col.offline #skin { grid-column: 2; }
-
-/* Десктопная ширина колонок */
+/* Десктопная раскладка: слева — Navigation, под ним — Skin; справа — Live/Calendar */
 @media (min-width: 992px) {
-    .home-grid { grid-template-columns: minmax(320px, 420px) minmax(420px, 1fr); grid-template-areas: "links media"; }
+    .home-grid {
+        grid-template-columns: minmax(320px, 420px) 1fr;
+        grid-template-areas:
+            "links cal"
+            "skin  cal";
+    }
+
+    /* Разворачиваем враппер, чтобы его дети стали элементами родительской грида */
+    #media-col { display: contents; }
+
+    /* Привязки областей */
+    #links-cta { grid-area: links; }
+    #live      { grid-area: cal;   } /* live содержит и офлайн-календарь */
+    #skin      { grid-area: skin;  }
+
+    /* Видео — ниже на всю ширину */
+    #videos-title, #carousel { grid-column: 1 / -1; }
 }
+
+/* Убираем старую оффлайн-сетку, чтобы не было «трёх в ряд» */
+#media-col.offline { display: contents !important; }
 
 /* LIVE */
 #live .youtube-video-container { box-shadow:none !important; }
 .cal-nav { display:flex; align-items:center; justify-content:space-between; gap:8px; margin: 10px 0; }
 .stream-cal-head, .stream-cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
 .stream-cal-head div { text-align:center; font-weight:600; opacity:.8; }
-.stream-cal-grid .cell { text-align:center; padding:6px 4px; border-radius:10px; border:1px solid var(--md-sys-color-outline-dark); min-height:46px; display:flex; flex-direction:column; justify-content:center; gap:3px; }
+.stream-cal-grid .cell {
+    text-align:center; padding:6px 4px; border-radius:10px;
+    border:1px solid var(--md-sys-color-outline-dark);
+    min-height:46px; display:flex; flex-direction:column; justify-content:center; gap:3px;
+}
 body.light-theme .stream-cal-grid .cell { border-color: var(--md-sys-color-outline-light); }
 .stream-cal-grid .cell a { color: var(--md-sys-color-primary-dark); text-decoration: underline; font-size:.9rem; }
 .stream-cal-grid .cell.today { outline:2px solid var(--md-sys-color-primary-dark); }
@@ -68,7 +112,11 @@ body.light-theme .stream-cal-grid .cell.today { outline:2px solid var(--md-sys-c
 
 /* Мини‑кнопки анимаций */
 .skin-controls { display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; max-width:100%; margin: 14px 0 10px; }
-.mini-button { display:inline-flex; align-items:center; justify-content:center; height:34px; min-width:36px; padding:0 10px; border-radius:9999px; border:1px solid rgba(255,255,255,.1); background:#2d2d2d; color:#fff; cursor:pointer }
+.mini-button {
+    display:inline-flex; align-items:center; justify-content:center;
+    height:34px; min-width:36px; padding:0 10px; border-radius:9999px;
+    border:1px solid rgba(255,255,255,.1); background:#2d2d2d; color:#fff; cursor:pointer
+}
 .mini-button .material-symbols-outlined { font-size:18px; line-height:1; color: currentColor; }
 .mini-button.active { background: var(--md-sys-color-primary-dark); color:#000; border-color: transparent; }
 body.light-theme .mini-button { background: var(--md-sys-color-surface-container-low-light); color: var(--md-sys-color-on-surface-light); border-color: rgba(0,0,0,.10); }

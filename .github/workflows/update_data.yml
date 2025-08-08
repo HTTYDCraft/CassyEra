@@ -1,15 +1,21 @@
 name: Update Social Data
 
 on:
-  workflow_dispatch: # Позволяет запускать вручную
+  workflow_dispatch:
   schedule:
-    - cron: '*/5 * * * *' # Запускать каждые 5 минут
+    - cron: '*/5 * * * *' # каждые 5 минут
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-social-data
+  cancel-in-progress: false
 
 jobs:
   update-data:
     runs-on: ubuntu-latest
-    permissions:
-      contents: write # Даем боту права на запись в репозиторий
+    timeout-minutes: 5
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -24,7 +30,6 @@ jobs:
 
       - name: Run script to update data
         env:
-          # Передаем секреты как переменные окружения в скрипт Python
           YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
           TWITCH_CLIENT_ID: ${{ secrets.TWITCH_CLIENT_ID }}
           TWITCH_CLIENT_SECRET: ${{ secrets.TWITCH_CLIENT_SECRET }}
@@ -49,6 +54,6 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data.json # Теперь отслеживаем только data.json
-          git commit -m "Автоматическое обновление данных социальных сетей" || echo "Изменений нет, пропускаем коммит."
+          git add data.json
+          git diff --staged --quiet || git commit -m "Автоматическое обновление данных социальных сетей"
           git push

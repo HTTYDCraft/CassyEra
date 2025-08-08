@@ -1,365 +1,337 @@
-/* CSS Variables for Theming - Material 3 inspired palette */
+/* Material 3 palette + AMOLED-friendly dark theme */
 :root {
-    /* Dark Theme (AMOLED Black) */
-    --md-sys-color-primary-dark: #BB86FC; /* Accent purple */
+    --md-sys-color-primary-dark: #BB86FC;
     --md-sys-color-on-primary-dark: #000000;
     --md-sys-color-primary-container-dark: #4A148C;
     --md-sys-color-on-primary-container-dark: #FFFFFF;
-    --md-sys-color-secondary-dark: #03DAC6; /* Accent teal */
+    --md-sys-color-secondary-dark: #03DAC6;
     --md-sys-color-on-secondary-dark: #000000;
-    --md-sys-color-surface-dark: #000000; /* AMOLED Black for main background */
-    --md-sys-color-on-surface-dark: #FFFFFF; /* White text on black */
+    --md-sys-color-surface-dark: #000000;
+    --md-sys-color-on-surface-dark: #FFFFFF;
     --md-sys-color-background-dark: #000000;
     --md-sys-color-on-background-dark: #FFFFFF;
-    --md-sys-color-surface-container-low-dark: #1F1F1F; /* For cards/dialogs */
-    --md-sys-color-surface-container-dark: #2D2D2D; /* Slightly darker cards */
-    --md-sys-color-outline-dark: #8C8C8C; /* Border/separator */
-    --md-sys-color-error-dark: #CF6679; /* Error red */
+    --md-sys-color-surface-container-low-dark: #1F1F1F;
+    --md-sys-color-surface-container-dark: #2D2D2D;
+    --md-sys-color-outline-dark: #8C8C8C;
+    --md-sys-color-error-dark: #CF6679;
 
-    /* Light Theme */
-    --md-sys-color-primary-light: #6200EE; /* Accent purple */
+    --md-sys-color-primary-light: #6200EE;
     --md-sys-color-on-primary-light: #FFFFFF;
     --md-sys-color-primary-container-light: #BB86FC;
     --md-sys-color-on-primary-container-light: #000000;
     --md-sys-color-secondary-light: #03DAC6;
     --md-sys-color-on-secondary-light: #000000;
-    --md-sys-color-surface-light: #FFFFFF; /* White for main background */
-    --md-sys-color-on-surface-light: #000000; /* Black text on white */
+    --md-sys-color-surface-light: #FFFFFF;
+    --md-sys-color-on-surface-light: #000000;
     --md-sys-color-background-light: #FFFFFF;
     --md-sys-color-on-background-light: #000000;
-    --md-sys-color-surface-container-low-light: #F0F0F0; /* For cards/dialogs */
-    --md-sys-color-surface-container-light: #E0E0E0; /* Slightly darker cards */
+    --md-sys-color-surface-container-low-light: #F0F0F0;
+    --md-sys-color-surface-container-light: #E0E0E0;
     --md-sys-color-outline-light: #BDBDBD;
     --md-sys-color-error-light: #B00020;
 
-    --live-indicator-red: #FF0000; /* Bright red for live */
+    --live-indicator-red: #FF0000;
 }
 
-/* Base Body Styles and Theme Application */
 body {
     font-family: 'Roboto', sans-serif;
-    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth theme transition */
+    transition: background-color 0.3s ease, color 0.3s ease;
     display: flex;
     justify-content: center;
-    align-items: flex-start; /* Align content to the top */
-    min-height: 100vh; /* Ensure full viewport height */
+    align-items: flex-start;
+    min-height: 100vh;
     padding: 20px;
     box-sizing: border-box;
-    line-height: 1.6; /* Improved readability */
-    font-weight: 400; /* Roboto Regular */
+    line-height: 1.6;
+    font-weight: 400;
 }
 
-/* Material 3 inspired box shadow */
-.m3-shadow-md {
-    box-shadow: 0px 3px 5px rgba(0, 0, 0, 0.2), 0px 1px 18px rgba(0, 0, 0, 0.12), 0px 6px 10px rgba(0, 0, 0, 0.14);
-}
-.m3-shadow-lg {
-    box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.2), 0px 3px 18px rgba(0, 0, 0, 0.12), 0px 9px 30px rgba(0, 0, 0, 0.14);
-}
+.m3-shadow-md { box-shadow: 0 3px 5px rgba(0,0,0,.2), 0 1px 18px rgba(0,0,0,.12), 0 6px 10px rgba(0,0,0,.14); }
+.m3-shadow-lg { box-shadow: 0 6px 10px rgba(0,0,0,.2), 0 3px 18px rgba(0,0,0,.12), 0 9px 30px rgba(0,0,0,.14); }
 
-/* Dark Theme Specific Styles */
 body.dark-theme {
     background-color: var(--md-sys-color-background-dark);
     color: var(--md-sys-color-on-background-dark);
 }
-body.dark-theme .card {
-    background-color: var(--md-sys-color-surface-container-low-dark);
-    color: var(--md-sys-color-on-surface-dark);
-}
-body.dark-theme .modal-content, body.dark-theme .dev-page-content {
-    background-color: var(--md-sys-color-surface-container-dark);
-    color: var(--md-sys-color-on-surface-dark);
-}
-body.dark-theme .control-button {
-    background-color: var(--md-sys-color-surface-container-low-dark);
-    color: var(--md-sys-color-on-surface-dark);
-}
-body.dark-theme .control-button:hover {
-    background-color: var(--md-sys-color-surface-container-dark);
-}
-body.dark-theme .primary-button {
-    background-color: var(--md-sys-color-primary-dark);
-    color: var(--md-sys-color-on-primary-dark);
-}
-body.dark-theme .primary-button:hover {
-    background-color: var(--md-sys-color-primary-container-dark);
-    color: var(--md-sys-color-on-primary-container-dark);
-}
-body.dark-theme .support-button {
-    background-color: #4CAF50; /* A distinct green for support */
-    color: var(--md-sys-color-on-primary-dark);
-}
-body.dark-theme .support-button:hover {
-    background-color: #388E3C;
-}
-body.dark-theme .offline-warning {
-    background-color: #FFB300; /* Amber for warning */
-    color: #212121; /* Dark text on amber */
-}
+body.dark-theme .card { background-color: var(--md-sys-color-surface-container-low-dark); color: var(--md-sys-color-on-surface-dark); }
+body.dark-theme .modal-content, body.dark-theme .dev-page-content { background-color: var(--md-sys-color-surface-container-dark); color: var(--md-sys-color-on-surface-dark); }
+body.dark-theme .control-button { background-color: var(--md-sys-color-surface-container-low-dark); color: var(--md-sys-color-on-surface-dark); }
+body.dark-theme .control-button:hover { background-color: var(--md-sys-color-surface-container-dark); }
+body.dark-theme .primary-button { background-color: var(--md-sys-color-primary-dark); color: var(--md-sys-color-on-primary-dark); }
+body.dark-theme .primary-button:hover { background-color: var(--md-sys-color-primary-container-dark); color: var(--md-sys-color-on-primary-container-dark); }
+body.dark-theme .support-button { background-color: #4CAF50; color: var(--md-sys-color-on-primary-dark); }
+body.dark-theme .support-button:hover { background-color: #388E3C; }
+body.dark-theme .offline-warning { background-color: #FFB300; color: #212121; }
 
-
-/* Light Theme Specific Styles */
 body.light-theme {
     background-color: var(--md-sys-color-background-light);
     color: var(--md-sys-color-on-background-light);
 }
-body.light-theme .card {
-    background-color: var(--md-sys-color-surface-container-low-light);
-    color: var(--md-sys-color-on-surface-light);
-}
-body.light-theme .modal-content, body.light-theme .dev-page-content {
-    background-color: var(--md-sys-color-surface-container-light);
-    color: var(--md-sys-color-on-surface-light);
-}
-body.light-theme .control-button {
-    background-color: var(--md-sys-color-surface-container-low-light);
-    color: var(--md-sys-color-on-surface-light);
-}
-body.light-theme .control-button:hover {
-    background-color: var(--md-sys-color-surface-container-light);
-}
-body.light-theme .primary-button {
-    background-color: var(--md-sys-color-primary-light);
-    color: var(--md-sys-color-on-primary-light);
-}
-body.light-theme .primary-button:hover {
-    background-color: var(--md-sys-color-primary-container-light);
-    color: var(--md-sys-color-on-primary-container-light);
-}
-body.light-theme .support-button {
-    background-color: #66BB6A; /* A distinct green for support */
-    color: var(--md-sys-color-on-primary-light);
-}
-body.light-theme .support-button:hover {
-    background-color: #43A047;
-}
-body.light-theme .offline-warning {
-    background-color: #FFD54F; /* Lighter amber for warning */
-    color: #212121;
-}
+body.light-theme .card { background-color: var(--md-sys-color-surface-container-low-light); color: var(--md-sys-color-on-surface-light); }
+body.light-theme .modal-content, body.light-theme .dev-page-content { background-color: var(--md-sys-color-surface-container-light); color: var(--md-sys-color-on-surface-light); }
+body.light-theme .control-button { background-color: var(--md-sys-color-surface-container-low-light); color: var(--md-sys-color-on-surface-light); }
+body.light-theme .control-button:hover { background-color: var(--md-sys-color-surface-container-light); }
+body.light-theme .primary-button { background-color: var(--md-sys-color-primary-light); color: var(--md-sys-color-on-primary-light); }
+body.light-theme .primary-button:hover { background-color: var(--md-sys-color-primary-container-light); color: var(--md-sys-color-on-primary-container-light); }
+body.light-theme .support-button { background-color: #66BB6A; color: var(--md-sys-color-on-primary-light); }
+body.light-theme .support-button:hover { background-color: #43A047; }
+body.light-theme .offline-warning { background-color: #FFD54F; color: #212121; }
 
-/* Card Base Styles */
 .card {
-    border-radius: 16px; /* Material 3 large rounded corners */
-    transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease; /* Smooth transitions */
+    border-radius: 16px;
+    transition: background-color .3s ease, transform .2s ease, box-shadow .2s ease;
+    user-select: none; -webkit-user-select: none;
 }
+.card:hover { transform: translateY(-3px); box-shadow: var(--md-sys-color-primary-dark) 0 4px 12px; }
+body.light-theme .card:hover { box-shadow: var(--md-sys-color-primary-light) 0 4px 12px; }
 
-/* Hover Effect for Cards */
-.card:hover {
-    transform: translateY(-3px); /* Lift card on hover */
-    box-shadow: var(--md-sys-color-primary-dark) 0px 4px 12px; /* Subtle shadow hint for Material 3 */
-}
-body.light-theme .card:hover {
-    box-shadow: var(--md-sys-color-primary-light) 0px 4px 12px;
-}
+.live-indicator { background-color: var(--live-indicator-red); }
 
-/* Live Indicator Styling */
-.live-indicator {
-    background-color: var(--live-indicator-red);
-}
-
-/* Modal Overlay */
+/* Модалки (осталась только модалка первого посещения) */
 .modal {
-    display: none; /* Hidden by default */
+    display: none;
     position: fixed;
-    z-index: 100; /* On top of other content */
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0,0,0,0.7); /* Dim background */
+    z-index: 100;
+    left: 0; top: 0; width: 100%; height: 100%;
+    background-color: rgba(0,0,0,0.7);
     align-items: center;
     justify-content: center;
-    backdrop-filter: blur(5px); /* Размытие фона для модальных окон */
-    animation: fadeInBackground 0.3s ease-out; /* Анимация для фона */
+    backdrop-filter: blur(5px);
+    animation: fadeInBackground .3s ease-out;
 }
-/* Анимация для фона модальных окон */
+.modal.active { display: flex; }
 @keyframes fadeInBackground {
     from { background-color: rgba(0,0,0,0); backdrop-filter: blur(0px); }
     to { background-color: rgba(0,0,0,0.7); backdrop-filter: blur(5px); }
 }
-
-
-/* Modal Content Styling */
 .modal-content, .dev-page-content {
-    padding: 24px;
-    border-radius: 28px; /* Material 3 extra large rounded corners */
-    max-width: 90%;
-    animation: fadeIn 0.3s ease-out; /* Fade-in animation */
-    text-align: center; /* Center text in modal */
-    box-shadow: var(--md-sys-color-outline-dark) 0px 8px 16px; /* Stronger shadow for modal */
+    padding: 24px; border-radius: 28px; max-width: 90%;
+    animation: fadeIn .3s ease-out; text-align: center;
+    box-shadow: var(--md-sys-color-outline-dark) 0 8px 16px;
 }
 body.light-theme .modal-content, body.light-theme .dev-page-content {
-    box-shadow: var(--md-sys-color-outline-light) 0px 8px 16px;
+    box-shadow: var(--md-sys-color-outline-light) 0 8px 16px;
 }
+@keyframes fadeIn { from {opacity:0; transform: scale(.9);} to {opacity:1; transform: scale(1);} }
 
-/* Fade-in Animation for Modal */
-@keyframes fadeIn {
-    from { opacity: 0; transform: scale(0.9); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-/* Swipe Feedback Styles */
 .card.swiping-right {
-    transform: translateX(60px) scale(0.98); /* Shift and slightly scale right */
-    box-shadow: 0 0 20px var(--md-sys-color-primary-dark); /* Accent color glow */
-    background: linear-gradient(to right, var(--md-sys-color-primary-dark) 0%, transparent 100%); /* Gradient effect */
+    transform: translateX(60px) scale(0.98);
+    box-shadow: 0 0 20px var(--md-sys-color-primary-dark);
+    background: linear-gradient(to right, var(--md-sys-color-primary-dark) 0%, transparent 100%);
 }
 body.light-theme .card.swiping-right {
     box-shadow: 0 0 20px var(--md-sys-color-primary-light);
     background: linear-gradient(to right, var(--md-sys-color-primary-light) 0%, transparent 100%);
 }
-
 .card.swiping-left {
-    transform: translateX(-60px) scale(0.98); /* Shift and slightly scale left */
-    box-shadow: 0 0 20px var(--live-indicator-red); /* Red glow for action */
-    background: linear-gradient(to left, var(--live-indicator-red) 0%, transparent 100%); /* Gradient effect */
+    transform: translateX(-60px) scale(0.98);
+    box-shadow: 0 0 20px var(--live-indicator-red);
+    background: linear-gradient(to left, var(--live-indicator-red) 0%, transparent 100%);
 }
 
-/* YouTube Video Container for responsive embed */
-.youtube-video-container {
-    position: relative;
-    width: 100%;
-    padding-bottom: 56.25%; /* 16:9 Aspect Ratio */
-    height: 0;
-    overflow: hidden;
-    border-radius: 16px; /* Material 3 rounded corners */
-    box-shadow: var(--md-sys-color-outline-dark) 0px 4px 8px;
-}
-body.light-theme .youtube-video-container {
-    box-shadow: var(--md-sys-color-outline-light) 0px 4px 8px;
-}
-
-.youtube-video-container iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-/* Custom Scrollbar for Video Carousel */
-.video-carousel::-webkit-scrollbar {
-    height: 8px; /* Height of horizontal scrollbar */
-}
-
-.video-carousel::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1); /* Transparent track for dark theme */
-    border-radius: 10px;
-}
-
-body.light-theme .video-carousel::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1); /* Transparent track for light theme */
-}
-
-.video-carousel::-webkit-scrollbar-thumb {
-    background: var(--md-sys-color-outline-dark); /* Scrollbar thumb color */
-    border-radius: 10px;
-}
-
-body.light-theme .video-carousel::-webkit-scrollbar-thumb {
-    background: var(--md-sys-color-outline-light);
-}
-
-.video-carousel::-webkit-scrollbar-thumb:hover {
-    background: var(--md-sys-color-primary-dark); /* Hover color */
-}
-body.light-theme .video-carousel::-webkit-scrollbar-thumb:hover {
-    background: var(--md-sys-color-primary-light);
-}
-
-/* Material Symbols icon sizing */
-.material-symbols-outlined {
-    font-variation-settings:
-            'FILL' 1,
-            'wght' 400,
-            'GRAD' 0,
-            'opsz' 24; /* Default settings for Material Symbols */
-}
-.icon-large {
-    font-size: 28px; /* Larger icon for link cards */
-    line-height: 1; /* Adjust line height to prevent clipping */
-    margin-right: 1rem; /* Tailwind: mr-4 */
-}
-
-/* Custom icon image styling */
-.custom-icon-image {
-    width: 28px; /* Match icon-large size */
-    height: 28px; /* Match icon-large size */
-    margin-right: 1rem; /* Tailwind: mr-4 */
-    object-fit: contain; /* Ensure image fits without cropping */
-    flex-shrink: 0; /* Prevent shrinking */
-}
-
-/* Responsive layout for main content */
-.content-container {
+/* Вёрстка правой колонки (стрим + скин) — по центру на ПК */
+.media-block-desktop {
+    width: 350px;
+    flex-shrink: 0;
     display: flex;
     flex-direction: column;
-    gap: 24px; /* Space between sections */
-    width: 100%;
+    gap: 24px;
+    align-items: center; /* центрируем содержимое колонки */
+}
+.media-block-desktop > section { width: 100%; }
+
+/* YouTube/Twitch embed */
+.youtube-video-container {
+    position: relative; width: 100%; padding-bottom: 56.25%;
+    height: 0; overflow: hidden; border-radius: 16px;
+    box-shadow: var(--md-sys-color-outline-dark) 0 4px 8px;
+}
+body.light-theme .youtube-video-container { box-shadow: var(--md-sys-color-outline-light) 0 4px 8px; }
+.youtube-video-container iframe { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* Скин — блок и контейнер */
+#minecraft-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;  /* контент по центру */
+    text-align: center;   /* заголовок по центру */
+}
+#skin-viewer-container {
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 100%;
+}
+#skin-viewer-container canvas { display: block; }
+
+/* Мини-кнопки управления анимациями */
+.skin-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;             /* чуть больше зазор между кнопками */
+    flex-wrap: wrap;
+    max-width: 100%;
+    margin-top: 1rem;      /* нормальный отступ от модели (на мобиле не "упираются") */
+    margin-bottom: 0.75rem;/* небольшой отступ до кнопки "Скачать скин" */
+}
+.mini-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 34px;
+    min-width: 36px;       /* чтобы не сжимались */
+    padding: 0 10px;
+    border-radius: 9999px;
+    font-size: 12px;
+    line-height: 1;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background-color .2s, color .2s, box-shadow .2s, border-color .2s;
+    flex: 0 0 auto;        /* запрет сжатия */
+}
+.mini-button .mini-icon.material-symbols-outlined {
+    font-size: 18px;
+    line-height: 1;
 }
 
-@media (min-width: 768px) { /* Tablet and Desktop layout */
-    .content-container {
-        flex-direction: row; /* Side-by-side on larger screens */
-        align-items: flex-start; /* Align items to the top */
-        justify-content: center;
-    }
-    .main-links-block {
-        flex: 1; /* Take available space */
-        min-width: 320px; /* Ensure minimum width */
-        max-width: 450px; /* Control max width for links */
-    }
-    /* На ПК (md и выше): Стрим и скин будут в отдельном вертикальном блоке справа */
-    .media-block-desktop {
-        display: flex;
-        flex-direction: column;
-        flex-shrink: 0; /* Не сжимать */
-        width: 350px; /* Фиксированная ширина для десктопа для ясности */
-        gap: 24px; /* Промежуток между стримом и скином */
-    }
-    #minecraft-block { /* Сброс верхнего отступа для ПК, так как он теперь в медиа-блоке */
-        margin-top: 0;
-    }
-    /* Секция стрима на мобильных скрыта, а на ПК будет внутри media-block-desktop */
-    #live-stream-section:not(.md-visible) { /* Используем специальный класс, чтобы Tailwind не перебивал */
-        display: none;
-    }
-    #live-stream-section.md-visible { /* Класс, который JS добавит на ПК */
-        display: block;
-    }
+/* Темизация мини-кнопок */
+body.dark-theme .mini-button {
+    background-color: var(--md-sys-color-surface-container-low-dark);
+    color: var(--md-sys-color-on-surface-dark);
+    border-color: rgba(255,255,255,0.10);
+}
+body.dark-theme .mini-button:hover {
+    background-color: var(--md-sys-color-surface-container-dark);
+}
+body.dark-theme .mini-button.active {
+    background-color: var(--md-sys-color-primary-dark);
+    color: var(--md-sys-color-on-primary-dark);
+    border-color: transparent;
+}
+body.light-theme .mini-button {
+    background-color: var(--md-sys-color-surface-container-low-light);
+    color: var(--md-sys-color-on-surface-light);
+    border-color: rgba(0,0,0,0.10);
+}
+body.light-theme .mini-button:hover {
+    background-color: var(--md-sys-color-surface-container-light);
+}
+body.light-theme .mini-button.active {
+    background-color: var(--md-sys-color-primary-light);
+    color: var(--md-sys-color-on-primary-light);
+    border-color: transparent;
 }
 
+/* Карусель */
+.video-carousel::-webkit-scrollbar { height: 8px; }
+.video-carousel::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 10px; }
+body.light-theme .video-carousel::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); }
+.video-carousel::-webkit-scrollbar-thumb { background: var(--md-sys-color-outline-dark); border-radius: 10px; }
+body.light-theme .video-carousel::-webkit-scrollbar-thumb { background: var(--md-sys-color-outline-light); }
+.video-carousel::-webkit-scrollbar-thumb:hover { background: var(--md-sys-color-primary-dark); }
+body.light-theme .video-carousel::-webkit-scrollbar-thumb:hover { background: var(--md-sys-color-primary-light); }
 
-/* Responsive adjustments for smaller screens */
+.material-symbols-outlined {
+    font-variation-settings: 'FILL' 1,'wght' 400,'GRAD' 0,'opsz' 24;
+}
+.icon-large { font-size: 28px; line-height: 1; margin-right: 1rem; }
+
+.custom-icon-image { width: 28px; height: 28px; margin-right: 1rem; object-fit: contain; flex-shrink: 0; }
+
+/* Layout для основной зоны */
+.content-container { display: flex; flex-direction: column; gap: 24px; width: 100%; }
+@media (min-width: 768px) {
+    .content-container { flex-direction: row; align-items: flex-start; justify-content: center; }
+    .main-links-block { flex: 1; min-width: 320px; max-width: 450px; }
+}
+
 @media (max-width: 600px) {
-    body {
-        padding: 10px;
-    }
-    .modal-content, .dev-page-content {
-        padding: 15px;
-        border-radius: 16px;
-    }
-    #profile-name {
-        font-size: 2.25rem; /* Adjust font size for mobile */
-    }
-    #profile-description {
-        font-size: 1rem;
-    }
-    .card {
-        padding: 12px;
-    }
-    .card .material-symbols-outlined {
-        font-size: 20px; /* Smaller icon on mobile */
-    }
-    .card .text-lg {
-        font-size: 1rem;
-    }
-    .card .text-sm {
-        font-size: 0.875rem;
-    }
+    body { padding: 10px; }
+    .modal-content, .dev-page-content { padding: 15px; border-radius: 16px; }
+    #profile-name { font-size: 2.25rem; }
+    #profile-description { font-size: 1rem; }
+    .card { padding: 12px; }
+    .card .material-symbols-outlined { font-size: 20px; }
+    .card .text-lg { font-size: 1rem; }
+    .card .text-sm { font-size: .875rem; }
+
+    /* Компактный и центрированный viewer на телефоне */
     #skin-viewer-container {
         width: 250px;
         height: 250px;
+        margin-left: auto;
+        margin-right: auto;
     }
+    .skin-controls {
+        margin-top: 1rem; /* побольше отступа от модели на мобиле */
+        gap: 10px;
+    }
+}
+/* Светлая тема: контейнер скина без тени и фона (контейнер «невидим») */
+body.light-theme #skin-viewer-container {
+    box-shadow: none;     /* перекрывает .m3-shadow-md */
+    background: transparent;
+}
+
+/* На случай PNG-фолбэка — тоже без фона/тени */
+body.light-theme #skin-viewer-container img {
+    box-shadow: none;
+    background: transparent;
+}
+
+/* Мобильный отступ между стримом и блоком скина */
+@media (max-width: 767px) {
+    /* когда блоки выносятся из правой колонки и идут друг за другом */
+    #minecraft-block {
+        margin-top: 24px !important; /* нормальный отступ "как раньше" */
+    }
+}
+/* Гарантируем центрирование всего skin-блока и его содержимого */
+#minecraft-block {
+    display: flex;
+    flex-direction: column;
+    align-items: center;   /* центр по горизонтали */
+    text-align: center;    /* заголовок по центру */
+}
+
+/* Контейнер со скином: всегда центрируем */
+#skin-viewer-container {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* Мобильная раскладка (совпадает с брейкпоинтом в JS: <768px) */
+@media (max-width: 767px) {
+    /* Делаем компактную «квадратную» область и строго центрируем её */
+    #skin-viewer-container {
+        width: clamp(240px, 80vw, 320px);
+        height: clamp(240px, 80vw, 320px);
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    /* Нормальный отступ между стримом и «My Minecraft Skin» */
+    #live-stream-section {
+        margin-bottom: 24px !important;
+    }
+
+    /* Отступ от модели до мини‑кнопок (чтобы не «липли») */
+    .skin-controls {
+        margin-top: 16px;
+    }
+}
+
+/* Canvas без лишних отступов */
+#skin-viewer-container canvas {
+    display: block;
+}
+
+/* Светлая тема: контейнер «невидим» (без тени/фона) */
+body.light-theme #skin-viewer-container {
+    box-shadow: none;
+    background: transparent;
+}
+body.light-theme #skin-viewer-container img {
+    box-shadow: none;
+    background: transparent;
 }

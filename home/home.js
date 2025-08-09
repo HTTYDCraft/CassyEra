@@ -396,20 +396,54 @@ function applyAnimation(key){
 async function initSkin(){
     if(!DOM.skinViewer || !DOM.skinCanvas || !DOM.skinSection) return;
     setVisibility(DOM.skinSection, true);
+
+    // дать браузеру отрисоваться, чтобы размеры были валидные
     await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
-    const w=Math.max(1, DOM.skinViewer.clientWidth || 320);
-    const h=Math.max(1, DOM.skinViewer.clientHeight || 320);
+
     state.skin.viewer?.dispose();
+
     try{
-        const viewer=new skinview3d.SkinViewer({ canvas: DOM.skinCanvas, width:w, height:h });
-        await viewer.loadSkin(SKIN_URL);
-        if(skinview3d.IdleAnimation){ viewer.animation=new skinview3d.IdleAnimation(); state.skin.active='idle'; }
-        try{ const c=skinview3d.createOrbitControls(viewer); if(c){ c.enablePan=false; c.enableZoom=true; c.target?.set?.(0,17,0); c.update?.(); } }catch{}
-        state.skin.viewer=viewer; buildSkinControls();
-        new ResizeObserver(()=>{ const ww=Math.max(1, DOM.skinViewer.clientWidth||320); const hh=Math.max(1, DOM.skinViewer.clientHeight||320); state.skin.viewer?.setSize(ww,hh); }).observe(DOM.skinViewer);
+        const bbox = DOM.skinViewer.getBoundingClientRect();
+        let lastW = Math.max(1, Math.round(bbox.width));
+        let lastH = Math.max(1, Math.round(bbox.height));
+
+        const viewer = new skinview3d.SkinViewer({ canvas: DOM.skinCanvas, width:lastW, height:lastH });
+        await viewer.loadSkin('./links/assets/skin.png');
+        if (skinview3d.IdleAnimation) { viewer.animation = new skinview3d.IdleAnimation(); state.skin.active = 'idle'; }
+        try {
+            const c = skinview3d.createOrbitControls(viewer);
+            if (c) { c.enablePan = false; c.enableZoom = true; c.target?.set?.(0,17,0); c.update?.(); }
+        } catch {}
+
+        state.skin.viewer = viewer;
+        buildSkinControls();
+
+        // Безопасный ResizeObserver: обновляем только при реальном изменении contentRect
+        if (state.skin.ro) { try { state.skin.ro.disconnect(); } catch {} }
+        const ro = new ResizeObserver(entries => {
+            const cr = entries[0]?.contentRect;
+            if (!cr) return;
+            const w = Math.max(1, Math.round(cr.width));
+            const h = Math.max(1, Math.round(cr.height));
+            if (w !== lastW || h !== lastH) {
+                lastW = w; lastH = h;
+                try { state.skin.viewer?.setSize(w, h); } catch {}
+            }
+        });
+        ro.observe(DOM.skinViewer);
+        state.skin.ro = ro;
+
+        // Дополнительно — при смене ориентации подправим размер
+        window.addEventListener('orientationchange', () => {
+            const b = DOM.skinViewer.getBoundingClientRect();
+            const w = Math.max(1, Math.round(b.width));
+            const h = Math.max(1, Math.round(b.height));
+            if (w > 0 && h > 0) { try { state.skin.viewer?.setSize(w, h); } catch {} }
+        }, { passive:true });
+
     }catch(e){
         console.error('[skin] init failed', e);
-        DOM.skinViewer.innerHTML = `<img src="${SKIN_URL}" alt="Minecraft skin" style="max-width:100%; max-height:100%; object-fit:contain">`;
+        DOM.skinViewer.innerHTML = `<img src="./links/assets/skin.png" alt="Minecraft skin" style="max-width:100%; max-height:100%; object-fit:contain">`;
     }
 }
 

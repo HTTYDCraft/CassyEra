@@ -1,6 +1,10 @@
 /* Разрешаем выделение текста на главной (overrides из /links/css/style.css) */
 .card, .card * { user-select: text !important; -webkit-user-select: text !important; }
 
+/* Глобальный box-sizing, чтобы width:100% с padding не вылезали за контейнер */
+html { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: inherit; }
+
 /* HERO */
 .hero { text-align:center; }
 .hero .avatar {
@@ -60,6 +64,7 @@ body.light-theme .md pre { background: rgba(0,0,0,.06); }
 
 /* Сетка главной (две конфигурации) */
 .home-grid { display:grid; gap:24px; }
+.home-grid > * { min-width: 0; } /* ключевой фикс: грид-дети могут сжиматься */
 #links-cta { grid-area: links; }
 #live { grid-area: cal; position:relative; }
 #calendar { grid-area: cal2; background: transparent; box-shadow: none; }
@@ -107,9 +112,9 @@ body.light-theme .md pre { background: rgba(0,0,0,.06); }
 }
 .youtube-video-container iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
-/* Календарь: сетка */
+/* Календарь: сетка (minmax(0,1fr) — чтобы 7 колонок сжимались на узких) */
 .cal-nav { display:flex; align-items:center; justify-content:space-between; gap:8px; margin: 10px 0; }
-.stream-cal-head, .stream-cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:6px; }
+.stream-cal-head, .stream-cal-grid { display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:6px; }
 .stream-cal-head div { text-align:center; font-weight:600; opacity:.8; }
 .stream-cal-grid .cell {
     text-align:center; padding:8px 6px; border-radius:10px;
@@ -126,7 +131,7 @@ body.light-theme .stream-cal-grid .cell.today { outline:2px solid var(--md-sys-c
 /* Легенда */
 .legend { display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:10px; font-size:.95rem; }
 
-/* Универсальные точки (и в календаре, и в легенде) */
+/* Универсальные точки */
 .dot { width:10px; height:10px; border-radius:50%; display:inline-block; }
 .dot.yt { background:#FF4444; }
 .dot.tw { background:#9146FF; }
@@ -138,7 +143,12 @@ body.light-theme .stream-cal-grid .cell.today { outline:2px solid var(--md-sys-c
 .skin-viewer { display:grid; place-items:center; width:100%; height:20rem; background:transparent; border-radius:16px; }
 #skin-canvas { display:block; width:100%; height:100%; }
 @media (max-width: 767px){
-    .skin-viewer { width:clamp(240px, 80vw, 320px); height:clamp(240px, 80vw, 320px); margin: 0 auto; }
+    .skin-viewer { width:clamp(200px, 80vw, 320px); height:clamp(200px, 80vw, 320px); margin: 0 auto; }
+}
+/* Сверхузкие — ещё компактнее skin и чуть плотнее календарь */
+@media (max-width: 360px){
+    .skin-viewer { width:clamp(160px, 78vw, 300px); height:clamp(160px, 78vw, 300px); }
+    .stream-cal-head, .stream-cal-grid { gap:4px; }
 }
 
 /* Мини‑кнопки анимаций */
@@ -162,16 +172,9 @@ body.light-theme .video-carousel::-webkit-scrollbar-thumb { background: var(--md
 .video-carousel::-webkit-scrollbar-thumb:hover { background: var(--md-sys-color-primary-dark); }
 body.light-theme .video-carousel::-webkit-scrollbar-thumb:hover { background: var(--md-sys-color-primary-light); }
 
-/* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-    #timeline details.card summary .material-symbols-outlined { transition: none; }
-}
-/* Мобильные отступы и одинаковая ширина карточек сверху (герой + about) */
+/* Мобайл: одинаковая ширина верхних секций, как у Navigation/Calendar */
 @media (max-width: 767px) {
-    /* Стандартизируем «жёлоба» страницы */
     #page-wrap { padding-left: 16px; padding-right: 16px; }
-
-    /* Герой и about занимают ту же ширину, что и остальные блоки */
     #page-wrap > .hero,
     #page-wrap > .about-card,
     #page-wrap > .home-grid {
@@ -179,29 +182,21 @@ body.light-theme .video-carousel::-webkit-scrollbar-thumb:hover { background: va
         margin-right: 0 !important;
         width: 100% !important;
     }
-
-    /* Внутри about никакого доп. ограничения ширины текста */
-    .about-card .md,
-    #about-intro,
-    #about-outro {
-        max-width: 100% !important;
-    }
-}
-/* Сверхузкие экраны: уменьшим минимальные размеры скина и зазоры календаря */
-@media (max-width: 380px) {
-    .skin-viewer {
-        /* было clamp(240px, 80vw, 320px) — уменьшим нижнюю границу, чтобы лучше влезало */
-        width: clamp(180px, 78vw, 300px);
-        height: clamp(180px, 78vw, 300px);
-    }
-    .stream-cal-head, .stream-cal-grid { gap: 4px; }
-    #calendar { padding-left: 8px; padding-right: 8px; }
+    #timeline { max-width: none; margin-left: 0; margin-right: 0; }
 }
 
-/* На очень узких уберём «подскок» карточек по ховеру, чтобы не дёргалось */
+/* На очень узких делаем кнопку навигации адаптивной по ширине */
+@media (max-width: 452px) {
+    #links-cta .primary-button { width: 100%; justify-content: center; }
+    #links-cta .primary-button span { white-space: normal; }
+}
+
+/* На устройствах без hover — без «подскока», чтобы не дёргалось */
 @media (hover: none) {
     .card:hover { transform: none; box-shadow: inherit; }
 }
 
-/* Перестраховка: запретим горизонтальный скролл при любых масштабах */
-html, body { overflow-x: hidden; }
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+    #timeline details.card summary .material-symbols-outlined { transition: none; }
+}

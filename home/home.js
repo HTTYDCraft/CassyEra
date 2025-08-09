@@ -75,12 +75,10 @@ const DOM = {
     videosTitle: document.getElementById('videos-title'),
     carousel: document.getElementById('carousel'),
 
-    // bottom controls
+    // toggles
     themeToggleBottom: document.getElementById('theme-toggle-bottom'),
     langToggleBottom: document.getElementById('lang-toggle-bottom'),
     themeIconBottom: document.getElementById('theme-icon-bottom'),
-
-    // optional top
     themeToggleTop: document.getElementById('theme-toggle'),
     langToggleTop: document.getElementById('lang-toggle'),
     themeIconTop: document.getElementById('theme-icon'),
@@ -104,10 +102,10 @@ const state = {
     data: { followerCounts:{}, youtubeVideos:[], liveStream:{type:'none'} },
     history: { events: [] },
     cal: { year: new Date().getFullYear(), month: new Date().getMonth() },
-    skin: { viewer: /** @type {skinview3d.SkinViewer|null} */(null), active: 'idle' }
+    skin: { viewer: /** @type {skinview3d.SkinViewer|null} */(null), active: 'idle', ro: /** @type {ResizeObserver|null} */(null) }
 };
 
-/* helpers */
+/* utils */
 function setVisibility(el, v){ if(!el) return; el.classList.toggle('hidden', !v); }
 function formatCount(n){ if(n==null||isNaN(n))return '—'; if(n>=1e6)return (n/1e6).toFixed(1).replace(/\.0$/,'')+'M'; if(n>=1e3)return (n/1e3).toFixed(1).replace(/\.0$/,'')+'K'; return String(n); }
 function md(text){ return DOMPurify.sanitize(marked.parse(text || '')); }
@@ -128,10 +126,7 @@ function toggleTheme(){ setTheme(state.theme = state.theme==='dark'?'light':'dar
 function setLang(lang){
     state.lang = lang; localStorage.setItem('home_lang', lang);
     state.cfg = (lang==='en') ? homeConfigEn : homeConfigRu;
-    renderAllStatic();
-    renderHero();
-    renderLiveTexts();
-    renderCalendar();
+    renderAllStatic(); renderHero(); renderLiveTexts(); renderCalendar();
 }
 function toggleLang(){ setLang(state.lang==='ru'?'en':'ru'); }
 
@@ -140,26 +135,25 @@ function setupOfflineBanner(){
     window.addEventListener('online',upd); window.addEventListener('offline',upd); upd();
 }
 
-/* static */
+/* STATIC */
 function renderAllStatic(){
     const ui = state.cfg.ui, L = state.cfg.links, T = state.cfg.texts;
 
     // hero
     DOM.heroTagline && (DOM.heroTagline.textContent = T.heroTagline || '');
     DOM.goLinksText && (DOM.goLinksText.textContent = state.lang==='ru' ? 'Мои ссылки' : 'My links');
-    DOM.ctaYTText && (DOM.ctaYTText.textContent   = state.lang==='ru' ? 'Подписаться на YouTube' : 'Subscribe on YouTube');
-    DOM.ctaTGText && (DOM.ctaTGText.textContent   = 'Telegram');
+    DOM.ctaYTText && (DOM.ctaYTText.textContent = state.lang==='ru' ? 'Подписаться на YouTube' : 'Subscribe on YouTube');
+    DOM.ctaTGText && (DOM.ctaTGText.textContent = 'Telegram');
     DOM.ctaSupportText && (DOM.ctaSupportText.textContent = state.lang==='ru' ? 'Поддержать' : 'Support');
 
-    // hero links
+    // links
     if (DOM.goLinks1) DOM.goLinks1.href = L.linksPageUrl || './links/';
     if (DOM.ctaYT)      { if(L.youtubeSubscribeUrl){ DOM.ctaYT.href=L.youtubeSubscribeUrl; setVisibility(DOM.ctaYT,true);} else setVisibility(DOM.ctaYT,false); }
     if (DOM.ctaTG)      { if(L.telegramUrl){ DOM.ctaTG.href=L.telegramUrl; setVisibility(DOM.ctaTG,true);} else setVisibility(DOM.ctaTG,false); }
     if (DOM.ctaSupport) { if(L.supportUrl){ DOM.ctaSupport.href=L.supportUrl; setVisibility(DOM.ctaSupport,true);} else setVisibility(DOM.ctaSupport,false); }
 
-    // left card
-    DOM.linksTitle   && (DOM.linksTitle.textContent   = ui.navTitle || '');
-    DOM.linksDesc    && (DOM.linksDesc.textContent    = ui.navDesc || '');
+    DOM.linksTitle && (DOM.linksTitle.textContent = ui.navTitle || '');
+    DOM.linksDesc && (DOM.linksDesc.textContent = ui.navDesc || '');
     DOM.linksCtaText && (DOM.linksCtaText.textContent = ui.navCta || '');
     if (DOM.goLinks2) DOM.goLinks2.href = L.linksPageUrl || './links/';
 
@@ -168,7 +162,7 @@ function renderAllStatic(){
     DOM.aboutOutro && (DOM.aboutOutro.innerHTML = md(T.aboutOutroMd || ''));
     DOM.timelineTitle && (DOM.timelineTitle.textContent = ui.timelineTitle || 'Timeline');
     DOM.tlExpandText && (DOM.tlExpandText.textContent = state.lang==='ru' ? 'Развернуть' : 'Expand');
-    DOM.tlCollapseText && (DOM.tlCollapseText.textContent = state.lang==='ru' ? 'Свернуть'  : 'Collapse');
+    DOM.tlCollapseText && (DOM.tlCollapseText.textContent = state.lang==='ru' ? 'Свернуть' : 'Collapse');
 
     const tl = T.timeline || [];
     const html = tl.map((it, idx)=>`
@@ -184,12 +178,13 @@ function renderAllStatic(){
         d.addEventListener('toggle', sync); sync();
     });
 
-    // skin / videos titles
+    // skin / videos
     DOM.skinTitle && (DOM.skinTitle.textContent = ui.skinTitle || '');
     DOM.skinDownloadText && (DOM.skinDownloadText.textContent = ui.skinDownload || '');
     DOM.videosTitle && (DOM.videosTitle.textContent = ui.videosTitle || '');
 
     wireTimelineControls();
+    enableUnifiedHover(); // одинаковый hover/tap на всех устройствах
 }
 
 function wireTimelineControls(){
@@ -197,6 +192,49 @@ function wireTimelineControls(){
     if (DOM.tlCollapse) DOM.tlCollapse.onclick = () => DOM.timelineWrap?.querySelectorAll('details').forEach(d => d.open = false);
 }
 
+/* Унифицированный hover на всех устройствах: тонко повторяет :hover */
+function enableUnifiedHover(){
+    const cards = document.querySelectorAll('.card');
+    cards.forEach(el=>{
+        if (el.dataset.hoverBound) return;
+        el.dataset.hoverBound = '1';
+
+        let touchMoved = false;
+        let clearTimer = null;
+
+        const add = ()=> {
+            el.classList.add('is-hover');
+            if (clearTimer) { clearTimeout(clearTimer); clearTimer = null; }
+        };
+        const removeDelayed = ()=> {
+            if (clearTimer) clearTimeout(clearTimer);
+            clearTimer = setTimeout(()=> el.classList.remove('is-hover'), 120);
+        };
+        const removeNow = ()=> {
+            if (clearTimer) clearTimeout(clearTimer);
+            el.classList.remove('is-hover');
+        };
+
+        // Мышь / перо
+        el.addEventListener('pointerenter', (e)=>{ if(e.pointerType!=='touch') add(); }, { passive:true });
+        el.addEventListener('pointerleave', (e)=>{ if(e.pointerType!=='touch') removeNow(); }, { passive:true });
+
+        // Тач
+        el.addEventListener('touchstart', ()=>{ touchMoved=false; add(); }, { passive:true });
+        el.addEventListener('touchmove', ()=>{ touchMoved=true; removeNow(); }, { passive:true });
+        el.addEventListener('touchend', ()=>{ if(!touchMoved) removeDelayed(); else removeNow(); }, { passive:true });
+        el.addEventListener('touchcancel', removeNow, { passive:true });
+
+        // Фолбэки
+        el.addEventListener('mousedown', add, { passive:true });
+        el.addEventListener('mouseup', removeDelayed, { passive:true });
+        document.addEventListener('scroll', removeNow, { passive:true });
+        el.addEventListener('blur', removeNow, { passive:true });
+        el.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ add(); } }, { passive:true });
+    });
+}
+
+/* HERO totals */
 function renderHero(){
     const counts = state.data.followerCounts || {};
     const total = Object.values(counts).filter(v=>typeof v==='number').reduce((a,b)=>a+b,0);
@@ -233,16 +271,13 @@ function renderLive(){
     const live = state.data.liveStream || { type:'none' };
     const has = live.type !== 'none';
 
-    // сетка без пустых зон
     if (DOM.contentGrid) {
         DOM.contentGrid.classList.toggle('has-live', has);
         DOM.contentGrid.classList.toggle('no-live', !has);
     }
 
-    // показываем лайв; календарь — всегда виден
     setVisibility(DOM.liveWrap, has);
     setVisibility(DOM.calendarSection, true);
-    // оффлайн-текст в шапке календаря скрываем при лайве
     setVisibility(DOM.liveEmptyTitle, !has);
     setVisibility(DOM.liveEmptySub, !has);
 
@@ -266,7 +301,7 @@ function renderLive(){
 /* history + calendar */
 function buildMonth(year, month){
     const first = new Date(year, month, 1);
-    const startDow = (first.getDay()+6)%7; // Mon=0..Sun=6
+    const startDow = (first.getDay()+6)%7;
     const daysInMonth = new Date(year, month+1, 0).getDate();
     const cells = [];
     for(let i=0;i<startDow;i++) cells.push(null);
@@ -324,7 +359,7 @@ function renderCalendar(){
         } else {
             if (isFriday){
                 if (c.isPast) classes.push('passed','no-stream');
-                else dot = `<span class="dot planned"></span>`; /* будущая пятница — потенциальный стрим */
+                else dot = `<span class="dot planned"></span>`;
             }
         }
         return `<div class="${classes.join(' ')}"><div>${c.day}</div>${dot}${chips?`<div>${chips}</div>`:''}</div>`;
@@ -353,10 +388,13 @@ function renderVideos(){
 
 /* skin */
 function setActiveMini(key){
-    if (!DOM.skinControls) return;
     state.skin.active = key;
-    [...DOM.skinControls.querySelectorAll('.mini-button')].forEach(b=>{
-        b.classList.toggle('active', b.dataset.anim === key);
+    if (!DOM.skinControls) return;
+    const btns = DOM.skinControls.querySelectorAll('.mini-button');
+    btns.forEach(b=>{
+        const isActive = b.getAttribute('data-anim') === key;
+        b.classList.toggle('active', isActive);
+        b.setAttribute('aria-pressed', isActive ? 'true' : 'false');
     });
 }
 function buildSkinControls(){
@@ -369,20 +407,25 @@ function buildSkinControls(){
         {k:'rotate',icon:'autorenew',ok:!!skinview3d.RotatingAnimation},
         {k:'stop',icon:'stop_circle',ok:true}
     ];
-    opts.forEach(o=>{
-        if(!o.ok) return;
+    for (const o of opts){
+        if(!o.ok) continue;
         const btn=document.createElement('button');
         btn.type='button';
         btn.className='mini-button';
-        btn.dataset.anim=o.k;
+        btn.setAttribute('data-anim', o.k);
+        btn.setAttribute('aria-label', o.k);
+        btn.setAttribute('aria-pressed', 'false');
         btn.innerHTML=`<span class="material-symbols-outlined mini-icon">${o.icon}</span>`;
-        btn.onclick=()=>applyAnimation(o.k);
+        const act = (e)=>{ e.preventDefault(); applyAnimation(o.k); };
+        btn.addEventListener('pointerdown', act);
+        btn.addEventListener('click', act);
+        btn.addEventListener('keydown', (e)=>{ if(e.key==='Enter'||e.key===' '){ act(e); }});
         DOM.skinControls.appendChild(btn);
-    });
+    }
     setActiveMini(state.skin.active);
 }
 function applyAnimation(key){
-    if(!DOM.skin.viewer) return;
+    if(!state.skin.viewer) return;
     let anim=null;
     try{
         if(key==='idle' && skinview3d.IdleAnimation) anim=new skinview3d.IdleAnimation();
@@ -396,54 +439,46 @@ function applyAnimation(key){
 async function initSkin(){
     if(!DOM.skinViewer || !DOM.skinCanvas || !DOM.skinSection) return;
     setVisibility(DOM.skinSection, true);
-
-    // дать браузеру отрисоваться, чтобы размеры были валидные
     await new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)));
 
-    state.skin.viewer?.dispose();
+    try { state.skin.ro?.disconnect?.(); } catch {}
+    state.skin.viewer?.dispose?.();
 
     try{
-        const bbox = DOM.skinViewer.getBoundingClientRect();
-        let lastW = Math.max(1, Math.round(bbox.width));
-        let lastH = Math.max(1, Math.round(bbox.height));
+        const rect = DOM.skinViewer.getBoundingClientRect();
+        let lastW = Math.max(1, Math.round(rect.width));
+        let lastH = Math.max(1, Math.round(rect.height));
 
-        const viewer = new skinview3d.SkinViewer({ canvas: DOM.skinCanvas, width:lastW, height:lastH });
-        await viewer.loadSkin('./links/assets/skin.png');
-        if (skinview3d.IdleAnimation) { viewer.animation = new skinview3d.IdleAnimation(); state.skin.active = 'idle'; }
+        const viewer=new skinview3d.SkinViewer({ canvas: DOM.skinCanvas, width:lastW, height:lastH });
+        await viewer.loadSkin(SKIN_URL);
+        if (skinview3d.IdleAnimation) { viewer.animation=new skinview3d.IdleAnimation(); state.skin.active='idle'; }
         try {
-            const c = skinview3d.createOrbitControls(viewer);
-            if (c) { c.enablePan = false; c.enableZoom = true; c.target?.set?.(0,17,0); c.update?.(); }
+            const c=skinview3d.createOrbitControls(viewer);
+            if(c){ c.enablePan=false; c.enableZoom=true; c.target?.set?.(0,17,0); c.update?.(); }
         } catch {}
 
-        state.skin.viewer = viewer;
+        state.skin.viewer=viewer;
         buildSkinControls();
 
-        // Безопасный ResizeObserver: обновляем только при реальном изменении contentRect
-        if (state.skin.ro) { try { state.skin.ro.disconnect(); } catch {} }
-        const ro = new ResizeObserver(entries => {
-            const cr = entries[0]?.contentRect;
-            if (!cr) return;
-            const w = Math.max(1, Math.round(cr.width));
-            const h = Math.max(1, Math.round(cr.height));
-            if (w !== lastW || h !== lastH) {
-                lastW = w; lastH = h;
-                try { state.skin.viewer?.setSize(w, h); } catch {}
-            }
+        const ro = new ResizeObserver(entries=>{
+            const cr=entries[0]?.contentRect; if(!cr) return;
+            const w=Math.max(1, Math.round(cr.width));
+            const h=Math.max(1, Math.round(cr.height));
+            if (w!==lastW || h!==lastH) { lastW=w; lastH=h; try{ state.skin.viewer?.setSize(w,h); }catch{} }
         });
         ro.observe(DOM.skinViewer);
         state.skin.ro = ro;
 
-        // Дополнительно — при смене ориентации подправим размер
-        window.addEventListener('orientationchange', () => {
-            const b = DOM.skinViewer.getBoundingClientRect();
-            const w = Math.max(1, Math.round(b.width));
-            const h = Math.max(1, Math.round(b.height));
-            if (w > 0 && h > 0) { try { state.skin.viewer?.setSize(w, h); } catch {} }
+        window.addEventListener('orientationchange', ()=>{
+            const r=DOM.skinViewer.getBoundingClientRect();
+            const w=Math.max(1, Math.round(r.width));
+            const h=Math.max(1, Math.round(r.height));
+            if(w>0 && h>0){ try{ state.skin.viewer?.setSize(w,h); }catch{} }
         }, { passive:true });
 
     }catch(e){
         console.error('[skin] init failed', e);
-        DOM.skinViewer.innerHTML = `<img src="./links/assets/skin.png" alt="Minecraft skin" style="max-width:100%; max-height:100%; object-fit:contain">`;
+        DOM.skinViewer.innerHTML = `<img src="${SKIN_URL}" alt="Minecraft skin" style="max-width:100%; max-height:100%; object-fit:contain">`;
     }
 }
 
@@ -470,7 +505,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     setLang(state.lang);
     setupOfflineBanner();
 
-    // загрузка данных
+    // данные
     state.data    = await fetchData();
     state.history = await fetchHistory();
 
@@ -492,7 +527,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     await initSkin();
 
     // кнопка скачивания скина
-    if (DOM.skinDownload) DOM.skinDownload.addEventListener('click', downloadSkin);
+    DOM.skinDownload?.addEventListener('click', downloadSkin);
 
     // переключатели
     DOM.themeToggleBottom && (DOM.themeToggleBottom.onclick = toggleTheme);
@@ -501,6 +536,6 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     DOM.langToggleTop  && (DOM.langToggleTop.onclick  = toggleLang);
 
     // календарь навигация (страховка)
-    if (DOM.calPrev) DOM.calPrev.onclick = ()=>{ state.cal.month--; if(state.cal.month<0){state.cal.month=11; state.cal.year--; } renderCalendar(); };
-    if (DOM.calNext) DOM.calNext.onclick = ()=>{ state.cal.month++; if(state.cal.month>11){state.cal.month=0; state.cal.year++; } renderCalendar(); };
+    DOM.calPrev && (DOM.calPrev.onclick = ()=>{ state.cal.month--; if(state.cal.month<0){state.cal.month=11; state.cal.year--; } renderCalendar(); });
+    DOM.calNext && (DOM.calNext.onclick = ()=>{ state.cal.month++; if(state.cal.month>11){state.cal.month=0; state.cal.year++; } renderCalendar(); });
 });

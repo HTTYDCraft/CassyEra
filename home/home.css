@@ -1,14 +1,35 @@
 /* Разрешаем выделение текста на главной (overrides из /links/css/style.css) */
 .card, .card * { user-select: text !important; -webkit-user-select: text !important; }
 
-/* Глобальный box-sizing, чтобы width:100% с padding не вылезали за контейнер */
+/* Глобальный box-sizing */
 html { box-sizing: border-box; }
 *, *::before, *::after { box-sizing: inherit; }
 
-/* На мобильных полностью выключаем hover-анимации карточек (во избежание дрожи) */
-@media (max-width: 767px), (hover: none) {
-    .card:hover { transform: none !important; box-shadow: inherit !important; }
+/* Единый hover-стиль, как на ПК. На мобиле мы эмулируем через .is-hover */
+.card {
+    transition: transform .2s ease, box-shadow .2s ease;
+    -webkit-tap-highlight-color: rgba(187,134,252,.25);
+    will-change: transform;
 }
+.card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--md-sys-color-primary-dark) 0 4px 12px;
+}
+body.light-theme .card:hover {
+    box-shadow: var(--md-sys-color-primary-light) 0 4px 12px;
+}
+/* Эмуляция hover на тач-устройствах */
+.card.is-hover {
+    transform: translateY(-3px);
+    box-shadow: var(--md-sys-color-primary-dark) 0 4px 12px !important;
+}
+body.light-theme .card.is-hover {
+    box-shadow: var(--md-sys-color-primary-light) 0 4px 12px !important;
+}
+/* Доступность по клавиатуре — тот же эффект */
+.card:focus-visible { outline: none; }
+.card:focus-visible { transform: translateY(-3px); box-shadow: var(--md-sys-color-primary-dark) 0 4px 12px; }
+body.light-theme .card:focus-visible { box-shadow: var(--md-sys-color-primary-light) 0 4px 12px; }
 
 /* HERO */
 .hero { text-align:center; }
@@ -28,7 +49,7 @@ body.light-theme .hero .followers { color: rgba(0,0,0,.64) !important; }
 .md h3 { font-size:1.25rem; font-weight:700; margin:1rem 0 .5rem; }
 .md p { margin:.5rem 0; line-height:1.7; }
 .md ul { margin:.5rem 0 .75rem 1.15rem; list-style:disc; }
-.md li { margin:.25рем 0; }
+.md li { margin:.25rem 0; }
 .md em { font-style:italic; }
 .md strong { font-weight:700; }
 .md blockquote { margin:.75rem 0; padding:.5rem .75rem; border-left:4px solid var(--md-sys-color-primary-dark); opacity:.95; }
@@ -38,45 +59,34 @@ body.light-theme .md pre { background: rgba(0,0,0,.06); }
 .md pre code { background: transparent; padding: 0; }
 
 /* Таймлайн и кнопки */
-.timeline-controls {
-    display:flex; gap:10px; align-items:center; justify-content:space-between; margin: 14px 0 8px;
-}
+.timeline-controls { display:flex; gap:10px; align-items:center; justify-content:space-between; margin: 14px 0 8px; }
 .tl-buttons { display:flex; gap:8px; }
 .tl-buttons .tl-btn { display:inline-flex; align-items:center; gap:.5rem; min-height:44px; }
 .tl-buttons .tl-btn .material-symbols-outlined { line-height:1; }
-
-/* Иконки-only на телефоне (текст скрыт) */
-@media (max-width: 640px) {
-    .tl-buttons .tl-btn { padding: 8px; min-width:44px; justify-content:center; }
-    .tl-buttons .btn-text { display:none; }
-}
+/* Иконки-only на телефоне */
+@media (max-width: 640px) { .tl-buttons .tl-btn { padding: 8px; min-width:44px; justify-content:center; } .tl-buttons .btn-text { display:none; } }
 
 /* Плитки таймлайна */
 #timeline { display:flex; flex-direction:column; gap:12px; }
 #timeline details.card { padding: 14px 18px; border-radius: 16px; }
-#timeline details.card summary {
-    display:flex; align-items:center; justify-content:space-between; gap:12px; cursor:pointer; list-style:none;
-}
+#timeline details.card summary { display:flex; align-items:center; justify-content:space-between; gap:12px; cursor:pointer; list-style:none; }
 #timeline details.card summary::-webkit-details-marker { display:none; }
 #timeline details.card summary .material-symbols-outlined { transition: transform .2s ease; }
 #timeline details[open] summary .material-symbols-outlined { transform: rotate(180deg); }
 #timeline .md { padding-top: 8px; }
 
 /* На десктопе — центрируем ширину таймлайна */
-@media (min-width: 992px) {
-    #timeline { max-width: 980px; margin: 8px auto 0; }
-}
+@media (min-width: 992px) { #timeline { max-width: 980px; margin: 8px auto 0; } }
 
 /* Сетка главной (две конфигурации) */
 .home-grid { display:grid; gap:24px; }
-/* Ключевой фикс: грид-дети могут сжиматься */
-.home-grid > * { min-width: 0; }
+.home-grid > * { min-width: 0; } /* грид-дети могут сжиматься */
 #links-cta { grid-area: links; }
 #live { grid-area: cal; position:relative; }
 #calendar { grid-area: cal2; background: transparent; box-shadow: none; }
 #skin { grid-area: skin; }
 
-/* Когда лайва нет: правая колонка — только календарь */
+/* Когда лайва нет */
 .home-grid.no-live {
     grid-template-columns: 1fr;
     grid-template-areas:
@@ -93,7 +103,7 @@ body.light-theme .md pre { background: rgba(0,0,0,.06); }
     }
 }
 
-/* Когда лайв есть: сверху лайв, ниже календарь */
+/* Когда лайв есть */
 .home-grid.has-live {
     grid-template-columns: 1fr;
     grid-template-areas:
@@ -118,7 +128,7 @@ body.light-theme .md pre { background: rgba(0,0,0,.06); }
 }
 .youtube-video-container iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
 
-/* Календарь: сетка (minmax(0,1fr) — чтобы 7 колонок сжимались на узких) */
+/* Календарь */
 .cal-nav { display:flex; align-items:center; justify-content:space-between; gap:8px; margin: 10px 0; }
 .stream-cal-head, .stream-cal-grid { display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:6px; }
 .stream-cal-head div { text-align:center; font-weight:600; opacity:.8; }
@@ -145,7 +155,8 @@ body.light-theme .stream-cal-grid .cell.today { outline:2px solid var(--md-sys-c
 .dot.planned { background:#2ECC71; }
 .legend .muted { opacity:.75; }
 
-/* SKIN — стабилизируем размеры: через aspect-ratio (без фиксированной высоты) */
+/* SKIN — стабильная область (aspect-ratio), кнопки сверху */
+#skin { position: relative; }
 .skin-viewer {
     width: 100%;
     aspect-ratio: 1 / 1;
@@ -154,19 +165,19 @@ body.light-theme .stream-cal-grid .cell.today { outline:2px solid var(--md-sys-c
     border-radius: 16px;
     display: grid;
     place-items: center;
+    position: relative;
+    z-index: 1;
 }
 #skin-canvas { width:100%; height:100%; display:block; }
-/* Сверхузкие — ещё компактнее skin и чуть плотнее календарь */
-@media (max-width: 360px){
-    .stream-cal-head, .stream-cal-grid { gap:4px; }
+.skin-controls {
+    display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap;
+    max-width:100%; margin: 14px 0 10px; position: relative; z-index: 2;
 }
-
-/* Мини‑кнопки анимаций */
-.skin-controls { display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; max-width:100%; margin: 14px 0 10px; }
 .mini-button {
     display:inline-flex; align-items:center; justify-content:center;
     height:44px; min-width:44px; padding:0 12px; border-radius:9999px;
-    border:1px solid rgba(255,255,255,.1); background:#2d2d2d; color:#fff; cursor:pointer
+    border:1px solid rgba(255,255,255,.1); background:#2d2d2d; color:#fff; cursor:pointer;
+    touch-action: manipulation; pointer-events: auto;
 }
 .mini-button .material-symbols-outlined { font-size:18px; line-height:1; color: currentColor; }
 .mini-button.active { background: var(--md-sys-color-primary-dark); color:#000; border-color: transparent; }
@@ -182,31 +193,14 @@ body.light-theme .video-carousel::-webkit-scrollbar-thumb { background: var(--md
 .video-carousel::-webkit-scrollbar-thumb:hover { background: var(--md-sys-color-primary-dark); }
 body.light-theme .video-carousel::-webkit-scrollbar-thumb:hover { background: var(--md-sys-color-primary-light); }
 
-/* Мобайл: одинаковая ширина верхних секций */
+/* Узкие экраны: одинаковая ширина верхних секций */
 @media (max-width: 767px) {
     #page-wrap { padding-left: 16px; padding-right: 16px; }
-    #page-wrap > .hero,
-    #page-wrap > .about-card,
-    #page-wrap > .home-grid {
-        margin-left: 0 !important;
-        margin-right: 0 !important;
-        width: 100% !important;
-    }
-    #timeline { max-width: none; margin-left: 0; margin-right: 0; }
+    #page-wrap > .hero, #page-wrap > .about-card, #page-wrap > .home-grid { margin-left:0 !important; margin-right:0 !important; width:100% !important; }
+    #timeline { max-width:none; margin-left:0; margin-right:0; }
 }
-
-/* На очень узких делаем кнопку навигации адаптивной по ширине */
-@media (max-width: 452px) {
-    #links-cta .primary-button { width: 100%; justify-content: center; }
-    #links-cta .primary-button span { white-space: normal; }
-}
-
-/* На устройствах без hover — без «подскока», чтобы не дёргалось */
-@media (hover: none) {
-    .card:hover { transform: none; box-shadow: inherit; }
-}
+/* Кнопка навигации — адаптивная ширина на сверхузких */
+@media (max-width: 452px) { #links-cta .primary-button { width:100%; justify-content:center; } #links-cta .primary-button span { white-space:normal; } }
 
 /* Reduced motion */
-@media (prefers-reduced-motion: reduce) {
-    #timeline details.card summary .material-symbols-outlined { transition: none; }
-}
+@media (prefers-reduced-motion: reduce) { #timeline details.card summary .material-symbols-outlined { transition: none; } }

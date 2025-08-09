@@ -110,7 +110,7 @@ body.light-theme .stream-cal-grid .cell.today { outline:2px solid var(--md-sys-c
     .skin-viewer { width:clamp(240px, 80vw, 320px); height:clamp(240px, 80vw, 320px); margin: 0 auto; }
 }
 
-/* Мини‑кнопки анимаций */
+/* d Мини‑кнопки анимаций */
 .skin-controls { display:flex; justify-content:center; align-items:center; gap:10px; flex-wrap:wrap; max-width:100%; margin: 14px 0 10px; }
 .mini-button {
     display:inline-flex; align-items:center; justify-content:center;

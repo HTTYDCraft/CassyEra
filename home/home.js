@@ -455,7 +455,7 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     DOM.themeToggleTop && (DOM.themeToggleTop.onclick = toggleTheme);
     DOM.langToggleTop  && (DOM.langToggleTop.onclick  = toggleLang);
 
-    // календарь навигация (дублирующая страховка)
+    // d календарь навигация (дублирующая страховка)
     if (DOM.calPrev) DOM.calPrev.onclick = ()=>{ state.cal.month--; if(state.cal.month<0){state.cal.month=11; state.cal.year--; } renderCalendar(); };
     if (DOM.calNext) DOM.calNext.onclick = ()=>{ state.cal.month++; if(state.cal.month>11){state.cal.month=0; state.cal.year++; } renderCalendar(); };
 });

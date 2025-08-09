@@ -166,3 +166,24 @@ body.light-theme .video-carousel::-webkit-scrollbar-thumb:hover { background: va
 @media (prefers-reduced-motion: reduce) {
     #timeline details.card summary .material-symbols-outlined { transition: none; }
 }
+/* Мобильные отступы и одинаковая ширина карточек сверху (герой + about) */
+@media (max-width: 767px) {
+    /* Стандартизируем «жёлоба» страницы */
+    #page-wrap { padding-left: 16px; padding-right: 16px; }
+
+    /* Герой и about занимают ту же ширину, что и остальные блоки */
+    #page-wrap > .hero,
+    #page-wrap > .about-card,
+    #page-wrap > .home-grid {
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        width: 100% !important;
+    }
+
+    /* Внутри about никакого доп. ограничения ширины текста */
+    .about-card .md,
+    #about-intro,
+    #about-outro {
+        max-width: 100% !important;
+    }
+}

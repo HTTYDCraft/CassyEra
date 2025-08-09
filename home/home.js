@@ -227,6 +227,27 @@ function renderLiveTexts(){
         DOM.legendMissed && (DOM.legendMissed.textContent   = 'Struck-out — there was no stream');
     }
 }
+function setViewportMeta(content) {
+    let m = document.getElementById('viewportMeta') || document.querySelector('meta[name="viewport"]');
+    if (!m) { m = document.createElement('meta'); m.name = 'viewport'; m.id = 'viewportMeta'; document.head.appendChild(m); }
+    m.setAttribute('content', content);
+}
+
+/* Масштабируем страницу на сверхузких экранах:
+   - <= 340px: ширина вьюпорта 430 => ~0.79x
+   - <= 360px: ширина 410 => ~0.88x
+   - <= 400px: ширина 400 => ~0.95x
+   Иначе — девайсная ширина без зума.
+   Пинч‑зум не отключаем (maximum-scale оставляем большим).
+*/
+function adaptViewportScale() {
+    const w = window.innerWidth || document.documentElement.clientWidth || 0;
+    let content = 'width=device-width, initial-scale=1, maximum-scale=5';
+    if (w <= 340)      content = 'width=430, initial-scale=1, maximum-scale=5';
+    else if (w <= 360) content = 'width=410, initial-scale=1, maximum-scale=5';
+    else if (w <= 400) content = 'width=400, initial-scale=1, maximum-scale=5';
+    setViewportMeta(content);
+}
 
 function renderLive(){
     renderLiveTexts();
@@ -465,6 +486,13 @@ document.addEventListener('DOMContentLoaded', async ()=>{
     DOM.langToggleBottom  && (DOM.langToggleBottom.onclick  = toggleLang);
     DOM.themeToggleTop && (DOM.themeToggleTop.onclick = toggleTheme);
     DOM.langToggleTop  && (DOM.langToggleTop.onclick  = toggleLang);
+
+    // Масштаб под узкие экраны
+    adaptViewportScale();
+    window.addEventListener('resize', adaptViewportScale);
+    window.addEventListener('orientationchange', adaptViewportScale);
+    // иногда мобильные браузеры пересчитывают поздно — дернём ещё чуть позже
+    setTimeout(adaptViewportScale, 100);
 
     // календарь навигация (страховка)
     if (DOM.calPrev) DOM.calPrev.onclick = ()=>{ state.cal.month--; if(state.cal.month<0){state.cal.month=11; state.cal.year--; } renderCalendar(); };

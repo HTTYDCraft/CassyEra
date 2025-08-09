@@ -187,3 +187,21 @@ body.light-theme .video-carousel::-webkit-scrollbar-thumb:hover { background: va
         max-width: 100% !important;
     }
 }
+/* Сверхузкие экраны: уменьшим минимальные размеры скина и зазоры календаря */
+@media (max-width: 380px) {
+    .skin-viewer {
+        /* было clamp(240px, 80vw, 320px) — уменьшим нижнюю границу, чтобы лучше влезало */
+        width: clamp(180px, 78vw, 300px);
+        height: clamp(180px, 78vw, 300px);
+    }
+    .stream-cal-head, .stream-cal-grid { gap: 4px; }
+    #calendar { padding-left: 8px; padding-right: 8px; }
+}
+
+/* На очень узких уберём «подскок» карточек по ховеру, чтобы не дёргалось */
+@media (hover: none) {
+    .card:hover { transform: none; box-shadow: inherit; }
+}
+
+/* Перестраховка: запретим горизонтальный скролл при любых масштабах */
+html, body { overflow-x: hidden; }

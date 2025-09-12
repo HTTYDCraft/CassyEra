@@ -114,9 +114,9 @@
   "liveStream": {
     "type": "none"
   },
-  "lastUpdated": "2025-09-12T14:53:16.535490",
+  "lastUpdated": "2025-09-12T15:08:46.650931",
   "debugInfo": {
-    "telegram_error": "HTTPSConnectionPool(host='api.telegram.org', port=443): Read timed out. (read timeout=15)",
+    "telegram_error": "HTTP 502",
     "instagram_setup_warning": "Missing Instagram credentials",
     "x_error": "HTTP 429",
     "tiktok_setup_warning": "Missing TikTok credentials"

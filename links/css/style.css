@@ -1,8 +1,8 @@
 /* Material 3 palette + AMOLED-friendly dark theme */
 :root {
-    --md-sys-color-primary-dark: #BB86FC;
+    --md-sys-color-primary-dark: #63ef51;
     --md-sys-color-on-primary-dark: #000000;
-    --md-sys-color-primary-container-dark: #4A148C;
+    --md-sys-color-primary-container-dark: #0b770c;
     --md-sys-color-on-primary-container-dark: #FFFFFF;
     --md-sys-color-secondary-dark: #03DAC6;
     --md-sys-color-on-secondary-dark: #000000;
@@ -15,9 +15,9 @@
     --md-sys-color-outline-dark: #8C8C8C;
     --md-sys-color-error-dark: #CF6679;
 
-    --md-sys-color-primary-light: #6200EE;
+    --md-sys-color-primary-light: #3dd324;
     --md-sys-color-on-primary-light: #FFFFFF;
-    --md-sys-color-primary-container-light: #BB86FC;
+    --md-sys-color-primary-container-light: #a5e866;
     --md-sys-color-on-primary-container-light: #000000;
     --md-sys-color-secondary-light: #03DAC6;
     --md-sys-color-on-secondary-light: #000000;

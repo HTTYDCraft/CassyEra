@@ -23,9 +23,9 @@ export const strings = {
         openLinkButton: "Open Link",
         closeButton: "Close",
 
-        profileName: "BezzubickMCPlay",
+        profileName: "CassyEra",
         profileDescription: "Minecraft adventures | Streams | Creativity",
-        avatarAlt: "BezzubickMCPlay profile avatar",
+        avatarAlt: "CassyEra profile avatar",
         previewAvatarAlt: "Link preview avatar",
         twitchStreamAlsoLive: "Stream also live on Twitch!",
         localIconExample: "Custom Local Icon Example",
@@ -64,9 +64,9 @@ export const strings = {
         openLinkButton: "Открыть ссылку",
         closeButton: "Закрыть",
 
-        profileName: "BezzubickMCPlay",
+        profileName: "CassyEra",
         profileDescription: "Приключения в Minecraft | Стримы | Творчество",
-        avatarAlt: "Аватар профиля BezzubickMCPlay",
+        avatarAlt: "Аватар профиля CassyEra",
         previewAvatarAlt: "Аватар предпросмотра ссылки",
         twitchStreamAlsoLive: "Стрим также идёт на Twitch!",
         localIconExample: "Пример локальной иконки",

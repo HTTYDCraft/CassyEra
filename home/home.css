@@ -1,3 +1,14 @@
+
+:root {
+    /* Тёмная тема: нежный светло-голубой */
+    --md-sys-color-primary-dark: #A8C7FA;
+    --md-sys-color-on-primary-dark: #003258;
+
+    /* Светлая тема: более мягкий и приятный синий */
+    --md-sys-color-primary-light: #1A73E8;
+    --md-sys-color-on-primary-light: #FFFFFF;
+}
+
 /* Разрешаем выделение текста на главной (overrides из /links/css/style.css) */
 .card, .card * { user-select: text !important; -webkit-user-select: text !important; }
 
@@ -8,7 +19,7 @@ html { box-sizing: border-box; }
 /* Единый hover-стиль, как на ПК. На мобиле мы эмулируем через .is-hover */
 .card {
     transition: transform .2s ease, box-shadow .2s ease;
-    -webkit-tap-highlight-color: rgba(187,134,252,.25);
+    -webkit-tap-highlight-color: rgba(168, 199, 250, .25);
     will-change: transform;
 }
 .card:hover {
@@ -58,6 +69,22 @@ body.light-theme .hero .followers { color: rgba(0,0,0,.64) !important; }
 body.light-theme .md pre { background: rgba(0,0,0,.06); }
 .md pre code { background: transparent; padding: 0; }
 
+
+/* Стили для блока проектов */
+.project-item:not(:last-child) {
+    padding-bottom: 1rem;
+    margin-bottom: 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+body.light-theme .project-item:not(:last-child) {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+.project-item .primary-button {
+    font-size: 0.875rem; /* 14px */
+    padding-top: 0.5rem; /* 8px */
+    padding-bottom: 0.5rem; /* 8px */
+}
+
 /* Таймлайн и кнопки */
 .timeline-controls { display:flex; gap:10px; align-items:center; justify-content:space-between; margin: 14px 0 8px; }
 .tl-buttons { display:flex; gap:8px; }
@@ -78,82 +105,35 @@ body.light-theme .md pre { background: rgba(0,0,0,.06); }
 /* На десктопе — центрируем ширину таймлайна */
 @media (min-width: 992px) { #timeline { max-width: 980px; margin: 8px auto 0; } }
 
-/* Сетка главной (две конфигурации) */
+/* Сетка главной */
 .home-grid { display:grid; gap:24px; }
 .home-grid > * { min-width: 0; } /* грид-дети могут сжиматься */
+
+/* Привязка элементов к областям сетки */
 #links-cta { grid-area: links; }
-#live { grid-area: cal; position:relative; }
-#calendar { grid-area: cal2; background: transparent; box-shadow: none; }
 #skin { grid-area: skin; }
+#hobbies-section { grid-area: hobbies; }
+#projects-section { grid-area: projects; }
 
-/* Когда лайва нет */
-.home-grid.no-live {
+/* Мобильная раскладка: одна колонка */
+.home-grid {
     grid-template-columns: 1fr;
     grid-template-areas:
     "links"
-    "cal2"
+    "hobbies"
+    "projects"
     "skin";
 }
+
+/* Десктопная раскладка: две колонки */
 @media (min-width: 992px) {
-    .home-grid.no-live {
+    .home-grid {
         grid-template-columns: minmax(320px, 420px) 1fr;
         grid-template-areas:
-      "links cal2"
-      "skin  cal2";
+      "links hobbies"
+      "skin  projects";
     }
 }
-
-/* Когда лайв есть */
-.home-grid.has-live {
-    grid-template-columns: 1fr;
-    grid-template-areas:
-    "links"
-    "cal"
-    "cal2"
-    "skin";
-}
-@media (min-width: 992px) {
-    .home-grid.has-live {
-        grid-template-columns: minmax(320px, 420px) 1fr;
-        grid-template-areas:
-      "links cal"
-      "skin  cal2";
-    }
-}
-
-/* Плеер */
-.youtube-video-container {
-    position: relative; width: 100%; padding-top: 56.25%;
-    border-radius: 16px; overflow: hidden; background: #000;
-}
-.youtube-video-container iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
-
-/* Календарь */
-.cal-nav { display:flex; align-items:center; justify-content:space-between; gap:8px; margin: 10px 0; }
-.stream-cal-head, .stream-cal-grid { display:grid; grid-template-columns:repeat(7, minmax(0,1fr)); gap:6px; }
-.stream-cal-head div { text-align:center; font-weight:600; opacity:.8; }
-.stream-cal-grid .cell {
-    text-align:center; padding:8px 6px; border-radius:10px;
-    border:1px solid var(--md-sys-color-outline-dark);
-    min-height:46px; display:flex; flex-direction:column; justify-content:center; gap:3px;
-}
-body.light-theme .stream-cal-grid .cell { border-color: var(--md-sys-color-outline-light); }
-.stream-cal-grid .cell a { color: var(--md-sys-color-primary-dark); text-decoration: underline; font-size:.9rem; }
-.stream-cal-grid .cell.today { outline:2px solid var(--md-sys-color-primary-dark); }
-body.light-theme .stream-cal-grid .cell.today { outline:2px solid var(--md-sys-color-primary-light); }
-.stream-cal-grid .cell.fri { background: rgba(187,134,252,.08); }
-.stream-cal-grid .cell.passed.no-stream { opacity:.5; text-decoration: line-through; }
-
-/* Легенда */
-.legend { display:flex; align-items:center; gap:10px; flex-wrap:wrap; justify-content:center; margin-top:10px; font-size:.95rem; }
-
-/* Универсальные точки */
-.dot { width:10px; height:10px; border-radius:50%; display:inline-block; }
-.dot.yt { background:#FF4444; }
-.dot.tw { background:#9146FF; }
-.dot.both { background: linear-gradient(90deg, #FF4444 0 50%, #9146FF 50% 100%); }
-.dot.planned { background:#2ECC71; }
-.legend .muted { opacity:.75; }
 
 /* SKIN — стабильная область (aspect-ratio), кнопки сверху */
 #skin { position: relative; }
@@ -180,7 +160,7 @@ body.light-theme .stream-cal-grid .cell.today { outline:2px solid var(--md-sys-c
     touch-action: manipulation; pointer-events: auto;
 }
 .mini-button .material-symbols-outlined { font-size:18px; line-height:1; color: currentColor; }
-.mini-button.active { background: var(--md-sys-color-primary-dark); color:#000; border-color: transparent; }
+.mini-button.active { background: var(--md-sys-color-primary-dark); color: var(--md-sys-color-on-primary-dark); border-color: transparent; }
 body.light-theme .mini-button { background: var(--md-sys-color-surface-container-low-light); color: var(--md-sys-color-on-surface-light); border-color: rgba(0,0,0,.10); }
 body.light-theme .mini-button.active { background: var(--md-sys-color-primary-light); color: var(--md-sys-color-on-primary-light); border-color: transparent; }
 

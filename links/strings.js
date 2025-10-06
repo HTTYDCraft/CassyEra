@@ -1,86 +1,74 @@
-// strings.js — локализация
+// strings.js — все тексты для локализации (RU/EN)
 
 export const strings = {
     en: {
+        // Section Titles
         recentVideosTitle: "Recent Videos",
-        modalTitle: "Welcome!",
-        modalDescription: "Swipe right on a link card to subscribe, swipe left on YouTube links to open the latest video or a live stream.",
-        gotItButton: "Got it!",
-        themeLight: "Light Theme",
-        themeDark: "Dark Theme",
-        watchOnTwitch: "Watch on Twitch",
-        totalFollowers: "Total Followers: ",
         minecraftTitle: "My Minecraft Skin",
+        totalFollowers: "Total Followers: ",
+
+        // Buttons and Interactive Elements
         downloadSkin: "Download Skin",
-        loading: "Loading...",
         supportButton: "Support Me",
-        offlineMessage: "You are offline. Data might be outdated.",
-        devPageTitle: "Developer Info",
-        devLastUpdatedLabel: "Last Data Update:",
-        devDataJsonContentLabel: "data.json Content:",
-        devDebugInfoContentLabel: "API Debug Info:",
-        backToMainText: "Back to Main Site",
-        openLinkButton: "Open Link",
-        closeButton: "Close",
+        watchOnTwitch: "Watch on Twitch",
+        gotItButton: "Got it!",
 
+        // Profile Texts
         profileName: "CassyEra",
-        profileDescription: "Minecraft adventures | Streams | Creativity",
-        avatarAlt: "CassyEra profile avatar",
-        previewAvatarAlt: "Link preview avatar",
-        twitchStreamAlsoLive: "Stream also live on Twitch!",
-        localIconExample: "Custom Local Icon Example",
-        skinViewerLoadError: "3D Skin Viewer failed to load. Please check your internet connection and browser extensions.",
+        profileDescription: "Minecraft Adventures | Creativity | Community",
 
+        // System Messages
+        loading: "Loading...",
+        offlineMessage: "You are offline. Data might be outdated.",
+        twitchStreamAlsoLive: "Stream is also live on Twitch!",
+
+        // First Visit Modal
+        modalTitle: "Welcome!",
+        modalDescription: "Swipe right on a link to subscribe. Swipe left on YouTube to open the latest video or live stream.",
+
+        // Alt Text for Images
+        avatarAlt: "CassyEra's Profile Avatar",
+
+        // Link Labels
         youtubeChannelLabel: "YouTube Channel",
-        telegramChannelLabel: "Telegram Channel",
-        instagramProfileLabel: "Instagram Profile",
-        xTwitterProfileLabel: "X (Twitter) Profile",
-        twitchChannelLabel: "Twitch Channel",
-        tiktokProfileLabel: "TikTok Profile",
-        vkGroupLabel: "VK Group",
-        vkPersonalPageLabel: "VK Personal Page",
-        myPortfolioLabel: "My Portfolio",
-        hiddenLinkExample: "Hidden Link Example"
+        telegramLabel: "Telegram Channel",
+        tiktokLabel: "TikTok",
+        vkLabel: "VK Page",
+        discordLabel: "Discord Server",
     },
     ru: {
+        // Заголовки разделов
         recentVideosTitle: "Последние видео",
-        modalTitle: "Добро пожаловать!",
-        modalDescription: "Проведите вправо по карточке ссылки, чтобы подписаться. Проведите влево по YouTube-ссылкам, чтобы открыть последнее видео или прямой эфир.",
-        gotItButton: "Понятно!",
-        themeLight: "Светлая тема",
-        themeDark: "Тёмная тема",
-        watchOnTwitch: "Смотреть на Twitch",
-        totalFollowers: "Всего подписчиков: ",
         minecraftTitle: "Мой скин Minecraft",
+        totalFollowers: "Всего подписчиков: ",
+
+        // Кнопки и интерактивные элементы
         downloadSkin: "Скачать скин",
-        loading: "Загрузка...",
-        supportButton: "Поддержать меня",
-        offlineMessage: "Вы не в сети. Данные могут быть устаревшими.",
-        devPageTitle: "Информация для разработчиков",
-        devLastUpdatedLabel: "Последнее обновление данных:",
-        devDataJsonContentLabel: "Содержимое data.json:",
-        devDebugInfoContentLabel: "Отладочная информация API:",
-        backToMainText: "Назад к сайту",
-        openLinkButton: "Открыть ссылку",
-        closeButton: "Закрыть",
+        supportButton: "Поддержать",
+        watchOnTwitch: "Смотреть на Twitch",
+        gotItButton: "Понятно!",
 
+        // Тексты профиля
         profileName: "CassyEra",
-        profileDescription: "Приключения в Minecraft | Стримы | Творчество",
-        avatarAlt: "Аватар профиля CassyEra",
-        previewAvatarAlt: "Аватар предпросмотра ссылки",
-        twitchStreamAlsoLive: "Стрим также идёт на Twitch!",
-        localIconExample: "Пример локальной иконки",
-        skinViewerLoadError: "3D-просмотрщик скина не загрузился. Проверьте подключение и расширения браузера.",
+        profileDescription: "Приключения в Minecraft | Творчество | Комьюнити",
 
+        // Системные сообщения
+        loading: "Загрузка...",
+        offlineMessage: "Вы не в сети. Данные могут быть устаревшими.",
+        twitchStreamAlsoLive: "Стрим также идёт на Twitch!",
+
+        // Модальное окно при первом визите
+        modalTitle: "Добро пожаловать!",
+        modalDescription: "Проведите вправо по ссылке, чтобы подписаться. Проведите влево по YouTube, чтобы открыть последнее видео или стрим.",
+
+        // Альтернативный текст для изображений
+        avatarAlt: "Аватар профиля CassyEra",
+
+        // Подписи для ссылок
         youtubeChannelLabel: "YouTube Канал",
-        telegramChannelLabel: "Telegram Канал",
-        instagramProfileLabel: "Профиль Instagram",
-        xTwitterProfileLabel: "Профиль X (Twitter)",
-        twitchChannelLabel: "Twitch Канал",
-        tiktokProfileLabel: "Профиль TikTok",
-        vkGroupLabel: "Группа VK",
-        vkPersonalPageLabel: "Личная страница VK",
-        myPortfolioLabel: "Моё портфолио",
-        hiddenLinkExample: "Пример скрытой ссылки"
+        telegramLabel: "Telegram Канал",
+        tiktokLabel: "TikTok",
+        vkLabel: "Страница VK",
+        discordLabel: "Discord Сервер",
     }
 };

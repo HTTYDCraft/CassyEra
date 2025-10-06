@@ -1,4 +1,3 @@
-
 export const homeConfigEn = {
     links: {
         linksPageUrl: "",          // link to the page containing all links
@@ -16,8 +15,6 @@ export const homeConfigEn = {
         skinTitle: "",         // block title for Minecraft skin
         skinDownload: "",      // caption for "download skin" button
         videosTitle: "",       // title for latest videos block
-        twitchAlso: "",        // note that stream is also on Twitch
-        twitchCta: "",         // button text to watch on Twitch
         followersLabel: "",    // label to display subscriber count
         timelineTitle: ""      // title for channel timeline
     },
@@ -25,16 +22,33 @@ export const homeConfigEn = {
     texts: {
         heroTagline: "",       // short tagline in the site header
 
-        aboutIntroMd: "",      // introduction text before the timeline (Markdown)
+        aboutIntroMd: "",      // introduction text (Markdown)
 
-        timeline: [            // list of events grouped by year
-            {
-                year: "",      // year label
-                title: "",     // event/stage title
-                bodyMd: ""     // event description in Markdown
-            }
+        hobbiesTitle: "",      // title for "Hobbies" block
+        hobbiesMd: "",         // text about hobbies (Markdown)
+
+        projectsTitle: "",     // title for "Projects" block
+        projects: [            // list of projects
+            // Example project object:
+            // {
+            //     title: "Project Name",
+            //     bodyMd: "Project description...",
+            //     button: {
+            //         text: "Button",
+            //         url: "https://..."
+            //     }
+            // }
         ],
 
-        aboutOutroMd: ""       // closing text about channel, community, interests
+        timeline: [            // list of events grouped by year
+            // Example timeline object:
+            // {
+            //     year: "2024",
+            //     title: "Event",
+            //     bodyMd: "Event description..."
+            // }
+        ],
+
+        aboutOutroMd: ""       // closing text about channel, interests, community (Markdown)
     }
 };

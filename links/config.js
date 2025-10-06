@@ -1,28 +1,33 @@
-// config_en.js — application configuration (skeleton with placeholders)
+// config.js — главный конфигурационный файл
 
 export const appConfig = {
-    dataUrl: "../data.json", // путь к основному JSON-файлу данных
-    showLiveStreamSection: true,   // показывать ли блок с прямым эфиром
-    showProfileSection: true,      // показывать ли блок «профиль»
+    dataUrl: "../data.json",       // путь к файлу с динамическими данными (счётчики, видео)
+    showLiveStreamSection: false,  // показывать ли блок с прямым эфиром
+    showProfileSection: true,      // показывать ли блок «профиль» (аватар, имя, описание)
     showMinecraftSkinSection: true,// показывать ли блок с Minecraft-скином
     showLinksSection: true,        // показывать ли блок ссылок
-    showYouTubeVideosSection: true,// показывать ли блок с видео YouTube
+    showYouTubeVideosSection: false,// показывать ли блок с видео YouTube
     showSupportButton: true,       // показывать ли кнопку поддержки
-    developmentMode: true,         // включён ли режим разработки
-    showDevToggle: true,           // показывать ли переключатель «Dev Mode»
-    showLanguageToggle: true,      // показывать ли переключатель языков
-    showThemeToggle: true,         // показывать ли переключатель темы
-    supportUrl: "" // 👈 сюда вставить свой реальный URL для донатов/поддержки
+    supportUrl: ""                 // 👈 сюда вставить URL для донатов/поддержки
 };
 
 export const profileConfig = {
-    name_key: "profileName",                 // ключ для имени профиля (из i18n JSON)
-    description_key: "profileDescription",   // ключ для описания профиля
-    avatar: "./assets/avatar.png",           // путь к аватарке (заменить на свой файл)
+    name_key: "profileName",                 // ключ для имени профиля (из strings.js)
+    description_key: "profileDescription",   // ключ для описания профиля (из strings.js)
+    avatar: "./assets/avatar.png",           // путь к аватарке
     minecraftSkinUrl: "./assets/skin.png"    // путь к Minecraft‑скину
 };
 
 export const linksConfig = [
+    // Здесь настраиваются все ссылки, которые будут отображаться на странице.
+    // label_key - ключ из файла strings.js для названия ссылки.
+    // url - сама ссылка.
+    // icon - название иконки из Google Material Symbols.
+    // customIconUrl - если нужна своя иконка (например, для Discord), укажите путь к ней здесь.
+    // order - порядок отображения.
+    // showSubscriberCount - показывать ли счётчик (требует настройки API). Сейчас отключено.
+    // platformId - уникальный ID для API.
+
     {
         label_key: "youtubeChannelLabel",    // ключ для подписи (YouTube)
         url: "",                             // сюда вставить ссылку на YouTube‑канал
@@ -35,73 +40,46 @@ export const linksConfig = [
         active: true
     },
     {
-        label_key: "telegramChannelLabel",   // подпись Telegram
-        url: "",                             // сюда вставить ссылку на ваш Telegram
+        label_key: "telegramLabel",
+        url: "",
         icon: "send",
-        order: 2,
+        order: 1,
         isSocial: true,
         showSubscriberCount: false,
         platformId: "telegram",
         active: true
     },
     {
-        label_key: "twitchChannelLabel",     // подпись Twitch
-        url: "",                             // сюда вставить ссылку на Twitch-канал
-        icon: "live_tv",
-        order: 3,
-        isSocial: true,
-        showSubscriberCount: false,
-        platformId: "twitch",
-        active: true
-    },
-    {
-        label_key: "tiktokProfileLabel",     // подпись TikTok
-        url: "",                             // сюда вставить ссылку на TikTok‑профиль
+        label_key: "tiktokLabel",
+        url: "",
         icon: "music_note",
-        order: 4,
+        order: 2,
         isSocial: true,
         showSubscriberCount: false,
         platformId: "tiktok",
         active: true
     },
     {
-        label_key: "instagramProfileLabel",  // подпись Instagram
-        url: "",                             // сюда вставить ссылку на Instagram‑профиль
-        icon: "photo_camera",
-        order: 5,
-        isSocial: true,
-        showSubscriberCount: false,
-        platformId: "instagram",
-        active: true
-    },
-    {
-        label_key: "xTwitterProfileLabel",   // подпись X (бывший Twitter)
-        url: "",                             // сюда вставить ссылку на профиль X/Twitter
-        icon: "public",
-        order: 6,
-        isSocial: true,
-        showSubscriberCount: false,
-        platformId: "x",
-        active: true
-    },
-    {
-        label_key: "vkGroupLabel",           // подпись VK‑группа
-        url: "",                             // сюда вставить ссылку на группу ВКонтакте
+        label_key: "vkLabel",
+        url: "",
         icon: "group",
-        order: 7,
+        order: 3,
         isSocial: true,
         showSubscriberCount: false,
-        platformId: "vk_group",
+        platformId: "vk",
         active: true
     },
     {
-        label_key: "vkPersonalPageLabel",    // подпись VK‑личная страница
-        url: "",                             // сюда вставить ссылку на вашу страницу ВКонтакте
-        icon: "person",
-        order: 8,
+        label_key: "discordLabel",
+        url: "",
+        // Для Discord нет стандартной иконки, поэтому используем свою.
+        // Нужно будет положить файл discord-icon.svg в папку assets.
+        customIconUrl: "./assets/discord-icon.svg",
+        order: 4,
         isSocial: true,
         showSubscriberCount: false,
-        platformId: "vk_personal",
+        platformId: "discord",
         active: true
-    }
+    },
+    // Можно добавить ещё ссылок по этому же шаблону.
 ];

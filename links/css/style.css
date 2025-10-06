@@ -1,9 +1,11 @@
 /* Material 3 palette + AMOLED-friendly dark theme */
 :root {
-    --md-sys-color-primary-dark: #63ef51;
-    --md-sys-color-on-primary-dark: #000000;
-    --md-sys-color-primary-container-dark: #0b770c;
-    --md-sys-color-on-primary-container-dark: #FFFFFF;
+    /* ИЗМЕНЕНО: Новая сине-голубая палитра */
+    --md-sys-color-primary-dark: #A8C7FA;
+    --md-sys-color-on-primary-dark: #003258;
+    --md-sys-color-primary-container-dark: #00497D;
+    --md-sys-color-on-primary-container-dark: #D3E3FD;
+
     --md-sys-color-secondary-dark: #03DAC6;
     --md-sys-color-on-secondary-dark: #000000;
     --md-sys-color-surface-dark: #000000;
@@ -15,10 +17,11 @@
     --md-sys-color-outline-dark: #8C8C8C;
     --md-sys-color-error-dark: #CF6679;
 
-    --md-sys-color-primary-light: #3dd324;
+    --md-sys-color-primary-light: #1A73E8;
     --md-sys-color-on-primary-light: #FFFFFF;
-    --md-sys-color-primary-container-light: #a5e866;
-    --md-sys-color-on-primary-container-light: #000000;
+    --md-sys-color-primary-container-light: #D3E3FD;
+    --md-sys-color-on-primary-container-light: #001D35;
+
     --md-sys-color-secondary-light: #03DAC6;
     --md-sys-color-on-secondary-light: #000000;
     --md-sys-color-surface-light: #FFFFFF;
@@ -56,8 +59,8 @@ body.dark-theme .control-button { background-color: var(--md-sys-color-surface-c
 body.dark-theme .control-button:hover { background-color: var(--md-sys-color-surface-container-dark); }
 body.dark-theme .primary-button { background-color: var(--md-sys-color-primary-dark); color: var(--md-sys-color-on-primary-dark); }
 body.dark-theme .primary-button:hover { background-color: var(--md-sys-color-primary-container-dark); color: var(--md-sys-color-on-primary-container-dark); }
-body.dark-theme .support-button { background-color: #4CAF50; color: var(--md-sys-color-on-primary-dark); }
-body.dark-theme .support-button:hover { background-color: #388E3C; }
+body.dark-theme .support-button { background-color: var(--md-sys-color-surface-container-dark); color: var(--md-sys-color-on-surface-dark); } /* ИЗМЕНЕНО: Нейтральный цвет */
+body.dark-theme .support-button:hover { background-color: var(--md-sys-color-surface-container-low-dark); }
 body.dark-theme .offline-warning { background-color: #FFB300; color: #212121; }
 
 body.light-theme { background-color: var(--md-sys-color-background-light); color: var(--md-sys-color-on-background-light); }
@@ -67,8 +70,8 @@ body.light-theme .control-button { background-color: var(--md-sys-color-surface-
 body.light-theme .control-button:hover { background-color: var(--md-sys-color-surface-container-light); }
 body.light-theme .primary-button { background-color: var(--md-sys-color-primary-light); color: var(--md-sys-color-on-primary-light); }
 body.light-theme .primary-button:hover { background-color: var(--md-sys-color-primary-container-light); color: var(--md-sys-color-on-primary-container-light); }
-body.light-theme .support-button { background-color: #66BB6A; color: var(--md-sys-color-on-primary-light); }
-body.light-theme .support-button:hover { background-color: #43A047; }
+body.light-theme .support-button { background-color: var(--md-sys-color-surface-container-light); color: var(--md-sys-color-on-surface-light); } /* ИЗМЕНЕНО: Нейтральный цвет */
+body.light-theme .support-button:hover { background-color: var(--md-sys-color-surface-container-low-light); }
 
 /* Карточка */
 .card { border-radius: 16px; transition: background-color .3s ease, transform .2s ease, box-shadow .2s ease; user-select: none; -webkit-user-select: none; }
@@ -158,4 +161,38 @@ body.light-theme .mini-button.active {
 /* Материальные иконки в кнопке подхватывают цвет текста */
 .mini-button .material-symbols-outlined {
     color: currentColor;
+}
+/* Стили для рамки аватара и счётчика подписчиков */
+#profile-section #avatar {
+    /* Цвет для тёмной темы */
+    border-color: var(--md-sys-color-primary-dark);
+}
+body.light-theme #profile-section #avatar {
+    /* Цвет для светлой темы */
+    border-color: var(--md-sys-color-primary-light);
+}
+
+#profile-section #total-followers {
+    /* Цвет для тёмной темы */
+    color: var(--md-sys-color-primary-dark);
+}
+body.light-theme #profile-section #total-followers {
+    /* Цвет для светлой темы */
+    color: var(--md-sys-color-primary-light);
+}
+.custom-icon-span {
+    display: inline-block;
+    width: 28px;  /* Размер иконки */
+    height: 28px; /* Размер иконки */
+
+    /* Главное правило: цвет фона будет цветом текста родителя */
+    background-color: currentColor;
+
+    /* Применяем SVG как маску */
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
 }

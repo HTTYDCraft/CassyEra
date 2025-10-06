@@ -169,7 +169,7 @@ function renderLinksSection(links) {
         const count = state.data.followerCounts ? state.data.followerCounts[link.platformId] : undefined;
         const showCount = link.isSocial && link.showSubscriberCount;
         const iconHtml = link.customIconUrl
-            ? `<img src="${link.customIconUrl}" alt="" class="custom-icon-image">`
+            ? `<span class="custom-icon-span" style="-webkit-mask-image: url(${link.customIconUrl}); mask-image: url(${link.customIconUrl});"></span>`
             : `<span class="material-symbols-outlined icon-large">${link.icon || 'link'}</span>`;
 
         a.innerHTML = `
